@@ -249,6 +249,13 @@ end
 # ------------------------------------------------------------
 #
 
+# cards.js is the runtime JavaScript version of Cards.json.
+# Keep it synchronized here so Cards.json remains the single
+# source of truth for every generated runtime database.
+#
+cards_json = JSON.pretty_generate(cards)
+File.write("data/cards.js", "var card_db = TAFFY(#{cards_json})")
+
 outputs = {
     "fusions" => fusions,
     "equips" => equips,
