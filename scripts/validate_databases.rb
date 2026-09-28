@@ -24,8 +24,37 @@ equips = JSON.parse(File.read("data/equips.json"))
 results = JSON.parse(File.read("data/results.json"))
 
 
-# Verify that each JavaScript database contains the same data as
-# its JSON counterpart.
+#
+# ------------------------------------------------------------
+# 2. VALIDATE CARDS.JS AGAINST CARDS.JSON
+# ------------------------------------------------------------
+#
+
+card_javascript = File.read("data/cards.js")
+card_prefix = "var card_db = TAFFY("
+
+unless card_javascript.start_with?(card_prefix)
+    raise "data/cards.js has an unexpected variable declaration"
+end
+
+card_embedded_json = card_javascript.delete_prefix(card_prefix)
+
+card_embedded_json = card_embedded_json.strip
+
+unless card_embedded_json.end_with?('])')
+    raise "data/cards.js has an unexpected ending"
+end
+
+card_embedded_json = card_embedded_json.delete_suffix(")").strip
+card_embedded_data = JSON.parse(card_embedded_json)
+
+unless card_embedded_data == cards
+    raise "data/cards.js does not match data/Cards.json"
+end
+
+
+# Verify that each generated JavaScript database contains the same
+# data as its JSON counterpart.
 generated_js = {
     "fusions" => fusions,
     "equips" => equips,
@@ -51,7 +80,7 @@ end
 
 #
 # ------------------------------------------------------------
-# 2. VALIDATE CARD IDS
+# 3. VALIDATE CARD IDS
 # ------------------------------------------------------------
 #
 
@@ -79,7 +108,7 @@ end
 
 #
 # ------------------------------------------------------------
-# 3. VALIDATE GENERATED ARRAY SHAPES
+# 4. VALIDATE GENERATED ARRAY SHAPES
 # ------------------------------------------------------------
 #
 
@@ -104,7 +133,7 @@ end
 
 #
 # ------------------------------------------------------------
-# 4. REBUILD EXPECTED DATABASES FROM Cards.json
+# 5. REBUILD EXPECTED DATABASES FROM Cards.json
 # ------------------------------------------------------------
 #
 
@@ -179,7 +208,7 @@ end
 
 #
 # ------------------------------------------------------------
-# 5. VALIDATE EXACT GENERATED CONTENT
+# 6. VALIDATE EXACT GENERATED CONTENT
 # ------------------------------------------------------------
 #
 
@@ -198,7 +227,7 @@ end
 
 #
 # ------------------------------------------------------------
-# 6. VALIDATE FUSION SYMMETRY AND UNIQUENESS
+# 7. VALIDATE FUSION SYMMETRY AND UNIQUENESS
 # ------------------------------------------------------------
 #
 
@@ -233,7 +262,7 @@ end
 
 #
 # ------------------------------------------------------------
-# 7. VALIDATE EQUIP SYMMETRY AND UNIQUENESS
+# 8. VALIDATE EQUIP SYMMETRY AND UNIQUENESS
 # ------------------------------------------------------------
 #
 
@@ -254,7 +283,7 @@ end
 
 #
 # ------------------------------------------------------------
-# 8. VALIDATE RESULTS
+# 9. VALIDATE RESULTS
 # ------------------------------------------------------------
 #
 
@@ -283,7 +312,7 @@ end
 
 #
 # ------------------------------------------------------------
-# 9. SUMMARY
+# 10. SUMMARY
 # ------------------------------------------------------------
 #
 
@@ -298,3 +327,5 @@ puts "Cards: #{cards.length}"
 puts "Fusion pairs: #{fusion_count}"
 puts "Equip pairs: #{equip_count}"
 puts "Result entries: #{result_count}"
+
+
