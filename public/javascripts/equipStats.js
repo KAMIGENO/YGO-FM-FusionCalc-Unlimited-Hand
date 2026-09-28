@@ -97,7 +97,7 @@
 
 
         var partnerIds = [];
-        var seen = {};
+        var seen = new Set();
 
 
         var equipList = equipsList[card.Id] || [];
@@ -121,12 +121,12 @@
              * Make sure each monster is counted only once.
              */
 
-            if (seen[targetId]) {
+            if (seen.has(targetId)) {
                 return;
             }
 
 
-            seen[targetId] = true;
+            seen.add(targetId);
 
             partnerIds.push(targetId);
 
