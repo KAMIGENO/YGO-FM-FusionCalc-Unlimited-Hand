@@ -3,7 +3,9 @@
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(5, auto);
     grid-auto-flow: column;
-    gap: 10px;
+    gap: 10px 14px;
+    position: relative;
+    left: -6px;
 }
 
 .hand-slot {
