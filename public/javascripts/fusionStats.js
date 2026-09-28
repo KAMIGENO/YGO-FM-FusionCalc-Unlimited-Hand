@@ -41,7 +41,9 @@
      */
 
     card_db().get().forEach(function (card) {
+
         cardById[card.Id] = card;
+
     });
 
 
@@ -79,6 +81,7 @@
                  * index 0 as "Unknown Card" and breaks result
                  * lookups.
                  */
+
                 partners[fusion.card] = true;
 
             });
@@ -92,7 +95,9 @@
         }
 
         var partnerIds = Object.keys(partners).map(function (id) {
+
             return Number(id);
+
         });
 
         statistics.push({
@@ -200,25 +205,33 @@
             /*
              * Only cards with the same fusion count are tied.
              */
+
             var count = results[i].count;
+
 
             /*
              * Array indexes start at zero,
              * but ranks start at one.
              */
+
             var startRank = i + 1;
 
             var j = i + 1;
 
+
             /*
              * Find the end of this group of tied cards.
              */
+
             while (
                 j < results.length &&
                 results[j].count === count
             ) {
+
                 j++;
+
             }
+
 
             /*
              * j is one position past the final tied card.
@@ -226,9 +239,11 @@
              * Therefore j is also the final rank
              * occupied by this tie.
              */
+
             var endRank = j;
 
             var label;
+
 
             if (startRank === endRank) {
 
@@ -244,16 +259,22 @@
 
             }
 
+
             /*
              * Give every tied card the same rank label.
              */
+
             for (var k = i; k < j; k++) {
+
                 rankLabels[k] = label;
+
             }
+
 
             /*
              * Continue with the next group.
              */
+
             i = j;
 
         }
@@ -276,7 +297,9 @@
             .toLowerCase();
 
         if (!searchText) {
+
             return statistics.slice();
+
         }
 
         return statistics.filter(function (entry) {
@@ -302,12 +325,16 @@
 
         sortStatistics(results);
 
+
         /*
          * Calculate ranks AFTER sorting.
          */
+
         var rankLabels = getRankLabels(results);
 
+
         tableBody.innerHTML = "";
+
 
         results.forEach(function (entry, index) {
 
@@ -349,12 +376,17 @@
             row.appendChild(nameCell);
             row.appendChild(countCell);
 
+
             tableBody.appendChild(row);
 
         });
 
 
         /*
+         * --------------------------------------------------------
+         * BLANK ROW
+         * --------------------------------------------------------
+         *
          * Add a blank row at the bottom of the table.
          *
          * This row is intentionally not clickable and uses the
@@ -364,9 +396,21 @@
         var blankRow = document.createElement("tr");
 
         blankRow.className = "fusion-stats-blank-row";
+
         blankRow.style.backgroundColor = "#F8F9FA";
 
-        for (var blankCellIndex = 0; blankCellIndex < 3; blankCellIndex++) {
+
+        /*
+         * The main Fusion Statistics table has 3 columns:
+         *
+         * Rank | Card | Fusion Partners
+         */
+
+        for (
+            var blankCellIndex = 0;
+            blankCellIndex < 3;
+            blankCellIndex++
+        ) {
 
             var blankCell = document.createElement("td");
 
@@ -375,6 +419,7 @@
             blankRow.appendChild(blankCell);
 
         }
+
 
         tableBody.appendChild(blankRow);
 
@@ -398,8 +443,11 @@
 
         });
 
+
         if (!entry) {
+
             return;
+
         }
 
 
@@ -438,6 +486,7 @@
         var resultHeader = document.createElement("th");
 
         resultHeader.textContent = "Result";
+
 
         headerRow.appendChild(partnerHeader);
         headerRow.appendChild(resultHeader);
@@ -506,7 +555,12 @@
 
                 });
 
-                var resultId = fusionEntry ? fusionEntry.result : null;
+
+                var resultId =
+                    fusionEntry
+                        ? fusionEntry.result
+                        : null;
+
 
                 var resultCard = cardById[resultId];
 
@@ -534,6 +588,53 @@
         }
 
 
+        /*
+         * --------------------------------------------------------
+         * BLANK ROW
+         * --------------------------------------------------------
+         *
+         * Add a blank row at the bottom of the
+         * Fusion Partner / Result table.
+         *
+         * This row is intentionally not clickable and uses the
+         * requested #F8F9FA background color.
+         */
+
+        var blankDetailRow =
+            document.createElement("tr");
+
+        blankDetailRow.className =
+            "fusion-stats-blank-row";
+
+        blankDetailRow.style.backgroundColor =
+            "#F8F9FA";
+
+
+        /*
+         * The details table has 2 columns:
+         *
+         * Fusion Partner | Result
+         */
+
+        for (
+            var blankDetailCellIndex = 0;
+            blankDetailCellIndex < 2;
+            blankDetailCellIndex++
+        ) {
+
+            var blankDetailCell =
+                document.createElement("td");
+
+            blankDetailCell.innerHTML = "&nbsp;";
+
+            blankDetailRow.appendChild(blankDetailCell);
+
+        }
+
+
+        tbody.appendChild(blankDetailRow);
+
+
         table.appendChild(tbody);
 
         detailsContainer.appendChild(table);
@@ -551,8 +652,10 @@
          */
 
         detailsSection.scrollIntoView({
+
             behavior: "smooth",
             block: "start"
+
         });
 
     }
@@ -566,11 +669,16 @@
 
     tableBody.addEventListener("click", function (event) {
 
-        var row = event.target.closest(".fusion-stats-row");
+        var row =
+            event.target.closest(".fusion-stats-row");
+
 
         if (!row) {
+
             return;
+
         }
+
 
         showCardDetails(row.dataset.cardId);
 
