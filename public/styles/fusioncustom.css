@@ -1,9 +1,9 @@
 .hand-input-group {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px 24px;
-    max-width: 900px;
-    margin: 0 auto;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(5, auto);
+    grid-auto-flow: column;
+    gap: 10px;
 }
 
 .hand-slot {
