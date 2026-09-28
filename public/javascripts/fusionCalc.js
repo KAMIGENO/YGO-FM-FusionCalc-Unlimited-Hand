@@ -475,7 +475,15 @@ function createInput(slotNumber) {
 
     var number = document.createElement("span");
     number.className = "hand-slot-number";
-    number.textContent = slotNumber + ".";
+
+    var paddedSlotNumber =
+        slotNumber < 10
+            ? "00" + slotNumber
+            : slotNumber < 100
+                ? "0" + slotNumber
+                : String(slotNumber);
+
+    number.textContent = paddedSlotNumber + ".";
 
 
     var input = document.createElement("input");
@@ -693,5 +701,3 @@ renderPage();
  * END OF FILE
  * ------------------------------------------------------------
  */
-
-
