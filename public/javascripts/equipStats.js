@@ -361,25 +361,11 @@
 
         results.forEach(function (entry, index) {
 
-    var row = document.createElement("tr");
+            var row = document.createElement("tr");
 
-    row.className = "equip-stats-row";
+            row.className = "equip-stats-row";
 
-    row.dataset.cardId = entry.card.Id;
-
-    // ...
-
-    tableBody.appendChild(row);
-
-});
-
-var lastRow = tableBody.lastElementChild;
-
-if (lastRow) {
-    lastRow.classList.add("equip-stats-bottom-row");
-}
-
-row.dataset.cardId = entry.card.Id;
+            row.dataset.cardId = entry.card.Id;
 
 
             /*
