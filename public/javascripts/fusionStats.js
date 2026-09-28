@@ -65,7 +65,7 @@
 
     fusionsList.forEach(function (fusionList, cardId) {
 
-        var partners = {};
+        var partners = new Set();
 
         if (fusionList) {
 
@@ -82,7 +82,7 @@
                  * lookups.
                  */
 
-                partners[fusion.card] = true;
+                partners.add(fusion.card);
 
             });
 
@@ -94,11 +94,7 @@
             return;
         }
 
-        var partnerIds = Object.keys(partners).map(function (id) {
-
-            return Number(id);
-
-        });
+        var partnerIds = Array.from(partners);
 
         statistics.push({
             card: card,
