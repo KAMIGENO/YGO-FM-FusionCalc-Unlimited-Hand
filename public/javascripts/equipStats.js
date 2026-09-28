@@ -361,48 +361,31 @@
 
         results.forEach(function (entry, index) {
 
-            var row = document.createElement("tr");
+    var row = document.createElement("tr");
 
-            row.className = "equip-stats-row";
+    row.className = "equip-stats-row";
 
-            row.dataset.cardId = entry.card.Id;
+    row.dataset.cardId = entry.card.Id;
 
+    // ... cells are created ...
 
-            /*
-             * Rank
-             */
+    row.appendChild(rankCell);
+    row.appendChild(nameCell);
+    row.appendChild(countCell);
 
-            var rankCell = document.createElement("td");
+    tableBody.appendChild(row);
 
-            rankCell.textContent = rankLabels[index];
+    if (entry.card.Name === "Metalmorph") {
 
+        var blankRow = document.createElement("tr");
 
-            /*
-             * Equip card name
-             */
+        blankRow.innerHTML = "<td colspan=\"3\">&nbsp;</td>";
 
-            var nameCell = document.createElement("td");
+        tableBody.appendChild(blankRow);
 
-            nameCell.textContent = entry.card.Name;
+    }
 
-
-            /*
-             * Number of compatible monsters
-             */
-
-            var countCell = document.createElement("td");
-
-            countCell.textContent = entry.count;
-
-
-            row.appendChild(rankCell);
-            row.appendChild(nameCell);
-            row.appendChild(countCell);
-
-
-            tableBody.appendChild(row);
-
-        });
+});
 
     }
 
