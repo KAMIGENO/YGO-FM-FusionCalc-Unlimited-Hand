@@ -135,11 +135,6 @@
     cursor: pointer;
 }
 
-.equip-stats-bottom-row td {
-    padding-bottom: 38px;
-    box-shadow: inset 0 -38px 0 #F8F9FA;
-}
-
 .equip-stats-row:hover {
     background-color: #eeeeee;
 }
