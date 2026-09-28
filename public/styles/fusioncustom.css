@@ -37,6 +37,8 @@
     min-width: 0;
     box-sizing: border-box;
     padding: 6px 8px;
+    position: relative;
+    top: -1px;
 }
 
 .hand-card-info {
@@ -50,6 +52,8 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    position: relative;
+    top: 1px;
 }
 
 .hand-controls {
