@@ -32,7 +32,7 @@ rituals = JSON.parse(File.read("data/rituals.json"))
 # ------------------------------------------------------------
 #
 
-card_javascript = File.read("data/cards.js")
+card_javascript = File.read("data/cards.js").lstrip
 card_prefix = "var card_db = TAFFY("
 
 unless card_javascript.start_with?(card_prefix)
