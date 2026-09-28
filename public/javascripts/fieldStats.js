@@ -275,6 +275,50 @@
     calculateRankLabels("negativeCount", negativeRankLabels);
 
 
+    function getRankLabel(propertyName, count) {
+
+        var rankedResults = statistics.slice();
+
+        rankedResults.sort(function (a, b) {
+
+            if (b[propertyName] !== a[propertyName]) {
+                return b[propertyName] - a[propertyName];
+            }
+
+            return a.card.Name.localeCompare(b.card.Name);
+
+        });
+
+        var startRank = -1;
+        var endRank = -1;
+
+        for (var i = 0; i < rankedResults.length; i++) {
+
+            if (rankedResults[i][propertyName] === count) {
+
+                if (startRank === -1) {
+                    startRank = i + 1;
+                }
+
+                endRank = i + 1;
+
+            }
+
+        }
+
+        if (startRank === -1) {
+            return "—";
+        }
+
+        if (startRank === endRank) {
+            return "Rank " + startRank;
+        }
+
+        return "Rank " + startRank + "--" + endRank;
+
+    }
+
+
     /*
      * ------------------------------------------------------------
      * 4. SORTING
@@ -605,9 +649,9 @@
             summary.className = "font-weight-bold p-2";
             summary.style.cursor = "pointer";
 
-            var positiveRank = positiveRankLabels[entry.card.Id] || "—";
-            var neutralRank = neutralRankLabels[entry.card.Id] || "—";
-            var negativeRank = negativeRankLabels[entry.card.Id] || "—";
+            var positiveRank = getRankLabel("positiveCount", entry.positiveCount);
+            var neutralRank = getRankLabel("neutralCount", entry.neutralCount);
+            var negativeRank = getRankLabel("negativeCount", entry.negativeCount);
 
             summary.textContent =
                 entry.card.Name +
