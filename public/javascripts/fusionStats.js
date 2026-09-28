@@ -1,256 +1,577 @@
-var statsBody = document.getElementById("fusion-stats-body");
-var sortSelect = document.getElementById("fusion-sort");
-var filterInput = document.getElementById("fusion-filter");
+/*
+ * Fusion Statistics
+ *
+ * Shows every card ranked by the number of unique cards
+ * it can fuse with.
+ *
+ * Ranking uses competition ranking:
+ *
+ * Rank 1
+ * Rank 2
+ * Rank 3--6
+ * Rank 3--6
+ * Rank 3--6
+ * Rank 3--6
+ * Rank 7
+ *
+ * Ties therefore occupy all of the positions in the tie,
+ * and the next rank skips those positions.
+ */
 
-var detailsSection = document.getElementById("fusion-details-section");
-var detailsTitle = document.getElementById("fusion-details-title");
-var detailsContainer = document.getElementById("fusion-details");
+(function () {
+
+    "use strict";
+
+    var cardById = {};
+    var statistics = [];
+
+    var sortSelect = document.getElementById("fusion-sort");
+    var filterInput = document.getElementById("fusion-filter");
+    var tableBody = document.getElementById("fusion-stats-body");
+
+    var detailsSection = document.getElementById("fusion-details-section");
+    var detailsTitle = document.getElementById("fusion-details-title");
+    var detailsContainer = document.getElementById("fusion-details");
 
 
-// ------------------------------------------------------------
-// CARD LOOKUPS
-// ------------------------------------------------------------
+    /*
+     * ------------------------------------------------------------
+     * BUILD CARD LOOKUP
+     * ------------------------------------------------------------
+     */
 
-var cardById = {};
-
-card_db()
-    .get()
-    .forEach(function (card) {
+    card_db().get().forEach(function (card) {
         cardById[card.Id] = card;
     });
 
 
-// ------------------------------------------------------------
-// BUILD FUSION STATISTICS
-// ------------------------------------------------------------
+    /*
+     * ------------------------------------------------------------
+     * BUILD FUSION STATISTICS
+     * ------------------------------------------------------------
+     *
+     * For each card, count the number of UNIQUE cards that
+     * it can fuse with.
+     *
+     * Example:
+     *
+     * Card A + Card B -> Result 1
+     * Card A + Card B -> Result 2
+     *
+     * Card B is still only counted ONCE as a fusion partner.
+     */
 
-var fusionStats = [];
+    fusionsList.forEach(function (fusionList, cardId) {
 
-fusionsList.forEach(function (fusionList, cardId) {
+        var partners = {};
 
-    if (!fusionList) {
-        return;
-    }
+        if (fusionList) {
 
-    var card = cardById[cardId];
+            fusionList.forEach(function (resultId, partnerId) {
 
-    if (!card) {
-        return;
-    }
+                /*
+                 * Store the partner ID as a key.
+                 *
+                 * Using an object as a set means duplicate
+                 * fusion entries are only counted once.
+                 */
+                partners[partnerId] = true;
+
+            });
+
+        }
+
+        var card = cardById[cardId];
+
+        if (!card) {
+            return;
+        }
+
+        var partnerIds = Object.keys(partners).map(function (id) {
+            return Number(id);
+        });
+
+        statistics.push({
+            card: card,
+            partnerIds: partnerIds,
+            count: partnerIds.length
+        });
+
+    });
+
 
     /*
-     * Use an object as a set so that each possible fusion
-     * partner is counted only once.
+     * ------------------------------------------------------------
+     * SORTING
+     * ------------------------------------------------------------
      */
-    var partners = {};
 
-    fusionList.forEach(function (fusion) {
+    function sortStatistics(results) {
 
-        if (fusion.card && cardById[fusion.card]) {
-            partners[fusion.card] = true;
-        }
+        var sortType = sortSelect.value;
 
-    });
+        results.sort(function (a, b) {
 
-    fusionStats.push({
-        card: card,
-        partnerIds: Object.keys(partners).map(Number),
-        count: Object.keys(partners).length
-    });
-});
+            if (sortType === "count-desc") {
 
+                if (b.count !== a.count) {
+                    return b.count - a.count;
+                }
 
-// ------------------------------------------------------------
-// SORTING
-// ------------------------------------------------------------
+                return a.card.Name.localeCompare(b.card.Name);
 
-function sortFusionStats(stats) {
-
-    var sortMode = sortSelect.value;
-
-    stats.sort(function (a, b) {
-
-        if (sortMode === "count-desc") {
-            if (b.count !== a.count) {
-                return b.count - a.count;
             }
 
-            return a.card.Name.localeCompare(b.card.Name);
-        }
 
-        if (sortMode === "count-asc") {
-            if (a.count !== b.count) {
-                return a.count - b.count;
+            if (sortType === "count-asc") {
+
+                if (a.count !== b.count) {
+                    return a.count - b.count;
+                }
+
+                return a.card.Name.localeCompare(b.card.Name);
+
             }
 
-            return a.card.Name.localeCompare(b.card.Name);
-        }
 
-        if (sortMode === "name-asc") {
-            return a.card.Name.localeCompare(b.card.Name);
-        }
+            if (sortType === "name-desc") {
 
-        if (sortMode === "name-desc") {
-            return b.card.Name.localeCompare(a.card.Name);
-        }
+                return b.card.Name.localeCompare(a.card.Name);
 
-        return 0;
-    });
-
-    return stats;
-}
-
-
-// ------------------------------------------------------------
-// RENDER TABLE
-// ------------------------------------------------------------
-
-function renderStats() {
-
-    var filter = filterInput.value.trim().toLowerCase();
-
-    var filteredStats = fusionStats.filter(function (entry) {
-
-        return entry.card.Name.toLowerCase().includes(filter);
-
-    });
-
-    sortFusionStats(filteredStats);
-
-    statsBody.innerHTML = "";
-
-    filteredStats.forEach(function (entry, index) {
-
-        var row = document.createElement("tr");
-
-        var rankCell = document.createElement("td");
-        var nameCell = document.createElement("td");
-        var countCell = document.createElement("td");
-
-        rankCell.textContent = index + 1;
-
-        nameCell.textContent = entry.card.Name;
-
-        countCell.textContent = entry.count;
-
-        row.appendChild(rankCell);
-        row.appendChild(nameCell);
-        row.appendChild(countCell);
-
-        row.classList.add("fusion-stats-row");
-
-        row.addEventListener("click", function () {
-            showFusionDetails(entry);
-        });
-
-        statsBody.appendChild(row);
-    });
-}
-
-
-// ------------------------------------------------------------
-// SHOW INDIVIDUAL CARD FUSIONS
-// ------------------------------------------------------------
-
-function showFusionDetails(entry) {
-
-    detailsSection.style.display = "block";
-
-    detailsTitle.textContent =
-        entry.card.Name +
-        " — " +
-        entry.count +
-        " Fusion Partners";
-
-    detailsContainer.innerHTML = "";
-
-    var table = document.createElement("table");
-
-    table.className = "table table-striped";
-
-    var thead = document.createElement("thead");
-
-    thead.innerHTML =
-        "<tr>" +
-        "<th>Fusion Partner</th>" +
-        "<th>Fusion Result</th>" +
-        "</tr>";
-
-    table.appendChild(thead);
-
-    var tbody = document.createElement("tbody");
-
-    var partners = entry.partnerIds
-        .map(function (id) {
-            return cardById[id];
-        })
-        .filter(function (card) {
-            return card !== undefined;
-        });
-
-    partners.sort(function (a, b) {
-        return a.Name.localeCompare(b.Name);
-    });
-
-    partners.forEach(function (partner) {
-
-        var row = document.createElement("tr");
-
-        var partnerCell = document.createElement("td");
-        var resultCell = document.createElement("td");
-
-        partnerCell.textContent = partner.Name;
-
-        var fusionResultId = null;
-
-        var fusionList = fusionsList[entry.card.Id] || [];
-
-        fusionList.forEach(function (fusion) {
-
-            if (fusion.card === partner.Id) {
-                fusionResultId = fusion.result;
             }
+
+
+            /*
+             * Default:
+             * name-asc
+             */
+
+            return a.card.Name.localeCompare(b.card.Name);
 
         });
 
-        var resultCard = cardById[fusionResultId];
+    }
 
-        resultCell.textContent =
-            resultCard
-                ? resultCard.Name
-                : "Unknown";
 
-        row.appendChild(partnerCell);
-        row.appendChild(resultCell);
+    /*
+     * ------------------------------------------------------------
+     * RANK CALCULATION
+     * ------------------------------------------------------------
+     *
+     * IMPORTANT:
+     *
+     * This is competition ranking.
+     *
+     * Example:
+     *
+     * Counts:
+     *
+     * 20
+     * 19
+     * 18
+     * 18
+     * 18
+     * 18
+     * 17
+     *
+     * Ranks:
+     *
+     * 1
+     * 2
+     * 3--6
+     * 3--6
+     * 3--6
+     * 3--6
+     * 7
+     */
 
-        tbody.appendChild(row);
+    function getRankLabels(results) {
+
+        var rankLabels = new Array(results.length);
+
+        var i = 0;
+
+        while (i < results.length) {
+
+            /*
+             * Only cards with the same fusion count are tied.
+             */
+            var count = results[i].count;
+
+            /*
+             * Array indexes start at zero,
+             * but ranks start at one.
+             */
+            var startRank = i + 1;
+
+            var j = i + 1;
+
+            /*
+             * Find the end of this group of tied cards.
+             */
+            while (
+                j < results.length &&
+                results[j].count === count
+            ) {
+                j++;
+            }
+
+            /*
+             * j is one position past the final tied card.
+             *
+             * Therefore j is also the final rank
+             * occupied by this tie.
+             */
+            var endRank = j;
+
+            var label;
+
+            if (startRank === endRank) {
+
+                label = "Rank " + startRank;
+
+            } else {
+
+                label =
+                    "Rank " +
+                    startRank +
+                    "--" +
+                    endRank;
+
+            }
+
+            /*
+             * Give every tied card the same rank label.
+             */
+            for (var k = i; k < j; k++) {
+                rankLabels[k] = label;
+            }
+
+            /*
+             * Continue with the next group.
+             */
+            i = j;
+
+        }
+
+        return rankLabels;
+
+    }
+
+
+    /*
+     * ------------------------------------------------------------
+     * FILTERING
+     * ------------------------------------------------------------
+     */
+
+    function getFilteredStatistics() {
+
+        var searchText = filterInput.value
+            .trim()
+            .toLowerCase();
+
+        if (!searchText) {
+            return statistics.slice();
+        }
+
+        return statistics.filter(function (entry) {
+
+            return entry.card.Name
+                .toLowerCase()
+                .indexOf(searchText) !== -1;
+
+        });
+
+    }
+
+
+    /*
+     * ------------------------------------------------------------
+     * RENDER MAIN TABLE
+     * ------------------------------------------------------------
+     */
+
+    function renderStatistics() {
+
+        var results = getFilteredStatistics();
+
+        sortStatistics(results);
+
+        /*
+         * Calculate ranks AFTER sorting.
+         */
+        var rankLabels = getRankLabels(results);
+
+        tableBody.innerHTML = "";
+
+        results.forEach(function (entry, index) {
+
+            var row = document.createElement("tr");
+
+            row.className = "fusion-stats-row";
+
+            row.dataset.cardId = entry.card.Id;
+
+
+            /*
+             * Rank
+             */
+
+            var rankCell = document.createElement("td");
+
+            rankCell.textContent = rankLabels[index];
+
+
+            /*
+             * Card name
+             */
+
+            var nameCell = document.createElement("td");
+
+            nameCell.textContent = entry.card.Name;
+
+
+            /*
+             * Number of fusion partners
+             */
+
+            var countCell = document.createElement("td");
+
+            countCell.textContent = entry.count;
+
+
+            row.appendChild(rankCell);
+            row.appendChild(nameCell);
+            row.appendChild(countCell);
+
+            tableBody.appendChild(row);
+
+        });
+
+    }
+
+
+    /*
+     * ------------------------------------------------------------
+     * RENDER CARD DETAILS
+     * ------------------------------------------------------------
+     *
+     * Clicking a card in the statistics table shows every card
+     * that it can fuse with and the resulting card.
+     */
+
+    function showCardDetails(cardId) {
+
+        var entry = statistics.find(function (item) {
+
+            return String(item.card.Id) === String(cardId);
+
+        });
+
+        if (!entry) {
+            return;
+        }
+
+
+        detailsTitle.textContent =
+            entry.card.Name +
+            " — " +
+            entry.count +
+            " Fusion Partners";
+
+
+        detailsContainer.innerHTML = "";
+
+
+        /*
+         * Create the details table.
+         */
+
+        var table = document.createElement("table");
+
+        table.className =
+            "table table-striped table-bordered";
+
+
+        /*
+         * Table header.
+         */
+
+        var thead = document.createElement("thead");
+
+        var headerRow = document.createElement("tr");
+
+        var partnerHeader = document.createElement("th");
+
+        partnerHeader.textContent = "Fusion Partner";
+
+        var resultHeader = document.createElement("th");
+
+        resultHeader.textContent = "Result";
+
+        headerRow.appendChild(partnerHeader);
+        headerRow.appendChild(resultHeader);
+
+        thead.appendChild(headerRow);
+
+        table.appendChild(thead);
+
+
+        /*
+         * Table body.
+         */
+
+        var tbody = document.createElement("tbody");
+
+
+        /*
+         * Get the fusion list for this card.
+         */
+
+        var fusionList = fusionsList[entry.card.Id];
+
+
+        if (fusionList) {
+
+            entry.partnerIds.forEach(function (partnerId) {
+
+                var row = document.createElement("tr");
+
+                var partnerCell = document.createElement("td");
+
+                var resultCell = document.createElement("td");
+
+
+                /*
+                 * Find partner card.
+                 */
+
+                var partnerCard = cardById[partnerId];
+
+
+                if (partnerCard) {
+
+                    partnerCell.textContent =
+                        partnerCard.Name;
+
+                } else {
+
+                    partnerCell.textContent =
+                        "Unknown Card";
+
+                }
+
+
+                /*
+                 * Find the fusion result.
+                 */
+
+                var resultId = fusionList[partnerId];
+
+                var resultCard = cardById[resultId];
+
+
+                if (resultCard) {
+
+                    resultCell.textContent =
+                        resultCard.Name;
+
+                } else {
+
+                    resultCell.textContent =
+                        "Unknown Result";
+
+                }
+
+
+                row.appendChild(partnerCell);
+                row.appendChild(resultCell);
+
+                tbody.appendChild(row);
+
+            });
+
+        }
+
+
+        table.appendChild(tbody);
+
+        detailsContainer.appendChild(table);
+
+
+        /*
+         * Show the details section.
+         */
+
+        detailsSection.style.display = "";
+
+
+        /*
+         * Scroll to the details.
+         */
+
+        detailsSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
+
+
+    /*
+     * ------------------------------------------------------------
+     * TABLE CLICK HANDLER
+     * ------------------------------------------------------------
+     */
+
+    tableBody.addEventListener("click", function (event) {
+
+        var row = event.target.closest(".fusion-stats-row");
+
+        if (!row) {
+            return;
+        }
+
+        showCardDetails(row.dataset.cardId);
+
     });
 
-    table.appendChild(tbody);
 
-    detailsContainer.appendChild(table);
+    /*
+     * ------------------------------------------------------------
+     * SORT CHANGE
+     * ------------------------------------------------------------
+     */
 
-    detailsSection.scrollIntoView({
-        behavior: "smooth"
+    sortSelect.addEventListener("change", function () {
+
+        renderStatistics();
+
     });
-}
 
 
-// ------------------------------------------------------------
-// EVENTS
-// ------------------------------------------------------------
+    /*
+     * ------------------------------------------------------------
+     * SEARCH FILTER
+     * ------------------------------------------------------------
+     */
 
-sortSelect.addEventListener("change", function () {
-    renderStats();
-});
+    filterInput.addEventListener("input", function () {
 
-filterInput.addEventListener("input", function () {
-    renderStats();
-});
+        renderStatistics();
+
+    });
 
 
-// ------------------------------------------------------------
-// INITIAL RENDER
-// ------------------------------------------------------------
+    /*
+     * ------------------------------------------------------------
+     * INITIALIZE
+     * ------------------------------------------------------------
+     */
 
-renderStats();
+    detailsSection.style.display = "none";
+
+    renderStatistics();
+
+})();
