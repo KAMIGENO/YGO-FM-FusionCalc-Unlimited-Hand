@@ -44,6 +44,28 @@ card_db()
     });
 
 
+var ritualDefinitions = [];
+
+
+ritualsList.forEach(function (ritualList) {
+
+    if (!ritualList) {
+        return;
+    }
+
+    ritualList.forEach(function (ritual) {
+
+        if (!ritual) {
+            return;
+        }
+
+        ritualDefinitions.push(ritual);
+
+    });
+
+});
+
+
 function getCardById(id) {
     return cardById[id] || null;
 }
@@ -222,6 +244,87 @@ function fusesToHTML(fuselist) {
 }
 
 
+function ritualCardNames(ritual) {
+
+    return [
+        getCardById(ritual.card1),
+        getCardById(ritual.card2),
+        getCardById(ritual.card3)
+    ].filter(function (card) {
+        return !!card;
+    });
+
+}
+
+
+function ritualsToHTML(ritualList) {
+
+    return ritualList
+        .map(function (ritual) {
+
+            var ritualCard = getCardById(ritual.ritual_card);
+            var materials = ritualCardNames(ritual);
+            var result = getCardById(ritual.result);
+
+
+            if (!ritualCard || materials.length !== 3 || !result) {
+                return "";
+            }
+
+
+            return (
+                "<div class=\"card border-dark mb-3\" style=\"max-width: 18rem;\">" +
+                "<div class=\"card-body text-dark\">" +
+                "<p class=\"card-text\"><strong>Ritual:</strong> " +
+                escapeHTML(ritualCard.Name) +
+                "</p>" +
+                "<p class=\"card-text\"><strong>Material:</strong> " +
+                escapeHTML(materials[0].Name) +
+                "</p>" +
+                "<p class=\"card-text\"><strong>Material:</strong> " +
+                escapeHTML(materials[1].Name) +
+                "</p>" +
+                "<p class=\"card-text\"><strong>Material:</strong> " +
+                escapeHTML(materials[2].Name) +
+                "</p>" +
+                "<p class=\"card-text\"><strong>Result:</strong> " +
+                escapeHTML(result.Name) +
+                (result.Type < 20
+                    ? " (" + result.Attack + "/" + result.Defense + ")"
+                    : " [" + escapeHTML(cardTypes[result.Type]) + "]") +
+                "</p>" +
+                "</div></div>"
+            );
+
+        })
+        .join("");
+
+}
+
+
+function getRitualsForCard(cardId) {
+
+    return ritualDefinitions.filter(function (ritual) {
+
+        return ritual.ritual_card === cardId ||
+            ritual.card1 === cardId ||
+            ritual.card2 === cardId ||
+            ritual.card3 === cardId;
+
+    });
+
+}
+
+
+function getRitualsForResult(cardId) {
+
+    return ritualDefinitions.filter(function (ritual) {
+        return ritual.result === cardId;
+    });
+
+}
+
+
 /*
  * ------------------------------------------------------------
  * 6. SEARCH BY NAME
@@ -277,13 +380,20 @@ function searchByName() {
         });
 
 
+    var rituals = getRitualsForCard(card.Id);
+
+
     outputRight.innerHTML =
         "<h2 class='text-center my-4'>Can be equipped</h2>" +
         fusesToHTML(equips);
 
     outputLeft.innerHTML =
-        "<h2 class='text-center my-4'>Fusions</h2>" +
-        fusesToHTML(fuses);
+        (fuses.length > 0
+            ? "<h2 class='text-center my-4'>Fusions</h2>" + fusesToHTML(fuses)
+            : "") +
+        (rituals.length > 0
+            ? "<h2 class='text-center my-4'>Rituals</h2>" + ritualsToHTML(rituals)
+            : "");
 
 }
 
@@ -315,12 +425,7 @@ function searchForResult() {
 
 
     var resultEntries = resultsList[card.Id] || [];
-
-
-    if (resultEntries.length === 0) {
-        outputLeft.innerHTML = "";
-        return;
-    }
+    var rituals = getRitualsForResult(card.Id);
 
 
     var results = resultEntries
@@ -338,8 +443,12 @@ function searchForResult() {
 
 
     outputLeft.innerHTML =
-        "<h2 class='text-center my-4'>Fusions</h2>" +
-        fusesToHTML(results);
+        (results.length > 0
+            ? "<h2 class='text-center my-4'>Fusions</h2>" + fusesToHTML(results)
+            : "") +
+        (rituals.length > 0
+            ? "<h2 class='text-center my-4'>Rituals</h2>" + ritualsToHTML(rituals)
+            : "");
 
 }
 
@@ -409,3 +518,5 @@ resetBtn.onclick = function () {
  * END OF FILE
  * ------------------------------------------------------------
  */
+
+
