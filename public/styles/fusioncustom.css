@@ -1,10 +1,59 @@
-.result-div {
-  padding: 6px;
-  margin: 20px;
-  border: 1px dotted #337ab7;
-  border-radius: 10px;
+.hand-input-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 24px;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
-.hand-input-group input {
-    margin: 2px;
+.hand-slot {
+    display: grid;
+    grid-template-columns: 35px minmax(0, 1fr);
+    align-items: center;
+    min-height: 38px;
+}
+
+.hand-slot-number {
+    font-weight: bold;
+    text-align: right;
+    margin-right: 8px;
+    color: #666;
+}
+
+.hand-card-input {
+    width: 100%;
+    min-width: 0;
+    padding: 6px 8px;
+}
+
+.hand-card-info {
+    grid-column: 2;
+    font-size: 0.8rem;
+    color: #666;
+    min-height: 18px;
+}
+
+.hand-controls {
+    width: 100%;
+}
+
+.hand-page-navigation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.hand-page-label {
+    min-width: 150px;
+    text-align: center;
+    font-weight: bold;
+}
+
+@media (max-width: 767px) {
+    .hand-input-group {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
 }
