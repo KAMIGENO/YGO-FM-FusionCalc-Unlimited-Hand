@@ -1,21 +1,21 @@
 /*
- * Equip Statistics
+ * ------------------------------------------------------------
+ * FILE: public/javascripts/equipStats.js
+ * ------------------------------------------------------------
  *
- * Shows every Equip card ranked by the number of
- * different monster cards it can be used with.
+ * Shows every Equip card ranked by the number of unique
+ * monster cards it can be used with.
  *
- * Ranking uses competition ranking:
- *
- * Rank 1
- * Rank 2
- * Rank 3--6
- * Rank 3--6
- * Rank 3--6
- * Rank 3--6
- * Rank 7
- *
- * Ties therefore occupy all of the positions in the tie,
- * and the next rank skips those positions.
+ * Ranks are GLOBAL. Filtering changes which rows are visible,
+ * but it does not recalculate a card's rank from the filtered
+ * subset.
+ */
+
+
+/*
+ * ------------------------------------------------------------
+ * 1. INITIALIZATION
+ * ------------------------------------------------------------
  */
 
 (function () {
@@ -25,6 +25,7 @@
 
     var cardById = {};
     var statistics = [];
+    var globalRankLabels = {};
 
 
     var sortSelect = document.getElementById("equip-sort");
@@ -36,12 +37,6 @@
     var detailsContainer = document.getElementById("equip-details");
 
 
-    /*
-     * ------------------------------------------------------------
-     * BUILD CARD LOOKUP
-     * ------------------------------------------------------------
-     */
-
     card_db().get().forEach(function (card) {
 
         cardById[card.Id] = card;
@@ -51,55 +46,41 @@
 
     /*
      * ------------------------------------------------------------
-     * CHECK IF CARD IS A MONSTER
+     * 2. CARD TYPE HELPERS
      * ------------------------------------------------------------
      */
 
     function isMonster(card) {
 
-        return card && card.Type < 20;
+        return !!card && card.Type < 20;
+
+    }
+
+
+    function isEquip(card) {
+
+        return !!card && cardTypes[card.Type] === "Equip";
 
     }
 
 
     /*
      * ------------------------------------------------------------
-     * BUILD EQUIP STATISTICS
+     * 3. BUILD EQUIP STATISTICS
+     *
+     * Each Equip counts UNIQUE monster cards only.
      * ------------------------------------------------------------
-     *
-     * equipsList contains both directions of the Equip relationship.
-     *
-     * For an Equip card:
-     *
-     *     equipsList[equipId]
-     *
-     * contains the cards that the Equip can be used with.
-     *
-     * We only count monster cards.
-     *
-     * A monster is counted only once, even if duplicate data
-     * somehow exists.
      */
 
     card_db().get().forEach(function (card) {
 
-        /*
-         * Type 23 is Equip in types_and_stars.js.
-         *
-         * We use cardTypes here instead of hard-coding the type
-         * number so this remains consistent with the project's
-         * existing card type definitions.
-         */
-
-        if (cardTypes[card.Type] !== "Equip") {
+        if (!isEquip(card)) {
             return;
         }
 
 
         var partnerIds = [];
         var seen = new Set();
-
-
         var equipList = equipsList[card.Id] || [];
 
 
@@ -107,40 +88,24 @@
 
             var targetCard = cardById[targetId];
 
-
-            /*
-             * Only count actual monster cards.
-             */
-
             if (!isMonster(targetCard)) {
                 return;
             }
-
-
-            /*
-             * Make sure each monster is counted only once.
-             */
 
             if (seen.has(targetId)) {
                 return;
             }
 
-
             seen.add(targetId);
-
             partnerIds.push(targetId);
 
         });
 
 
         statistics.push({
-
             card: card,
-
             partnerIds: partnerIds,
-
             count: partnerIds.length
-
         });
 
     });
@@ -148,7 +113,79 @@
 
     /*
      * ------------------------------------------------------------
-     * SORTING
+     * 4. CALCULATE GLOBAL RANKS
+     * ------------------------------------------------------------
+     */
+
+    function calculateGlobalRanks() {
+
+        var rankedResults = statistics.slice();
+
+
+        rankedResults.sort(function (a, b) {
+
+            if (b.count !== a.count) {
+                return b.count - a.count;
+            }
+
+            return a.card.Name.localeCompare(b.card.Name);
+
+        });
+
+
+        var i = 0;
+
+
+        while (i < rankedResults.length) {
+
+            var count = rankedResults[i].count;
+            var startRank = i + 1;
+            var j = i + 1;
+
+
+            while (
+                j < rankedResults.length &&
+                rankedResults[j].count === count
+            ) {
+
+                j++;
+
+            }
+
+
+            var endRank = j;
+            var label;
+
+
+            if (startRank === endRank) {
+                label = "Rank " + startRank;
+            } else {
+                label =
+                    "Rank " +
+                    startRank +
+                    "--" +
+                    endRank;
+            }
+
+
+            for (var k = i; k < j; k++) {
+                globalRankLabels[rankedResults[k].card.Id] = label;
+            }
+
+
+            i = j;
+
+        }
+
+    }
+
+
+    calculateGlobalRanks();
+
+
+    /*
+     * ------------------------------------------------------------
+     * 5. SORTING
      * ------------------------------------------------------------
      */
 
@@ -166,7 +203,6 @@
                 }
 
                 return a.card.Name.localeCompare(b.card.Name);
-
             }
 
 
@@ -177,25 +213,15 @@
                 }
 
                 return a.card.Name.localeCompare(b.card.Name);
-
-            }
-
-
-            if (sortMode === "name-asc") {
-
-                return a.card.Name.localeCompare(b.card.Name);
-
             }
 
 
             if (sortMode === "name-desc") {
-
                 return b.card.Name.localeCompare(a.card.Name);
-
             }
 
 
-            return 0;
+            return a.card.Name.localeCompare(b.card.Name);
 
         });
 
@@ -204,109 +230,11 @@
 
     /*
      * ------------------------------------------------------------
-     * COMPETITION RANKING
+     * 6. FILTERING
      * ------------------------------------------------------------
      *
-     * Example:
-     *
-     * 100
-     * 90
-     * 80
-     * 80
-     * 80
-     * 70
-     *
-     * becomes:
-     *
-     * Rank 1
-     * Rank 2
-     * Rank 3--5
-     * Rank 3--5
-     * Rank 3--5
-     * Rank 6
-     */
-
-    function getRankLabels(results) {
-
-        var rankLabels = new Array(results.length);
-
-        var i = 0;
-
-
-        while (i < results.length) {
-
-            var count = results[i].count;
-
-            var startRank = i + 1;
-
-            var j = i + 1;
-
-
-            /*
-             * Find the end of this group of tied cards.
-             */
-
-            while (
-                j < results.length &&
-                results[j].count === count
-            ) {
-
-                j++;
-
-            }
-
-
-            /*
-             * j is one position past the final tied card.
-             *
-             * Therefore j is also the final rank occupied
-             * by this group.
-             */
-
-            var endRank = j;
-
-            var label;
-
-
-            if (startRank === endRank) {
-
-                label = "Rank " + startRank;
-
-            } else {
-
-                label =
-                    "Rank " +
-                    startRank +
-                    "--" +
-                    endRank;
-
-            }
-
-
-            /*
-             * Give every tied card the same rank label.
-             */
-
-            for (var k = i; k < j; k++) {
-
-                rankLabels[k] = label;
-
-            }
-
-
-            i = j;
-
-        }
-
-
-        return rankLabels;
-
-    }
-
-
-    /*
-     * ------------------------------------------------------------
-     * FILTERING
+     * Filtering only controls visibility.
+     * Global rank values are preserved.
      * ------------------------------------------------------------
      */
 
@@ -318,9 +246,7 @@
 
 
         if (!searchText) {
-
             return statistics.slice();
-
         }
 
 
@@ -337,7 +263,7 @@
 
     /*
      * ------------------------------------------------------------
-     * RENDER MAIN TABLE
+     * 7. RENDER MAIN TABLE
      * ------------------------------------------------------------
      */
 
@@ -345,53 +271,28 @@
 
         var results = getFilteredStatistics();
 
-
         sortStatistics(results);
-
-
-        /*
-         * Calculate ranks AFTER sorting.
-         */
-
-        var rankLabels = getRankLabels(results);
-
 
         tableBody.innerHTML = "";
 
 
-        results.forEach(function (entry, index) {
+        results.forEach(function (entry) {
 
             var row = document.createElement("tr");
 
             row.className = "equip-stats-row";
-
             row.dataset.cardId = entry.card.Id;
 
 
-            /*
-             * Rank
-             */
-
             var rankCell = document.createElement("td");
+            rankCell.textContent = globalRankLabels[entry.card.Id];
 
-            rankCell.textContent = rankLabels[index];
-
-
-            /*
-             * Equip card name
-             */
 
             var nameCell = document.createElement("td");
-
             nameCell.textContent = entry.card.Name;
 
 
-            /*
-             * Number of compatible monsters
-             */
-
             var countCell = document.createElement("td");
-
             countCell.textContent = entry.count;
 
 
@@ -399,45 +300,40 @@
             row.appendChild(nameCell);
             row.appendChild(countCell);
 
-
             tableBody.appendChild(row);
 
         });
 
-/*
- * Add a blank row at the bottom of the table.
- *
- * This row is intentionally not clickable and uses the
- * requested #F8F9FA background color.
- */
 
-var blankRow = document.createElement("tr");
+        /*
+         * Add the requested blank row at the bottom.
+         */
 
-blankRow.className = "equip-stats-blank-row";
-blankRow.style.backgroundColor = "#F8F9FA";
+        var blankRow = document.createElement("tr");
 
-for (var blankCellIndex = 0; blankCellIndex < 3; blankCellIndex++) {
+        blankRow.className = "equip-stats-blank-row";
+        blankRow.style.backgroundColor = "#F8F9FA";
 
-    var blankCell = document.createElement("td");
 
-    blankCell.innerHTML = "&nbsp;";
+        for (var blankCellIndex = 0; blankCellIndex < 3; blankCellIndex++) {
 
-    blankRow.appendChild(blankCell);
+            var blankCell = document.createElement("td");
 
-}
+            blankCell.innerHTML = "&nbsp;";
+            blankRow.appendChild(blankCell);
 
-tableBody.appendChild(blankRow);
-        
+        }
+
+
+        tableBody.appendChild(blankRow);
+
     }
 
 
     /*
      * ------------------------------------------------------------
-     * RENDER EQUIP DETAILS
+     * 8. RENDER EQUIP DETAILS
      * ------------------------------------------------------------
-     *
-     * Clicking an Equip card shows every monster that
-     * the Equip can be used with.
      */
 
     function showEquipDetails(cardId) {
@@ -464,105 +360,55 @@ tableBody.appendChild(blankRow);
         detailsContainer.innerHTML = "";
 
 
-        /*
-         * Create the details table.
-         */
-
         var table = document.createElement("table");
 
-        table.className =
-            "table table-striped table-bordered";
+        table.className = "table table-striped table-bordered";
 
-
-        /*
-         * Table header.
-         */
 
         var thead = document.createElement("thead");
-
         var headerRow = document.createElement("tr");
-
-
         var monsterHeader = document.createElement("th");
 
-        monsterHeader.textContent =
-            "Compatible Monster";
-
+        monsterHeader.textContent = "Compatible Monster";
 
         headerRow.appendChild(monsterHeader);
-
         thead.appendChild(headerRow);
-
         table.appendChild(thead);
 
 
-        /*
-         * Table body.
-         */
-
         var tbody = document.createElement("tbody");
 
-
-        /*
-         * Sort the monsters alphabetically
-         * for the detail view.
-         */
-
-        var monsterIds = entry.partnerIds.slice();
-
-
-        monsterIds.sort(function (a, b) {
-
-            var cardA = cardById[a];
-            var cardB = cardById[b];
+        var monsterCards = entry.partnerIds
+            .map(function (monsterId) {
+                return cardById[monsterId];
+            })
+            .filter(function (monsterCard) {
+                return !!monsterCard;
+            });
 
 
-            return cardA.Name.localeCompare(cardB.Name);
-
+        monsterCards.sort(function (a, b) {
+            return a.Name.localeCompare(b.Name);
         });
 
 
-        monsterIds.forEach(function (monsterId) {
-
-            var monsterCard = cardById[monsterId];
-
-
-            if (!monsterCard) {
-                return;
-            }
-
+        monsterCards.forEach(function (monsterCard) {
 
             var row = document.createElement("tr");
-
             var monsterCell = document.createElement("td");
 
-
-            monsterCell.textContent =
-                monsterCard.Name;
-
+            monsterCell.textContent = monsterCard.Name;
 
             row.appendChild(monsterCell);
-
             tbody.appendChild(row);
 
         });
 
 
         table.appendChild(tbody);
-
         detailsContainer.appendChild(table);
 
-
-        /*
-         * Show the details section.
-         */
-
         detailsSection.style.display = "";
-
-
-        /*
-         * Scroll to the details.
-         */
 
         detailsSection.scrollIntoView({
             behavior: "smooth",
@@ -574,7 +420,7 @@ tableBody.appendChild(blankRow);
 
     /*
      * ------------------------------------------------------------
-     * TABLE CLICK HANDLER
+     * 9. EVENT HANDLERS
      * ------------------------------------------------------------
      */
 
@@ -582,43 +428,40 @@ tableBody.appendChild(blankRow);
 
         var row = event.target.closest(".equip-stats-row");
 
-
         if (!row) {
             return;
         }
-
 
         showEquipDetails(row.dataset.cardId);
 
     });
 
 
-    /*
-     * ------------------------------------------------------------
-     * CONTROLS
-     * ------------------------------------------------------------
-     */
-
     sortSelect.addEventListener("change", function () {
-
         renderStatistics();
-
     });
 
 
     filterInput.addEventListener("input", function () {
-
         renderStatistics();
-
     });
 
 
     /*
      * ------------------------------------------------------------
-     * INITIAL RENDER
+     * 10. INITIAL RENDER
      * ------------------------------------------------------------
      */
+
+    detailsSection.style.display = "none";
 
     renderStatistics();
 
 })();
+
+
+/*
+ * ------------------------------------------------------------
+ * END OF FILE
+ * ------------------------------------------------------------
+ */
