@@ -187,12 +187,29 @@ function fusesToHTML(fuselist) {
 
                 res +=
                     "<p class=\"card-text\"><strong>Result:</strong> " +
-                    escapeHTML(fusion.result.Name) +
-                    " (" +
-                    fusion.result.Attack +
-                    "/" +
-                    fusion.result.Defense +
-                    ")</p>";
+                    escapeHTML(fusion.result.Name);
+
+
+                if (fusion.result.Type < 20) {
+
+                    res +=
+                        " (" +
+                        fusion.result.Attack +
+                        "/" +
+                        fusion.result.Defense +
+                        ")";
+
+                } else {
+
+                    res +=
+                        " [" +
+                        escapeHTML(cardTypes[fusion.result.Type]) +
+                        "]";
+
+                }
+
+
+                res += "</p>";
 
             }
 
@@ -392,6 +409,3 @@ resetBtn.onclick = function () {
  * END OF FILE
  * ------------------------------------------------------------
  */
-
-
-
