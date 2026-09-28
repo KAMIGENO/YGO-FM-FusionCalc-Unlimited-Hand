@@ -105,3 +105,51 @@
     }
 
 }
+
+/* ------------------------------------------------------------
+   EQUIP STATISTICS
+   ------------------------------------------------------------ */
+
+.equip-stats-controls {
+    display: grid;
+    grid-template-columns: minmax(200px, 300px) minmax(200px, 1fr);
+    gap: 20px;
+    margin: 30px auto;
+    max-width: 900px;
+}
+
+.equip-stats-table {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.equip-stats-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.equip-stats-row {
+    cursor: pointer;
+}
+
+.equip-stats-row:hover {
+    background-color: #eeeeee;
+}
+
+#equip-details {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+#equip-details table {
+    margin-bottom: 30px;
+}
+
+@media (max-width: 767px) {
+
+    .equip-stats-controls {
+        grid-template-columns: 1fr;
+    }
+
+}
