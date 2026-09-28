@@ -231,12 +231,12 @@ function searchByName() {
     outputCard.innerHTML = createSideCard(card);
 
 
-    var fuses = (card.Fusions || []).map(function (fusion) {
+    var fuses = (fusionsList[card.Id] || []).map(function (fusion) {
 
         return {
             card1: card,
-            card2: getCardById(fusion._card2),
-            result: getCardById(fusion._result)
+            card2: getCardById(fusion.card),
+            result: getCardById(fusion.result)
         };
 
     }).filter(function (fusion) {
@@ -392,3 +392,6 @@ resetBtn.onclick = function () {
  * END OF FILE
  * ------------------------------------------------------------
  */
+
+
+
