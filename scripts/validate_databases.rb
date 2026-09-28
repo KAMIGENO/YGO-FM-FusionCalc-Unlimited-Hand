@@ -6,7 +6,8 @@
 # Validates Cards.json and every generated database.
 #
 # This script checks both the source relationships and the
-# generated files so stale or inconsistent databases fail fast.
+# generated files so stale, malformed, or inconsistent databases
+# fail fast.
 #
 
 require 'json'
@@ -22,6 +23,7 @@ cards = JSON.parse(File.read("data/Cards.json"))
 fusions = JSON.parse(File.read("data/fusions.json"))
 equips = JSON.parse(File.read("data/equips.json"))
 results = JSON.parse(File.read("data/results.json"))
+rituals = JSON.parse(File.read("data/rituals.json"))
 
 
 #
@@ -37,9 +39,7 @@ unless card_javascript.start_with?(card_prefix)
     raise "data/cards.js has an unexpected variable declaration"
 end
 
-card_embedded_json = card_javascript.delete_prefix(card_prefix)
-
-card_embedded_json = card_embedded_json.strip
+card_embedded_json = card_javascript.delete_prefix(card_prefix).strip
 
 unless card_embedded_json.end_with?('])')
     raise "data/cards.js has an unexpected ending"
@@ -58,7 +58,8 @@ end
 generated_js = {
     "fusions" => fusions,
     "equips" => equips,
-    "results" => results
+    "results" => results,
+    "rituals" => rituals
 }
 
 generated_js.each do |name, expected_data|
@@ -84,9 +85,10 @@ end
 # ------------------------------------------------------------
 #
 
-card_ids = cards.map { |card| card["Id"].to_i }
+card_ids = cards.map { |card| card["Id"] }
 
 raise "Cards.json is empty" if card_ids.empty?
+raise "Card IDs in Cards.json must be integers" unless card_ids.all? { |id| id.is_a?(Integer) }
 raise "Duplicate card ID found" unless card_ids.uniq.length == card_ids.length
 raise "Invalid card ID found" if card_ids.any? { |id| id <= 0 }
 
@@ -100,6 +102,10 @@ card_id_set = card_ids.to_h { |id| [id, true] }
 
 
 validate_card_id = lambda do |id, context|
+    unless id.is_a?(Integer)
+        raise "Invalid card ID #{id.inspect} in #{context}; IDs must be integers"
+    end
+
     unless card_id_set[id]
         raise "Invalid card ID #{id} in #{context}"
     end
@@ -117,7 +123,8 @@ expected_length = max_card_id + 1
 {
     "fusions" => fusions,
     "equips" => equips,
-    "results" => results
+    "results" => results,
+    "rituals" => rituals
 }.each do |name, database|
 
     unless database.length == expected_length
@@ -133,23 +140,37 @@ end
 
 #
 # ------------------------------------------------------------
-# 5. REBUILD EXPECTED DATABASES FROM Cards.json
+# 5. REBUILD EXPECTED DATABASES FROM CARDS.JSON
 # ------------------------------------------------------------
 #
 
 expected_fusions = Array.new(expected_length) { [] }
 expected_equip_pairs = {}
 expected_results = Array.new(expected_length) { [] }
+expected_rituals = Array.new(expected_length) { [] }
 
 fusion_pairs = {}
+ritual_cards = {}
 
 cards.each do |card|
-    id = card["Id"].to_i
+    id = card["Id"]
     validate_card_id.call(id, "card ID")
 
-    (card["Fusions"] || []).each do |fusion|
-        card2 = fusion["_card2"].to_i
-        result = fusion["_result"].to_i
+
+    fusions_source = card["Fusions"] || []
+
+    unless fusions_source.is_a?(Array)
+        raise "Invalid Fusions data for #{card["Name"]}; expected an array"
+    end
+
+    fusions_source.each do |fusion|
+
+        unless fusion.is_a?(Hash) && fusion.key?("_card2") && fusion.key?("_result")
+            raise "Invalid fusion entry for #{card["Name"]}"
+        end
+
+        card2 = fusion["_card2"]
+        result = fusion["_result"]
 
         validate_card_id.call(card2, "fusion partner for #{card["Name"]}")
         validate_card_id.call(result, "fusion result for #{card["Name"]}")
@@ -179,11 +200,19 @@ cards.each do |card|
             "card1" => low_id,
             "card2" => high_id
         }
+
     end
 
-    (card["Equip"] || []).each do |equip|
-        target = equip.to_i
 
+    equip_source = card["Equip"] || []
+
+    unless equip_source.is_a?(Array)
+        raise "Invalid Equip data for #{card["Name"]}; expected an array"
+    end
+
+    equip_source.each do |equip|
+
+        target = equip
         validate_card_id.call(target, "equip for #{card["Name"]}")
 
         low_id, high_id = [id, target].minmax
@@ -194,7 +223,50 @@ cards.each do |card|
         end
 
         expected_equip_pairs[pair_key] = true
+
     end
+
+
+    ritual_data = card["Ritual"]
+
+    next if ritual_data.nil?
+
+    unless ritual_data.is_a?(Hash)
+        raise "Invalid Ritual data for #{card["Name"]}; expected an object"
+    end
+
+    required_keys = ["RitualCard", "Card1", "Card2", "Card3", "Result"]
+
+    unless ritual_data.keys.sort == required_keys.sort
+        raise "Invalid Ritual data for #{card["Name"]}; expected RitualCard, Card1, Card2, Card3, and Result"
+    end
+
+    ritual_card = ritual_data["RitualCard"]
+    card1 = ritual_data["Card1"]
+    card2 = ritual_data["Card2"]
+    card3 = ritual_data["Card3"]
+    result = ritual_data["Result"]
+
+    validate_card_id.call(ritual_card, "ritual card for #{card["Name"]}")
+    validate_card_id.call(card1, "ritual material 1 for #{card["Name"]}")
+    validate_card_id.call(card2, "ritual material 2 for #{card["Name"]}")
+    validate_card_id.call(card3, "ritual material 3 for #{card["Name"]}")
+    validate_card_id.call(result, "ritual result for #{card["Name"]}")
+
+    if ritual_cards.key?(ritual_card)
+        raise "Duplicate ritual declaration for ritual card #{ritual_card}"
+    end
+
+    ritual_cards[ritual_card] = true
+
+    expected_rituals[ritual_card] << {
+        "ritual_card" => ritual_card,
+        "card1" => card1,
+        "card2" => card2,
+        "card3" => card3,
+        "result" => result
+    }
+
 end
 
 
@@ -222,6 +294,10 @@ end
 
 unless results == expected_results
     raise "results.json does not match Cards.json"
+end
+
+unless rituals == expected_rituals
+    raise "rituals.json does not match Cards.json"
 end
 
 
@@ -312,20 +388,58 @@ end
 
 #
 # ------------------------------------------------------------
-# 10. SUMMARY
+# 10. VALIDATE RITUALS
+# ------------------------------------------------------------
+#
+
+rituals.each_with_index do |ritual_list, ritual_card_id|
+
+    seen_rituals = {}
+
+    ritual_list.each do |ritual|
+        ritual_card = ritual["ritual_card"]
+        card1 = ritual["card1"]
+        card2 = ritual["card2"]
+        card3 = ritual["card3"]
+        result = ritual["result"]
+
+        validate_card_id.call(ritual_card, "generated ritual card")
+        validate_card_id.call(card1, "generated ritual material 1")
+        validate_card_id.call(card2, "generated ritual material 2")
+        validate_card_id.call(card3, "generated ritual material 3")
+        validate_card_id.call(result, "generated ritual result")
+
+        unless ritual_card == ritual_card_id
+            raise "Ritual #{ritual_card} is stored at index #{ritual_card_id}"
+        end
+
+        key = [ritual_card, card1, card2, card3, result]
+
+        raise "Duplicate generated ritual for card #{ritual_card}" if seen_rituals.key?(key)
+
+        seen_rituals[key] = true
+    end
+
+end
+
+
+#
+# ------------------------------------------------------------
+# 11. SUMMARY
 # ------------------------------------------------------------
 #
 
 fusion_count = fusion_pairs.length
 equip_count = expected_equip_pairs.length
 result_count = results.sum(&:length)
+ritual_count = ritual_cards.length
 
 raise "Unexpected result count" unless result_count == fusion_count
+raise "Unexpected ritual count" unless rituals.sum(&:length) == ritual_count
 
 puts "Database validation passed."
 puts "Cards: #{cards.length}"
 puts "Fusion pairs: #{fusion_count}"
 puts "Equip pairs: #{equip_count}"
 puts "Result entries: #{result_count}"
-
-
+puts "Rituals: #{ritual_count}"
