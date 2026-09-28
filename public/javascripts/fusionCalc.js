@@ -85,6 +85,7 @@ function getCardById(id) {
 
 var fusionLookup = {};
 var equipLookup = {};
+var ritualDefinitions = [];
 
 
 fusionsList.forEach(function (fusionList, cardId) {
@@ -125,6 +126,25 @@ equipsList.forEach(function (equipList, cardId) {
 });
 
 
+ritualsList.forEach(function (ritualList) {
+
+    if (!ritualList) {
+        return;
+    }
+
+    ritualList.forEach(function (ritual) {
+
+        if (!ritual) {
+            return;
+        }
+
+        ritualDefinitions.push(ritual);
+
+    });
+
+});
+
+
 /*
  * ------------------------------------------------------------
  * 4. DISPLAY HELPERS
@@ -150,6 +170,36 @@ function formatStats(attack, defense) {
 
 function isMonster(card) {
     return !!card && card.Type < 20;
+}
+
+
+function formatResultCard(card) {
+
+    if (!card) {
+        return "";
+    }
+
+    var result = escapeHTML(card.Name);
+
+
+    if (isMonster(card)) {
+
+        result +=
+            " " +
+            formatStats(card.Attack, card.Defense);
+
+    } else {
+
+        result +=
+            " [" +
+            escapeHTML(cardTypes[card.Type]) +
+            "]";
+
+    }
+
+
+    return result;
+
 }
 
 
@@ -271,16 +321,115 @@ function findFusions() {
         "<h2 class='center'>Fusions:</h2>" +
         fusesToHTML(fuses);
 
+    var rituals = findRituals(cards);
+
+
     outputRight.innerHTML =
         "<h2 class='center'>Equips:</h2>" +
-        fusesToHTML(equips);
+        fusesToHTML(equips) +
+        "<h2 class='center'>Rituals:</h2>" +
+        ritualsToHTML(rituals);
 
 }
 
 
 /*
  * ------------------------------------------------------------
- * 6. INPUT / CARD DISPLAY
+ * 6. RITUAL CALCULATION
+ * ------------------------------------------------------------
+ */
+
+function findRituals(cards) {
+
+    var cardCounts = {};
+
+
+    cards.forEach(function (card) {
+
+        cardCounts[card.Id] = (cardCounts[card.Id] || 0) + 1;
+
+    });
+
+
+    return ritualDefinitions
+        .map(function (ritual) {
+
+            var requiredCards = [
+                ritual.ritual_card,
+                ritual.card1,
+                ritual.card2,
+                ritual.card3
+            ];
+
+            var requiredCounts = {};
+
+
+            requiredCards.forEach(function (cardId) {
+                requiredCounts[cardId] = (requiredCounts[cardId] || 0) + 1;
+            });
+
+
+            var canRitual = Object.keys(requiredCounts).every(function (cardId) {
+
+                return (cardCounts[cardId] || 0) >= requiredCounts[cardId];
+
+            });
+
+
+            if (!canRitual) {
+                return null;
+            }
+
+
+            return {
+                ritualCard: getCardById(ritual.ritual_card),
+                card1: getCardById(ritual.card1),
+                card2: getCardById(ritual.card2),
+                card3: getCardById(ritual.card3),
+                result: getCardById(ritual.result)
+            };
+
+        })
+        .filter(function (ritual) {
+            return ritual &&
+                ritual.ritualCard &&
+                ritual.card1 &&
+                ritual.card2 &&
+                ritual.card3 &&
+                ritual.result;
+        });
+
+}
+
+
+function ritualsToHTML(ritualList) {
+
+    return ritualList
+        .map(function (ritual) {
+
+            return (
+                "<div class='result-div'>Ritual: " +
+                escapeHTML(ritual.ritualCard.Name) +
+                "<br>Material: " +
+                escapeHTML(ritual.card1.Name) +
+                "<br>Material: " +
+                escapeHTML(ritual.card2.Name) +
+                "<br>Material: " +
+                escapeHTML(ritual.card3.Name) +
+                "<br>Result: " +
+                formatResultCard(ritual.result) +
+                "<br><br></div>"
+            );
+
+        })
+        .join("\n");
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * 7. INPUT / CARD DISPLAY
  * ------------------------------------------------------------
  */
 
@@ -357,7 +506,7 @@ function createInput(slotNumber) {
 
 /*
  * ------------------------------------------------------------
- * 7. PAGINATION
+ * 8. PAGINATION
  * ------------------------------------------------------------
  */
 
@@ -441,7 +590,7 @@ function initializeAutocomplete(input, info, slotIndex) {
 
 /*
  * ------------------------------------------------------------
- * 8. PAGINATION CONTROLS
+ * 9. PAGINATION CONTROLS
  * ------------------------------------------------------------
  */
 
@@ -502,7 +651,7 @@ document.getElementById("hand-next").addEventListener("click", function () {
 
 /*
  * ------------------------------------------------------------
- * 9. RESET
+ * 10. RESET
  * ------------------------------------------------------------
  */
 
@@ -532,7 +681,7 @@ document.getElementById("resetBtn").addEventListener("click", function () {
 
 /*
  * ------------------------------------------------------------
- * 10. INITIAL RENDER
+ * 11. INITIAL RENDER
  * ------------------------------------------------------------
  */
 
@@ -544,3 +693,5 @@ renderPage();
  * END OF FILE
  * ------------------------------------------------------------
  */
+
+
