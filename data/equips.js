@@ -1,5 +1,7 @@
 var equipsList = [
-  null,
+  [
+
+  ],
   [
     315,
     657,
