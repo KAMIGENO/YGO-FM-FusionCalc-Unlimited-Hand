@@ -1,6 +1,21 @@
 var outputLeft = document.getElementById("outputarealeft");
 var outputRight = document.getElementById("outputarearight");
 
+var HAND_SIZE = 400;
+
+var handInputGroup = document.getElementById("hand-input-group");
+
+for (var i = 1; i <= HAND_SIZE; i++) {
+    handInputGroup.insertAdjacentHTML(
+        "beforeend",
+        '<input type="text" id="hand' +
+            i +
+            '" /><span id="hand' +
+            i +
+            '-info" class="ml-2"></span><br />'
+    );
+}
+
 // Initialize Awesomplete
 var _awesompleteOpts = {
     list: card_db()
@@ -10,7 +25,7 @@ var _awesompleteOpts = {
     filter: Awesomplete.FILTER_STARTSWITH, // Case insensitive from start of word
 };
 var handCompletions = {};
-for (i = 1; i <= 5; i++) {
+for (var i = 1; i <= HAND_SIZE; i++) {
     var hand = document.getElementById("hand" + i);
     handCompletions["hand" + i] = new Awesomplete(hand, _awesompleteOpts);
 }
@@ -85,13 +100,13 @@ function findFusions() {
     var monsters = [];
     var others = [];
 
-    for (i = 1; i <= 5; i++) {
-        var name = $("#hand" + i).val();
-        var card = getCardByName(name);
-        if (card) {
-            cards.push(card);
-        }
+    for (var i = 1; i <= HAND_SIZE; i++) {
+    var name = $("#hand" + i).val();
+    var card = getCardByName(name);
+    if (card) {
+        cards.push(card);
     }
+}
 
     var fuses = [];
     var equips = [];
@@ -126,22 +141,24 @@ function resultsClear() {
 }
 
 function inputsClear() {
-    for (i = 1; i <= 5; i++) {
+    for (var i = 1; i <= HAND_SIZE; i++) {
         $("#hand" + i).val("");
         $("#hand" + i + "-info").html("");
     }
 }
 
 // Set up event listeners for each card input
-for (i = 1; i <= 5; i++) {
+for (var i = 1; i <= HAND_SIZE; i++) {
     $("#hand" + i).on("change", function () {
         handCompletions[this.id].select(); // select the currently highlighted element
+
         if (this.value === "") {
             // If the box is cleared, remove the card info
             $("#" + this.id + "-info").html("");
         } else {
             checkCard(this.value, this.id + "-info");
         }
+
         resultsClear();
         findFusions();
     });
