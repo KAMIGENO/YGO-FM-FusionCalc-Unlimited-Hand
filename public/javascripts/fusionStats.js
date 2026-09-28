@@ -22,8 +22,10 @@
 
     "use strict";
 
+
     var cardById = {};
     var statistics = [];
+
 
     var sortSelect = document.getElementById("fusion-sort");
     var filterInput = document.getElementById("fusion-filter");
@@ -41,7 +43,9 @@
      */
 
     card_db().get().forEach(function (card) {
+
         cardById[card.Id] = card;
+
     });
 
 
@@ -50,7 +54,7 @@
      * BUILD FUSION STATISTICS
      * ------------------------------------------------------------
      *
-     * For each card, count the number of UNIQUE cards that
+     * For each card, count the number of UNIQUE cards
      * it can fuse with.
      *
      * Example:
@@ -65,36 +69,49 @@
 
         var partners = {};
 
+
         if (fusionList) {
 
-            fusionList.forEach(function (resultId, partnerId) {
+            fusionList.forEach(function (fusion) {
 
                 /*
-                 * Store the partner ID as a key.
+                 * Each fusion entry is an object:
                  *
-                 * Using an object as a set means duplicate
-                 * fusion entries are only counted once.
+                 * {
+                 *     card: partnerId,
+                 *     result: resultId
+                 * }
+                 *
+                 * Store the actual partner card ID.
                  */
-                partners[partnerId] = true;
+                partners[fusion.card] = true;
 
             });
 
         }
 
+
         var card = cardById[cardId];
+
 
         if (!card) {
             return;
         }
 
+
         var partnerIds = Object.keys(partners).map(function (id) {
+
             return Number(id);
+
         });
 
+
         statistics.push({
+
             card: card,
             partnerIds: partnerIds,
             count: partnerIds.length
+
         });
 
     });
@@ -110,12 +127,16 @@
 
         var sortType = sortSelect.value;
 
+
         results.sort(function (a, b) {
+
 
             if (sortType === "count-desc") {
 
                 if (b.count !== a.count) {
+
                     return b.count - a.count;
+
                 }
 
                 return a.card.Name.localeCompare(b.card.Name);
@@ -126,7 +147,9 @@
             if (sortType === "count-asc") {
 
                 if (a.count !== b.count) {
+
                     return a.count - b.count;
+
                 }
 
                 return a.card.Name.localeCompare(b.card.Name);
@@ -191,30 +214,39 @@
 
         var i = 0;
 
+
         while (i < results.length) {
 
             /*
              * Only cards with the same fusion count are tied.
              */
+
             var count = results[i].count;
+
 
             /*
              * Array indexes start at zero,
              * but ranks start at one.
              */
+
             var startRank = i + 1;
 
             var j = i + 1;
 
+
             /*
              * Find the end of this group of tied cards.
              */
+
             while (
                 j < results.length &&
                 results[j].count === count
             ) {
+
                 j++;
+
             }
+
 
             /*
              * j is one position past the final tied card.
@@ -222,9 +254,11 @@
              * Therefore j is also the final rank
              * occupied by this tie.
              */
+
             var endRank = j;
 
             var label;
+
 
             if (startRank === endRank) {
 
@@ -240,19 +274,26 @@
 
             }
 
+
             /*
              * Give every tied card the same rank label.
              */
+
             for (var k = i; k < j; k++) {
+
                 rankLabels[k] = label;
+
             }
+
 
             /*
              * Continue with the next group.
              */
+
             i = j;
 
         }
+
 
         return rankLabels;
 
@@ -267,19 +308,24 @@
 
     function getFilteredStatistics() {
 
-        var searchText = filterInput.value
-            .trim()
-            .toLowerCase();
+        var filterText =
+            filterInput.value
+                .trim()
+                .toLowerCase();
 
-        if (!searchText) {
+
+        if (filterText === "") {
+
             return statistics.slice();
+
         }
+
 
         return statistics.filter(function (entry) {
 
             return entry.card.Name
                 .toLowerCase()
-                .indexOf(searchText) !== -1;
+                .includes(filterText);
 
         });
 
@@ -296,54 +342,61 @@
 
         var results = getFilteredStatistics();
 
+
         sortStatistics(results);
 
-        /*
-         * Calculate ranks AFTER sorting.
-         */
-        var rankLabels = getRankLabels(results);
+
+        var rankLabels =
+            getRankLabels(results);
+
 
         tableBody.innerHTML = "";
 
+
         results.forEach(function (entry, index) {
 
-            var row = document.createElement("tr");
-
-            row.className = "fusion-stats-row";
-
-            row.dataset.cardId = entry.card.Id;
+            var row =
+                document.createElement("tr");
 
 
-            /*
-             * Rank
-             */
-
-            var rankCell = document.createElement("td");
-
-            rankCell.textContent = rankLabels[index];
+            row.className =
+                "fusion-stats-row";
 
 
-            /*
-             * Card name
-             */
-
-            var nameCell = document.createElement("td");
-
-            nameCell.textContent = entry.card.Name;
+            row.dataset.cardId =
+                entry.card.Id;
 
 
-            /*
-             * Number of fusion partners
-             */
+            var rankCell =
+                document.createElement("td");
 
-            var countCell = document.createElement("td");
 
-            countCell.textContent = entry.count;
+            rankCell.textContent =
+                rankLabels[index];
+
+
+            var nameCell =
+                document.createElement("td");
+
+
+            nameCell.textContent =
+                entry.card.Name;
+
+
+            var countCell =
+                document.createElement("td");
+
+
+            countCell.textContent =
+                entry.count;
 
 
             row.appendChild(rankCell);
+
             row.appendChild(nameCell);
+
             row.appendChild(countCell);
+
 
             tableBody.appendChild(row);
 
@@ -354,41 +407,38 @@
 
     /*
      * ------------------------------------------------------------
-     * RENDER CARD DETAILS
+     * SHOW FUSION DETAILS
      * ------------------------------------------------------------
-     *
-     * Clicking a card in the statistics table shows every card
-     * that it can fuse with and the resulting card.
      */
 
-    function showCardDetails(cardId) {
+    function showFusionDetails(cardId) {
 
-        var entry = statistics.find(function (item) {
+        var entry =
+            statistics.find(function (item) {
 
-            return String(item.card.Id) === String(cardId);
+                return String(item.card.Id) ===
+                    String(cardId);
 
-        });
+            });
+
 
         if (!entry) {
+
             return;
+
         }
 
 
         detailsTitle.textContent =
-            entry.card.Name +
-            " — " +
-            entry.count +
-            " Fusion Partners";
+            entry.card.Name;
 
 
         detailsContainer.innerHTML = "";
 
 
-        /*
-         * Create the details table.
-         */
+        var table =
+            document.createElement("table");
 
-        var table = document.createElement("table");
 
         table.className =
             "table table-striped table-bordered";
@@ -398,19 +448,32 @@
          * Table header.
          */
 
-        var thead = document.createElement("thead");
+        var thead =
+            document.createElement("thead");
 
-        var headerRow = document.createElement("tr");
 
-        var partnerHeader = document.createElement("th");
+        var headerRow =
+            document.createElement("tr");
 
-        partnerHeader.textContent = "Fusion Partner";
 
-        var resultHeader = document.createElement("th");
+        var partnerHeader =
+            document.createElement("th");
 
-        resultHeader.textContent = "Result";
+
+        partnerHeader.textContent =
+            "Fusable Partner";
+
+
+        var resultHeader =
+            document.createElement("th");
+
+
+        resultHeader.textContent =
+            "Fusion Result";
+
 
         headerRow.appendChild(partnerHeader);
+
         headerRow.appendChild(resultHeader);
 
         thead.appendChild(headerRow);
@@ -422,77 +485,132 @@
          * Table body.
          */
 
-        var tbody = document.createElement("tbody");
+        var tbody =
+            document.createElement("tbody");
 
 
         /*
-         * Get the fusion list for this card.
+         * Get the original fusion list for
+         * this card.
          */
 
-        var fusionList = fusionsList[entry.card.Id];
+        var fusionList =
+            fusionsList[cardId] || [];
 
 
-        if (fusionList) {
+        /*
+         * Sort partners alphabetically.
+         */
 
-            entry.partnerIds.forEach(function (partnerId) {
-
-                var row = document.createElement("tr");
-
-                var partnerCell = document.createElement("td");
-
-                var resultCell = document.createElement("td");
+        var partnerIds =
+            entry.partnerIds.slice();
 
 
-                /*
-                 * Find partner card.
-                 */
+        partnerIds.sort(function (a, b) {
 
-                var partnerCard = cardById[partnerId];
+            var cardA =
+                cardById[a];
 
-
-                if (partnerCard) {
-
-                    partnerCell.textContent =
-                        partnerCard.Name;
-
-                } else {
-
-                    partnerCell.textContent =
-                        "Unknown Card";
-
-                }
+            var cardB =
+                cardById[b];
 
 
-                /*
-                 * Find the fusion result.
-                 */
-
-                var resultId = fusionList[partnerId];
-
-                var resultCard = cardById[resultId];
+            if (!cardA) {
+                return 1;
+            }
 
 
-                if (resultCard) {
-
-                    resultCell.textContent =
-                        resultCard.Name;
-
-                } else {
-
-                    resultCell.textContent =
-                        "Unknown Result";
-
-                }
+            if (!cardB) {
+                return -1;
+            }
 
 
-                row.appendChild(partnerCell);
-                row.appendChild(resultCell);
+            return cardA.Name.localeCompare(
+                cardB.Name
+            );
 
-                tbody.appendChild(row);
+        });
 
-            });
 
-        }
+        /*
+         * Create one row for each partner.
+         */
+
+        partnerIds.forEach(function (partnerId) {
+
+            var partnerCard =
+                cardById[partnerId];
+
+
+            if (!partnerCard) {
+
+                return;
+
+            }
+
+
+            /*
+             * Find the actual fusion entry.
+             *
+             * This is important because fusionList
+             * contains objects like:
+             *
+             * {
+             *     card: partnerId,
+             *     result: resultId
+             * }
+             */
+
+            var fusionEntry =
+                fusionList.find(function (fusion) {
+
+                    return String(fusion.card) ===
+                        String(partnerId);
+
+                });
+
+
+            if (!fusionEntry) {
+
+                return;
+
+            }
+
+
+            var resultCard =
+                cardById[fusionEntry.result];
+
+
+            var row =
+                document.createElement("tr");
+
+
+            var partnerCell =
+                document.createElement("td");
+
+
+            partnerCell.textContent =
+                partnerCard.Name;
+
+
+            var resultCell =
+                document.createElement("td");
+
+
+            resultCell.textContent =
+                resultCard
+                    ? resultCard.Name
+                    : "Unknown Result";
+
+
+            row.appendChild(partnerCell);
+
+            row.appendChild(resultCell);
+
+
+            tbody.appendChild(row);
+
+        });
 
 
         table.appendChild(tbody);
@@ -512,8 +630,11 @@
          */
 
         detailsSection.scrollIntoView({
+
             behavior: "smooth",
+
             block: "start"
+
         });
 
     }
@@ -527,20 +648,29 @@
 
     tableBody.addEventListener("click", function (event) {
 
-        var row = event.target.closest(".fusion-stats-row");
+        var row =
+            event.target.closest(
+                ".fusion-stats-row"
+            );
+
 
         if (!row) {
+
             return;
+
         }
 
-        showCardDetails(row.dataset.cardId);
+
+        showFusionDetails(
+            row.dataset.cardId
+        );
 
     });
 
 
     /*
      * ------------------------------------------------------------
-     * SORT CHANGE
+     * CONTROLS
      * ------------------------------------------------------------
      */
 
@@ -551,12 +681,6 @@
     });
 
 
-    /*
-     * ------------------------------------------------------------
-     * SEARCH FILTER
-     * ------------------------------------------------------------
-     */
-
     filterInput.addEventListener("input", function () {
 
         renderStatistics();
@@ -566,11 +690,9 @@
 
     /*
      * ------------------------------------------------------------
-     * INITIALIZE
+     * INITIAL RENDER
      * ------------------------------------------------------------
      */
-
-    detailsSection.style.display = "none";
 
     renderStatistics();
 
