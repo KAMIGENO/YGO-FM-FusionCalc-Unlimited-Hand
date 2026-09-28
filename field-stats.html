@@ -160,17 +160,16 @@
                     </h2>
 
                     <p class="text-center">
-                        Find which Field cards provide the most bonuses and penalties,
-                        and see every affected monster card by name and monster type.
-                        Each Field affects every monster: some positively, some negatively,
-                        and the remainder neutrally.
+                        Every Field card is listed below as an expandable section.
+                        Open a Field to see its positive, neutral, and negative effects
+                        by individual monster card and by monster type.
                     </p>
 
                     <div class="field-stats-controls">
 
                         <div>
                             <label for="field-sort">
-                                Sort by:
+                                Sort fields by:
                             </label>
 
                             <select
@@ -199,43 +198,9 @@
                             </select>
                         </div>
 
-
-                        <div>
-                            <label for="field-filter">
-                                Search:
-                            </label>
-
-                            <input
-                                type="text"
-                                id="field-filter"
-                                class="form-control"
-                                placeholder="Search Field card..."
-                            />
-                        </div>
-
                     </div>
 
-
-                    <div class="table-responsive">
-
-                        <table class="table table-striped field-stats-table">
-
-                            <thead>
-                                <tr>
-                                    <th>Positive Rank</th>
-                                    <th>Field</th>
-                                    <th>Positive Cards</th>
-                                    <th>Negative Cards</th>
-                                    <th>Negative Rank</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="field-stats-body">
-                            </tbody>
-
-                        </table>
-
-                    </div>
+                    <div id="field-list"></div>
 
                 </div>
 
@@ -244,19 +209,56 @@
 
             <section
                 class="row rounded-lg mt-4 bg-light"
-                id="field-details-section"
-                style="display: none;"
+                id="monster-field-search-section"
             >
 
                 <div class="col">
 
-                    <h3
-                        class="text-main my-4 text-center"
-                        id="field-details-title"
-                    >
+                    <h3 class="text-main my-4 text-center">
+                        MONSTER FIELD SEARCH
                     </h3>
 
-                    <div id="field-details"></div>
+                    <p class="text-center">
+                        Search for a monster to see how every Field affects it.
+                    </p>
+
+                    <div class="field-stats-controls">
+
+                        <div>
+                            <label for="monster-filter">
+                                Search monster:
+                            </label>
+
+                            <input
+                                type="text"
+                                id="monster-filter"
+                                class="form-control"
+                                placeholder="Search monster card..."
+                            />
+                        </div>
+
+                    </div>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-striped table-bordered">
+
+                            <thead>
+                                <tr>
+                                    <th>Monster</th>
+                                    <th>Monster Type</th>
+                                    <th>Field</th>
+                                    <th>Effect</th>
+                                    <th>ATK/DEF Change</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="monster-field-search-body">
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 
@@ -312,6 +314,11 @@
         <script
             type="text/javascript"
             src="data/types_and_stars.js"
+        ></script>
+
+        <script
+            type="text/javascript"
+            src="data/fields.js"
         ></script>
 
         <script
