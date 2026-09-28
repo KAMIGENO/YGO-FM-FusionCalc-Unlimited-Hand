@@ -649,9 +649,9 @@
             summary.className = "font-weight-bold p-2";
             summary.style.cursor = "pointer";
 
-            var positiveRank = getRankLabel("positiveCount", entry.positiveCount);
-            var neutralRank = getRankLabel("neutralCount", entry.neutralCount);
-            var negativeRank = getRankLabel("negativeCount", entry.negativeCount);
+            var positiveRank = positiveRankLabels[entry.card.Id] || "Rank -";
+            var neutralRank = neutralRankLabels[entry.card.Id] || "Rank -";
+            var negativeRank = negativeRankLabels[entry.card.Id] || "Rank -";
 
             summary.textContent =
                 entry.card.Name +
