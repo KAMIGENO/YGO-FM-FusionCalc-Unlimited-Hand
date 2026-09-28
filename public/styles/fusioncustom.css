@@ -57,3 +57,51 @@
         gap: 6px;
     }
 }
+
+/* ------------------------------------------------------------
+   FUSION STATISTICS
+   ------------------------------------------------------------ */
+
+.fusion-stats-controls {
+    display: grid;
+    grid-template-columns: minmax(200px, 300px) minmax(200px, 1fr);
+    gap: 20px;
+    margin: 30px auto;
+    max-width: 900px;
+}
+
+.fusion-stats-table {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.fusion-stats-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.fusion-stats-row {
+    cursor: pointer;
+}
+
+.fusion-stats-row:hover {
+    background-color: #eeeeee;
+}
+
+#fusion-details {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+#fusion-details table {
+    margin-bottom: 30px;
+}
+
+@media (max-width: 767px) {
+
+    .fusion-stats-controls {
+        grid-template-columns: 1fr;
+    }
+
+}
