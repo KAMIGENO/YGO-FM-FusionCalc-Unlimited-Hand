@@ -147,7 +147,9 @@
 
                 return {
                     typeId: Number(typeId),
-                    typeName: cardTypes[typeId] || "Unknown",
+                    typeName: cardTypes[typeId] === "Spellcaster"
+                        ? "Magic-User (Spellcaster)"
+                        : (cardTypes[typeId] || "Unknown"),
                     cards: groups[typeId].sort(function (a, b) {
                         return a.Name.localeCompare(b.Name);
                     })
@@ -179,16 +181,44 @@
 
         var positiveCards = getCardsForTypes(definition.positiveTypes);
         var negativeCards = getCardsForTypes(definition.negativeTypes);
+        var positiveIds = {};
+        var negativeIds = {};
+
+
+        positiveCards.forEach(function (card) {
+            positiveIds[card.Id] = true;
+        });
+
+
+        negativeCards.forEach(function (card) {
+            negativeIds[card.Id] = true;
+        });
+
+
+        var neutralCards = card_db().get().filter(function (card) {
+
+            return isMonster(card) &&
+                !positiveIds[card.Id] &&
+                !negativeIds[card.Id];
+
+        }).sort(function (a, b) {
+
+            return a.Name.localeCompare(b.Name);
+
+        });
 
 
         statistics.push({
             card: fieldCard,
             positiveCards: positiveCards,
+            neutralCards: neutralCards,
             negativeCards: negativeCards,
             positiveCount: positiveCards.length,
+            neutralCount: neutralCards.length,
             negativeCount: negativeCards.length,
-            totalCount: positiveCards.length + negativeCards.length,
+            nonNeutralCount: positiveCards.length + negativeCards.length,
             positiveGroups: buildTypeGroups(positiveCards),
+            neutralGroups: buildTypeGroups(neutralCards),
             negativeGroups: buildTypeGroups(negativeCards)
         });
 
@@ -307,10 +337,10 @@
             }
 
 
-            if (sortType === "total-desc") {
+            if (sortType === "non-neutral-desc") {
 
-                if (b.totalCount !== a.totalCount) {
-                    return b.totalCount - a.totalCount;
+                if (b.nonNeutralCount !== a.nonNeutralCount) {
+                    return b.nonNeutralCount - a.nonNeutralCount;
                 }
 
                 return a.card.Name.localeCompare(b.card.Name);
@@ -395,6 +425,10 @@
             positiveCountCell.textContent = entry.positiveCount;
 
 
+            var neutralCountCell = document.createElement("td");
+            neutralCountCell.textContent = entry.neutralCount;
+
+
             var negativeCountCell = document.createElement("td");
             negativeCountCell.textContent = entry.negativeCount;
 
@@ -409,6 +443,7 @@
             row.appendChild(positiveRankCell);
             row.appendChild(nameCell);
             row.appendChild(positiveCountCell);
+            row.appendChild(neutralCountCell);
             row.appendChild(negativeCountCell);
             row.appendChild(negativeRankCell);
 
@@ -428,7 +463,7 @@
         blankRow.style.backgroundColor = "#F8F9FA";
 
 
-        for (var blankCellIndex = 0; blankCellIndex < 5; blankCellIndex++) {
+        for (var blankCellIndex = 0; blankCellIndex < 6; blankCellIndex++) {
 
             var blankCell = document.createElement("td");
 
@@ -491,7 +526,9 @@
             nameCell.textContent = card.Name;
 
             var typeCell = document.createElement("td");
-            typeCell.textContent = cardTypes[card.Type] || "Unknown";
+            typeCell.textContent = cardTypes[card.Type] === "Spellcaster"
+                ? "Magic-User (Spellcaster)"
+                : (cardTypes[card.Type] || "Unknown");
 
             var effectCell = document.createElement("td");
             effectCell.textContent = effectText;
@@ -610,6 +647,8 @@
             " — " +
             entry.positiveCount +
             " Positive / " +
+            entry.neutralCount +
+            " Neutral / " +
             entry.negativeCount +
             " Negative";
 
