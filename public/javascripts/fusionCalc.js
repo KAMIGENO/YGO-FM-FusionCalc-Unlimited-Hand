@@ -483,7 +483,7 @@ function createInput(slotNumber) {
                 ? "0" + slotNumber
                 : String(slotNumber);
 
-    number.textContent = paddedSlotNumber + ".";
+    number.textContent = paddedSlotNumber + ".  ";
 
 
     var input = document.createElement("input");
