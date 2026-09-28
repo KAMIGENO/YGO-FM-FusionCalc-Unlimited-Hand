@@ -213,11 +213,7 @@
 
     function calculateRankLabels(propertyName, destination) {
 
-        var rankedResults = statistics.filter(function (entry) {
-
-            return entry[propertyName] > 0;
-
-        });
+        var rankedResults = statistics.slice();
 
 
         rankedResults.sort(function (a, b) {
