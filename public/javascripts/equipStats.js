@@ -363,9 +363,13 @@
 
             var row = document.createElement("tr");
 
-            row.className = "equip-stats-row";
+row.className = "equip-stats-row";
 
-            row.dataset.cardId = entry.card.Id;
+if (entry.card.Name === "Metalmorph") {
+    row.classList.add("equip-stats-metalmorph");
+}
+
+row.dataset.cardId = entry.card.Id;
 
 
             /*
