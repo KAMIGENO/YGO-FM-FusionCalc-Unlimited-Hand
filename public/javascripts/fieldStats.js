@@ -207,6 +207,7 @@
      */
 
     var positiveRankLabels = {};
+    var neutralRankLabels = {};
     var negativeRankLabels = {};
 
 
@@ -274,6 +275,7 @@
 
 
     calculateRankLabels("positiveCount", positiveRankLabels);
+    calculateRankLabels("neutralCount", neutralRankLabels);
     calculateRankLabels("negativeCount", negativeRankLabels);
 
 
@@ -608,17 +610,17 @@
             summary.style.cursor = "pointer";
 
             var positiveRank = positiveRankLabels[entry.card.Id] || "—";
-            var negativeRank = entry.negativeCount > 0
-                ? negativeRankLabels[entry.card.Id]
-                : "—";
+            var neutralRank = neutralRankLabels[entry.card.Id] || "—";
+            var negativeRank = negativeRankLabels[entry.card.Id] || "—";
 
             summary.textContent =
                 entry.card.Name +
-                " — +" + entry.positiveCount +
-                " / " + entry.neutralCount +
-                " neutral / -" + entry.negativeCount +
-                " | Positive " + positiveRank +
-                " | Negative " + negativeRank;
+                " — + " + entry.positiveCount +
+                " / ± " + entry.neutralCount +
+                " / - " + entry.negativeCount +
+                " | POSITIVE " + positiveRank.replace("Rank ", "Rank: ") +
+                " / NEUTRAL " + neutralRank.replace("Rank ", "Rank: ") +
+                " / NEGATIVE " + negativeRank.replace("Rank ", "Rank: ");
 
             details.appendChild(summary);
             details.appendChild(createFieldDetails(entry));
