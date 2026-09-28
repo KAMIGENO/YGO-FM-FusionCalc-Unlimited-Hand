@@ -20,14 +20,14 @@
 .hand-slot-number {
     grid-column: 1;
     grid-row: 1;
-    width: 4ch;
+    width: 6ch;
     font-weight: bold;
     text-align: right;
     margin: 0;
     color: #666;
     font-family: monospace;
     font-variant-numeric: tabular-nums;
-    white-space: nowrap;
+    white-space: pre;
 }
 
 .hand-card-input {
