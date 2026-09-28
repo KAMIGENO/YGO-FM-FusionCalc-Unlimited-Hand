@@ -1,36 +1,95 @@
 var outputLeft = document.getElementById("outputarealeft");
 var outputRight = document.getElementById("outputarearight");
-
-var HAND_SIZE = 400;
-
 var handInputGroup = document.getElementById("hand-input-group");
 
-for (var i = 1; i <= HAND_SIZE; i++) {
-    handInputGroup.insertAdjacentHTML(
-        "beforeend",
-        '<input type="text" id="hand' +
-            i +
-            '" /><span id="hand' +
-            i +
-            '-info" class="ml-2"></span><br />'
-    );
+var HAND_SIZE = 400;
+var PAGE_SIZE = 20;
+
+// Store the cards independently from the DOM.
+// This means we don't need 400 inputs sitting in the document.
+var handCards = new Array(HAND_SIZE).fill(null);
+
+// Currently displayed page.
+var currentPage = 1;
+var totalPages = Math.ceil(HAND_SIZE / PAGE_SIZE);
+
+var cardNames = card_db()
+    .get()
+    .map((c) => c.Name);
+
+// Cache cards by name and ID.
+// This eliminates thousands of repeated Taffy database queries.
+var cardByName = {};
+var cardById = {};
+
+card_db()
+    .get()
+    .forEach(function (card) {
+        cardByName[card.Name.toLowerCase()] = card;
+        cardById[card.Id] = card;
+    });
+
+function getCardByName(cardname) {
+    if (!cardname) {
+        return null;
+    }
+
+    return cardByName[cardname.toLowerCase()] || null;
 }
 
-// Initialize Awesomplete
-var _awesompleteOpts = {
-    list: card_db()
-        .get()
-        .map((c) => c.Name), // List is all the cards in the DB
-    autoFirst: true, // The first item in the list is selected
-    filter: Awesomplete.FILTER_STARTSWITH, // Case insensitive from start of word
-};
-var handCompletions = {};
-for (var i = 1; i <= HAND_SIZE; i++) {
-    var hand = document.getElementById("hand" + i);
-    handCompletions["hand" + i] = new Awesomplete(hand, _awesompleteOpts);
+function getCardById(id) {
+    return cardById[id] || null;
 }
 
-// Creates a div for each fusion
+// Build O(1) lookup tables for fusions and equips.
+//
+// Instead of doing this for every pair:
+//
+//     card1Fuses.find(...)
+//     card1Equips.find(...)
+//
+// we can simply do:
+//
+//     fusionLookup[id1][id2]
+//
+// This matters a lot at 300-400 cards.
+var fusionLookup = {};
+var equipLookup = {};
+
+fusionsList.forEach(function (fusionList, cardId) {
+    if (!fusionList) {
+        return;
+    }
+
+    fusionLookup[cardId] = {};
+
+    fusionList.forEach(function (fusion) {
+        fusionLookup[cardId][fusion.card] = fusion.result;
+    });
+});
+
+equipsList.forEach(function (equipList, cardId) {
+    if (!equipList) {
+        return;
+    }
+
+    equipLookup[cardId] = {};
+
+    equipList.forEach(function (targetId) {
+        equipLookup[cardId][targetId] = true;
+    });
+});
+
+function formatStats(attack, defense) {
+    return "(" + attack + "/" + defense + ")";
+}
+
+// Returns true if the given card is a monster.
+function isMonster(card) {
+    return card.Type < 20;
+}
+
+// Creates the HTML for fusion/equip results.
 function fusesToHTML(fuselist) {
     return fuselist
         .map(function (fusion) {
@@ -39,101 +98,246 @@ function fusesToHTML(fuselist) {
                 fusion.card1.Name +
                 "<br>Input: " +
                 fusion.card2.Name;
+
             if (fusion.result) {
-                // Equips and Results don't have a result field
                 res += "<br>Result: " + fusion.result.Name;
+
                 if (isMonster(fusion.result)) {
                     res += " " + formatStats(fusion.result.Attack, fusion.result.Defense);
                 } else {
                     res += " [" + cardTypes[fusion.result.Type] + "]";
                 }
             }
+
             return res + "<br><br></div>";
         })
         .join("\n");
 }
 
-function getCardByName(cardname) {
-    return card_db({ Name: { isnocase: cardname } }).first();
-}
-
-// Returns the card with a given ID
-function getCardById(id) {
-    var card = card_db({ Id: id }).first();
-    if (!card) {
-        return null;
-    }
-    return card;
-}
-
-function formatStats(attack, defense) {
-    return "(" + attack + "/" + defense + ")";
-}
-
-// Returns true if the given card is a monster, false if it is magic, ritual,
-// trap or equip
-function isMonster(card) {
-    return card.Type < 20;
-}
-
-function checkCard(cardname, infoname) {
-    var info = $("#" + infoname);
-    var card = getCardByName(cardname);
-    if (!card) {
-        info.html("Invalid card name");
-    } else if (isMonster(card)) {
-        info.html(formatStats(card.Attack, card.Defense) + " [" + cardTypes[card.Type] + "]");
-    } else {
-        info.html("[" + cardTypes[card.Type] + "]");
-    }
-}
-
-// Checks if the given card is in the list of fusions
-// Assumes the given card is an Object with an "Id" field
-// TODO: Generalize to take Object, Name (string) or Id (int)
-function hasFusion(fusionList, card) {
-    return fusionList.some((c) => c.Id === card.Id);
-}
+// ------------------------------------------------------------
+// FUSION CALCULATION
+// ------------------------------------------------------------
 
 function findFusions() {
-    var cards = [];
-    var monsters = [];
-    var others = [];
-
-    for (var i = 1; i <= HAND_SIZE; i++) {
-    var name = $("#hand" + i).val();
-    var card = getCardByName(name);
-    if (card) {
-        cards.push(card);
-    }
-}
+    // Only populated slots participate in fusion calculations.
+    var cards = handCards.filter(function (card) {
+        return card !== null;
+    });
 
     var fuses = [];
     var equips = [];
 
-    for (i = 0; i < cards.length - 1; i++) {
+    // N cards = N(N-1)/2 pair checks.
+    //
+    // At 400 cards this is 79,800 checks, but each check now uses
+    // a direct object lookup instead of Array.find() + database lookup.
+    for (var i = 0; i < cards.length - 1; i++) {
         var card1 = cards[i];
-        var card1Fuses = fusionsList[card1.Id];
-        var card1Equips = equipsList[card1.Id];
-        for (j = i + 1; j < cards.length; j++) {
+
+        var card1Fusions = fusionLookup[card1.Id] || {};
+        var card1Equips = equipLookup[card1.Id] || {};
+
+        for (var j = i + 1; j < cards.length; j++) {
             var card2 = cards[j];
-            var fusion = card1Fuses.find((f) => f.card === card2.Id);
-            if (fusion) {
-                fuses.push({ card1: card1, card2: card2, result: getCardById(fusion.result) });
+
+            var fusionResultId = card1Fusions[card2.Id];
+
+            if (fusionResultId) {
+                fuses.push({
+                    card1: card1,
+                    card2: card2,
+                    result: getCardById(fusionResultId),
+                });
             }
-            var equip = card1Equips.find((e) => e === card2.Id);
-            if (equip) {
-                equips.push({ card1: card1, card2: card2 });
+
+            if (card1Equips[card2.Id]) {
+                equips.push({
+                    card1: card1,
+                    card2: card2,
+                });
             }
         }
     }
 
-    outputLeft.innerHTML = "<h2 class='center'>Fusions:</h2>";
-    outputLeft.innerHTML += fusesToHTML(fuses.sort((a, b) => b.result.Attack - a.result.Attack));
+    // Sort fusions by result ATK.
+    fuses.sort(function (a, b) {
+        return b.result.Attack - a.result.Attack;
+    });
 
-    outputRight.innerHTML = "<h2 class='center'>Equips:</h2>";
-    outputRight.innerHTML += fusesToHTML(equips);
+    outputLeft.innerHTML =
+        "<h2 class='center'>Fusions:</h2>" +
+        fusesToHTML(fuses);
+
+    outputRight.innerHTML =
+        "<h2 class='center'>Equips:</h2>" +
+        fusesToHTML(equips);
 }
+
+// ------------------------------------------------------------
+// INPUT / CARD DISPLAY
+// ------------------------------------------------------------
+
+function updateCardInfo(input, info) {
+    var card = getCardByName(input.value);
+
+    if (!card) {
+        info.innerHTML = input.value === "" ? "" : "Invalid card name";
+        return;
+    }
+
+    if (isMonster(card)) {
+        info.innerHTML =
+            formatStats(card.Attack, card.Defense) +
+            " [" +
+            cardTypes[card.Type] +
+            "]";
+    } else {
+        info.innerHTML = "[" + cardTypes[card.Type] + "]";
+    }
+}
+
+function createInput(slotNumber) {
+    var wrapper = document.createElement("div");
+    wrapper.className = "hand-slot";
+
+    var number = document.createElement("span");
+    number.className = "hand-slot-number";
+    number.textContent = slotNumber + ".";
+
+    var input = document.createElement("input");
+    input.type = "text";
+    input.id = "hand" + slotNumber;
+    input.className = "hand-card-input";
+    input.autocomplete = "off";
+
+    var info = document.createElement("span");
+    info.id = "hand" + slotNumber + "-info";
+    info.className = "hand-card-info";
+
+    wrapper.appendChild(number);
+    wrapper.appendChild(input);
+    wrapper.appendChild(info);
+
+    return {
+        wrapper: wrapper,
+        input: input,
+        info: info,
+    };
+}
+
+// ------------------------------------------------------------
+// PAGINATION
+// ------------------------------------------------------------
+
+function renderPage() {
+    handInputGroup.innerHTML = "";
+
+    var start = (currentPage - 1) * PAGE_SIZE;
+    var end = Math.min(start + PAGE_SIZE, HAND_SIZE);
+
+    for (var slot = start; slot < end; slot++) {
+        var slotNumber = slot + 1;
+        var elements = createInput(slotNumber);
+
+        handInputGroup.appendChild(elements.wrapper);
+
+        var card = handCards[slot];
+
+        if (card) {
+            elements.input.value = card.Name;
+            updateCardInfo(elements.input, elements.info);
+        }
+
+        initializeAutocomplete(
+            elements.input,
+            elements.info,
+            slot
+        );
+    }
+
+    updatePagination();
+}
+
+function initializeAutocomplete(input, info, slotIndex) {
+    var completion = new Awesomplete(input, {
+        list: cardNames,
+        autoFirst: true,
+        filter: Awesomplete.FILTER_STARTSWITH,
+    });
+
+    input.addEventListener("change", function () {
+        completion.select();
+
+        var card = getCardByName(input.value);
+
+        handCards[slotIndex] = card;
+
+        updateCardInfo(input, info);
+
+        findFusions();
+    });
+
+    input.addEventListener("awesomplete-selectcomplete", function () {
+        var card = getCardByName(input.value);
+
+        handCards[slotIndex] = card;
+
+        updateCardInfo(input, info);
+
+        findFusions();
+    });
+}
+
+// ------------------------------------------------------------
+// PAGINATION CONTROLS
+// ------------------------------------------------------------
+
+function updatePagination() {
+    var pageLabel = document.getElementById("hand-page-label");
+    var previousButton = document.getElementById("hand-prev");
+    var nextButton = document.getElementById("hand-next");
+
+    pageLabel.textContent =
+        "Slots " +
+        ((currentPage - 1) * PAGE_SIZE + 1) +
+        "-" +
+        Math.min(currentPage * PAGE_SIZE, HAND_SIZE) +
+        " of " +
+        HAND_SIZE;
+
+    previousButton.disabled = currentPage === 1;
+    nextButton.disabled = currentPage === totalPages;
+}
+
+function changePage(page) {
+    if (page < 1 || page > totalPages) {
+        return;
+    }
+
+    currentPage = page;
+    renderPage();
+
+    // Put focus on the first input on the new page.
+    var firstInput = document.getElementById(
+        "hand" + ((currentPage - 1) * PAGE_SIZE + 1)
+    );
+
+    if (firstInput) {
+        firstInput.focus();
+    }
+}
+
+document.getElementById("hand-prev").addEventListener("click", function () {
+    changePage(currentPage - 1);
+});
+
+document.getElementById("hand-next").addEventListener("click", function () {
+    changePage(currentPage + 1);
+});
+
+// ------------------------------------------------------------
+// RESET
+// ------------------------------------------------------------
 
 function resultsClear() {
     outputLeft.innerHTML = "";
@@ -141,36 +345,17 @@ function resultsClear() {
 }
 
 function inputsClear() {
-    for (var i = 1; i <= HAND_SIZE; i++) {
-        $("#hand" + i).val("");
-        $("#hand" + i + "-info").html("");
-    }
-}
+    handCards.fill(null);
 
-// Set up event listeners for each card input
-for (var i = 1; i <= HAND_SIZE; i++) {
-    $("#hand" + i).on("change", function () {
-        handCompletions[this.id].select(); // select the currently highlighted element
+    currentPage = 1;
 
-        if (this.value === "") {
-            // If the box is cleared, remove the card info
-            $("#" + this.id + "-info").html("");
-        } else {
-            checkCard(this.value, this.id + "-info");
-        }
-
-        resultsClear();
-        findFusions();
-    });
-
-    $("#hand" + i).on("awesomplete-selectcomplete", function () {
-        checkCard(this.value, this.id + "-info");
-        resultsClear();
-        findFusions();
-    });
-}
-
-$("#resetBtn").on("click", function () {
+    renderPage();
     resultsClear();
+}
+
+document.getElementById("resetBtn").addEventListener("click", function () {
     inputsClear();
 });
+
+// Initial render.
+renderPage();
