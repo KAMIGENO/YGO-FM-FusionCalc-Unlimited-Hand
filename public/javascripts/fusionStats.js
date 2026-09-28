@@ -1,29 +1,34 @@
 /*
- * Fusion Statistics
+ * ------------------------------------------------------------
+ * FILE: public/javascripts/fusionStats.js
+ * ------------------------------------------------------------
  *
  * Shows every card ranked by the number of unique cards
  * it can fuse with.
  *
- * Ranking uses competition ranking:
+ * Ranks are GLOBAL. Filtering changes which rows are visible,
+ * but it does not recalculate a card's rank from the filtered
+ * subset.
+ */
+
+
+/*
+ * ------------------------------------------------------------
+ * 1. INITIALIZATION
  *
- * Rank 1
- * Rank 2
- * Rank 3--6
- * Rank 3--6
- * Rank 3--6
- * Rank 3--6
- * Rank 7
- *
- * Ties therefore occupy all of the positions in the tie,
- * and the next rank skips those positions.
+ * Build the card lookup and the statistics data once.
+ * ------------------------------------------------------------
  */
 
 (function () {
 
     "use strict";
 
+
     var cardById = {};
     var statistics = [];
+    var globalRankLabels = {};
+
 
     var sortSelect = document.getElementById("fusion-sort");
     var filterInput = document.getElementById("fusion-filter");
@@ -34,12 +39,6 @@
     var detailsContainer = document.getElementById("fusion-details");
 
 
-    /*
-     * ------------------------------------------------------------
-     * BUILD CARD LOOKUP
-     * ------------------------------------------------------------
-     */
-
     card_db().get().forEach(function (card) {
 
         cardById[card.Id] = card;
@@ -49,52 +48,36 @@
 
     /*
      * ------------------------------------------------------------
-     * BUILD FUSION STATISTICS
+     * 2. BUILD FUSION STATISTICS
+     *
+     * Each card is counted against UNIQUE fusion partners.
      * ------------------------------------------------------------
-     *
-     * For each card, count the number of UNIQUE cards that
-     * it can fuse with.
-     *
-     * Example:
-     *
-     * Card A + Card B -> Result 1
-     * Card A + Card B -> Result 2
-     *
-     * Card B is still only counted ONCE as a fusion partner.
      */
 
     fusionsList.forEach(function (fusionList, cardId) {
 
         var partners = new Set();
-
-        if (fusionList) {
-
-            fusionList.forEach(function (fusion) {
-
-                /*
-                 * Each fusion entry is an object containing
-                 * the partner card ID and the result card ID.
-                 *
-                 * fusionsList is an array, so the second
-                 * forEach argument is only the array index.
-                 * Using it as the partner ID incorrectly adds
-                 * index 0 as "Unknown Card" and breaks result
-                 * lookups.
-                 */
-
-                partners.add(fusion.card);
-
-            });
-
-        }
-
         var card = cardById[cardId];
+
 
         if (!card) {
             return;
         }
 
+
+        (fusionList || []).forEach(function (fusion) {
+
+            if (!fusion || fusion.card == null) {
+                return;
+            }
+
+            partners.add(fusion.card);
+
+        });
+
+
         var partnerIds = Array.from(partners);
+
 
         statistics.push({
             card: card,
@@ -107,13 +90,95 @@
 
     /*
      * ------------------------------------------------------------
-     * SORTING
+     * 3. CALCULATE GLOBAL RANKS
+     *
+     * Global ranks are always based on count descending.
+     * Filtering never changes these labels.
+     * ------------------------------------------------------------
+     */
+
+    function calculateGlobalRanks() {
+
+        var rankedResults = statistics.slice();
+
+
+        rankedResults.sort(function (a, b) {
+
+            if (b.count !== a.count) {
+                return b.count - a.count;
+            }
+
+            return a.card.Name.localeCompare(b.card.Name);
+
+        });
+
+
+        var i = 0;
+
+
+        while (i < rankedResults.length) {
+
+            var count = rankedResults[i].count;
+            var startRank = i + 1;
+            var j = i + 1;
+
+
+            while (
+                j < rankedResults.length &&
+                rankedResults[j].count === count
+            ) {
+
+                j++;
+
+            }
+
+
+            var endRank = j;
+            var label;
+
+
+            if (startRank === endRank) {
+
+                label = "Rank " + startRank;
+
+            } else {
+
+                label =
+                    "Rank " +
+                    startRank +
+                    "--" +
+                    endRank;
+
+            }
+
+
+            for (var k = i; k < j; k++) {
+
+                globalRankLabels[rankedResults[k].card.Id] = label;
+
+            }
+
+
+            i = j;
+
+        }
+
+    }
+
+
+    calculateGlobalRanks();
+
+
+    /*
+     * ------------------------------------------------------------
+     * 4. SORTING
      * ------------------------------------------------------------
      */
 
     function sortStatistics(results) {
 
         var sortType = sortSelect.value;
+
 
         results.sort(function (a, b) {
 
@@ -146,11 +211,6 @@
             }
 
 
-            /*
-             * Default:
-             * name-asc
-             */
-
             return a.card.Name.localeCompare(b.card.Name);
 
         });
@@ -160,129 +220,10 @@
 
     /*
      * ------------------------------------------------------------
-     * RANK CALCULATION
-     * ------------------------------------------------------------
+     * 5. FILTERING
      *
-     * IMPORTANT:
-     *
-     * This is competition ranking.
-     *
-     * Example:
-     *
-     * Counts:
-     *
-     * 20
-     * 19
-     * 18
-     * 18
-     * 18
-     * 18
-     * 17
-     *
-     * Ranks:
-     *
-     * 1
-     * 2
-     * 3--6
-     * 3--6
-     * 3--6
-     * 3--6
-     * 7
-     */
-
-    function getRankLabels(results) {
-
-        var rankLabels = new Array(results.length);
-
-        var i = 0;
-
-        while (i < results.length) {
-
-            /*
-             * Only cards with the same fusion count are tied.
-             */
-
-            var count = results[i].count;
-
-
-            /*
-             * Array indexes start at zero,
-             * but ranks start at one.
-             */
-
-            var startRank = i + 1;
-
-            var j = i + 1;
-
-
-            /*
-             * Find the end of this group of tied cards.
-             */
-
-            while (
-                j < results.length &&
-                results[j].count === count
-            ) {
-
-                j++;
-
-            }
-
-
-            /*
-             * j is one position past the final tied card.
-             *
-             * Therefore j is also the final rank
-             * occupied by this tie.
-             */
-
-            var endRank = j;
-
-            var label;
-
-
-            if (startRank === endRank) {
-
-                label = "Rank " + startRank;
-
-            } else {
-
-                label =
-                    "Rank " +
-                    startRank +
-                    "--" +
-                    endRank;
-
-            }
-
-
-            /*
-             * Give every tied card the same rank label.
-             */
-
-            for (var k = i; k < j; k++) {
-
-                rankLabels[k] = label;
-
-            }
-
-
-            /*
-             * Continue with the next group.
-             */
-
-            i = j;
-
-        }
-
-        return rankLabels;
-
-    }
-
-
-    /*
-     * ------------------------------------------------------------
-     * FILTERING
+     * Filtering only controls visibility.
+     * Global rank values are preserved.
      * ------------------------------------------------------------
      */
 
@@ -292,11 +233,11 @@
             .trim()
             .toLowerCase();
 
+
         if (!searchText) {
-
             return statistics.slice();
-
         }
+
 
         return statistics.filter(function (entry) {
 
@@ -311,7 +252,7 @@
 
     /*
      * ------------------------------------------------------------
-     * RENDER MAIN TABLE
+     * 6. RENDER MAIN TABLE
      * ------------------------------------------------------------
      */
 
@@ -321,50 +262,26 @@
 
         sortStatistics(results);
 
-
-        /*
-         * Calculate ranks AFTER sorting.
-         */
-
-        var rankLabels = getRankLabels(results);
-
-
         tableBody.innerHTML = "";
 
 
-        results.forEach(function (entry, index) {
+        results.forEach(function (entry) {
 
             var row = document.createElement("tr");
 
             row.className = "fusion-stats-row";
-
             row.dataset.cardId = entry.card.Id;
 
 
-            /*
-             * Rank
-             */
-
             var rankCell = document.createElement("td");
+            rankCell.textContent = globalRankLabels[entry.card.Id];
 
-            rankCell.textContent = rankLabels[index];
-
-
-            /*
-             * Card name
-             */
 
             var nameCell = document.createElement("td");
-
             nameCell.textContent = entry.card.Name;
 
 
-            /*
-             * Number of fusion partners
-             */
-
             var countCell = document.createElement("td");
-
             countCell.textContent = entry.count;
 
 
@@ -372,46 +289,26 @@
             row.appendChild(nameCell);
             row.appendChild(countCell);
 
-
             tableBody.appendChild(row);
 
         });
 
 
         /*
-         * --------------------------------------------------------
-         * BLANK ROW
-         * --------------------------------------------------------
-         *
-         * Add a blank row at the bottom of the table.
-         *
-         * This row is intentionally not clickable and uses the
-         * requested #F8F9FA background color.
+         * Add the requested blank row at the bottom.
          */
 
         var blankRow = document.createElement("tr");
 
         blankRow.className = "fusion-stats-blank-row";
-
         blankRow.style.backgroundColor = "#F8F9FA";
 
 
-        /*
-         * The main Fusion Statistics table has 3 columns:
-         *
-         * Rank | Card | Fusion Partners
-         */
-
-        for (
-            var blankCellIndex = 0;
-            blankCellIndex < 3;
-            blankCellIndex++
-        ) {
+        for (var blankCellIndex = 0; blankCellIndex < 3; blankCellIndex++) {
 
             var blankCell = document.createElement("td");
 
             blankCell.innerHTML = "&nbsp;";
-
             blankRow.appendChild(blankCell);
 
         }
@@ -424,11 +321,8 @@
 
     /*
      * ------------------------------------------------------------
-     * RENDER CARD DETAILS
+     * 7. RENDER CARD DETAILS
      * ------------------------------------------------------------
-     *
-     * Clicking a card in the statistics table shows every card
-     * that it can fuse with and the resulting card.
      */
 
     function showCardDetails(cardId) {
@@ -441,9 +335,7 @@
 
 
         if (!entry) {
-
             return;
-
         }
 
 
@@ -457,172 +349,94 @@
         detailsContainer.innerHTML = "";
 
 
-        /*
-         * Create the details table.
-         */
-
         var table = document.createElement("table");
 
-        table.className =
-            "table table-striped table-bordered";
+        table.className = "table table-striped table-bordered";
 
-
-        /*
-         * Table header.
-         */
 
         var thead = document.createElement("thead");
-
         var headerRow = document.createElement("tr");
-
         var partnerHeader = document.createElement("th");
-
-        partnerHeader.textContent = "Fusion Partner";
-
         var resultHeader = document.createElement("th");
 
+        partnerHeader.textContent = "Fusion Partner";
         resultHeader.textContent = "Result";
-
 
         headerRow.appendChild(partnerHeader);
         headerRow.appendChild(resultHeader);
-
         thead.appendChild(headerRow);
-
         table.appendChild(thead);
 
 
-        /*
-         * Table body.
-         */
-
         var tbody = document.createElement("tbody");
+        var fusionList = fusionsList[entry.card.Id] || [];
 
 
-        /*
-         * Get the fusion list for this card.
-         */
+        var detailEntries = entry.partnerIds.map(function (partnerId) {
 
-        var fusionList = fusionsList[entry.card.Id];
+            var partnerCard = cardById[partnerId];
+            var fusionEntry = fusionList.find(function (fusion) {
 
-
-        if (fusionList) {
-
-            entry.partnerIds.forEach(function (partnerId) {
-
-                var row = document.createElement("tr");
-
-                var partnerCell = document.createElement("td");
-
-                var resultCell = document.createElement("td");
-
-
-                /*
-                 * Find partner card.
-                 */
-
-                var partnerCard = cardById[partnerId];
-
-
-                if (partnerCard) {
-
-                    partnerCell.textContent =
-                        partnerCard.Name;
-
-                } else {
-
-                    partnerCell.textContent =
-                        "Unknown Card";
-
-                }
-
-
-                /*
-                 * Find the fusion result.
-                 *
-                 * Each entry in fusionList is:
-                 *
-                 *     { card: partnerId, result: resultId }
-                 */
-
-                var fusionEntry = fusionList.find(function (fusion) {
-
-                    return String(fusion.card) === String(partnerId);
-
-                });
-
-
-                var resultId =
-                    fusionEntry
-                        ? fusionEntry.result
-                        : null;
-
-
-                var resultCard = cardById[resultId];
-
-
-                if (resultCard) {
-
-                    resultCell.textContent =
-                        resultCard.Name;
-
-                } else {
-
-                    resultCell.textContent =
-                        "Unknown Result";
-
-                }
-
-
-                row.appendChild(partnerCell);
-                row.appendChild(resultCell);
-
-                tbody.appendChild(row);
+                return String(fusion.card) === String(partnerId);
 
             });
 
-        }
+            return {
+                partnerCard: partnerCard,
+                resultCard: fusionEntry
+                    ? cardById[fusionEntry.result]
+                    : null
+            };
+
+        });
+
+
+        detailEntries.sort(function (a, b) {
+
+            var nameA = a.partnerCard ? a.partnerCard.Name : "";
+            var nameB = b.partnerCard ? b.partnerCard.Name : "";
+
+            return nameA.localeCompare(nameB);
+
+        });
+
+
+        detailEntries.forEach(function (detail) {
+
+            var row = document.createElement("tr");
+            var partnerCell = document.createElement("td");
+            var resultCell = document.createElement("td");
+
+            partnerCell.textContent = detail.partnerCard
+                ? detail.partnerCard.Name
+                : "Unknown Card";
+
+            resultCell.textContent = detail.resultCard
+                ? detail.resultCard.Name
+                : "Unknown Result";
+
+            row.appendChild(partnerCell);
+            row.appendChild(resultCell);
+            tbody.appendChild(row);
+
+        });
 
 
         /*
-         * --------------------------------------------------------
-         * BLANK ROW
-         * --------------------------------------------------------
-         *
-         * Add a blank row at the bottom of the
-         * Fusion Partner / Result table.
-         *
-         * This row is intentionally not clickable and uses the
-         * requested #F8F9FA background color.
+         * Add the requested blank row at the bottom of the details table.
          */
 
-        var blankDetailRow =
-            document.createElement("tr");
+        var blankDetailRow = document.createElement("tr");
 
-        blankDetailRow.className =
-            "fusion-stats-blank-row";
-
-        blankDetailRow.style.backgroundColor =
-            "#F8F9FA";
+        blankDetailRow.className = "fusion-stats-blank-row";
+        blankDetailRow.style.backgroundColor = "#F8F9FA";
 
 
-        /*
-         * The details table has 2 columns:
-         *
-         * Fusion Partner | Result
-         */
+        for (var blankDetailCellIndex = 0; blankDetailCellIndex < 2; blankDetailCellIndex++) {
 
-        for (
-            var blankDetailCellIndex = 0;
-            blankDetailCellIndex < 2;
-            blankDetailCellIndex++
-        ) {
-
-            var blankDetailCell =
-                document.createElement("td");
+            var blankDetailCell = document.createElement("td");
 
             blankDetailCell.innerHTML = "&nbsp;";
-
             blankDetailRow.appendChild(blankDetailCell);
 
         }
@@ -630,28 +444,14 @@
 
         tbody.appendChild(blankDetailRow);
 
-
         table.appendChild(tbody);
-
         detailsContainer.appendChild(table);
-
-
-        /*
-         * Show the details section.
-         */
 
         detailsSection.style.display = "";
 
-
-        /*
-         * Scroll to the details.
-         */
-
         detailsSection.scrollIntoView({
-
             behavior: "smooth",
             block: "start"
-
         });
 
     }
@@ -659,57 +459,36 @@
 
     /*
      * ------------------------------------------------------------
-     * TABLE CLICK HANDLER
+     * 8. EVENT HANDLERS
      * ------------------------------------------------------------
      */
 
     tableBody.addEventListener("click", function (event) {
 
-        var row =
-            event.target.closest(".fusion-stats-row");
-
+        var row = event.target.closest(".fusion-stats-row");
 
         if (!row) {
-
             return;
-
         }
-
 
         showCardDetails(row.dataset.cardId);
 
     });
 
 
-    /*
-     * ------------------------------------------------------------
-     * SORT CHANGE
-     * ------------------------------------------------------------
-     */
-
     sortSelect.addEventListener("change", function () {
-
         renderStatistics();
-
     });
 
-
-    /*
-     * ------------------------------------------------------------
-     * SEARCH FILTER
-     * ------------------------------------------------------------
-     */
 
     filterInput.addEventListener("input", function () {
-
         renderStatistics();
-
     });
 
 
     /*
      * ------------------------------------------------------------
-     * INITIALIZE
+     * 9. INITIAL RENDER
      * ------------------------------------------------------------
      */
 
@@ -718,3 +497,10 @@
     renderStatistics();
 
 })();
+
+
+/*
+ * ------------------------------------------------------------
+ * END OF FILE
+ * ------------------------------------------------------------
+ */
