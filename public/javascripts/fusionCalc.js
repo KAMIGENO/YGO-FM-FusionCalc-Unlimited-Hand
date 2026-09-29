@@ -4,7 +4,7 @@
  * ------------------------------------------------------------
  *
  * Handles the 800-slot Fusion Calculator.
- * Only the currently visible 20 inputs exist in the DOM;
+ * Only the currently visible 10 inputs exist in the DOM;
  * all 800 card selections are stored in handCards.
  */
 
