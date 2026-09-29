@@ -217,6 +217,30 @@ function formatGuardianStars(card) {
 }
 
 
+function isFieldCard(card) {
+    return !!card &&
+        card.Type === 20 &&
+        fieldList.some(function (definition) {
+            return definition.CardId === card.Id;
+        });
+}
+
+
+function formatCardType(card) {
+    if (!card) {
+        return "Unknown";
+    }
+
+
+    if (card.Type === 20) {
+        return isFieldCard(card) ? "Magic (Field)" : "Magic (Effect)";
+    }
+
+
+    return cardTypes[card.Type] || "Unknown";
+}
+
+
 function formatCardDetails(card) {
     if (!card) {
         return "";
@@ -224,7 +248,7 @@ function formatCardDetails(card) {
 
     var details =
         "Type: " +
-        (cardTypes[card.Type] || "Unknown");
+        formatCardType(card);
 
     if (isMonster(card)) {
         details +=
@@ -734,16 +758,7 @@ function updateCardInfo(input, info) {
     }
 
 
-    if (isMonster(card)) {
-
-        info.textContent =
-            formatCardDetails(card);
-
-    } else {
-
-        info.textContent = formatCardSummary(card);
-
-    }
+    info.textContent = formatCardDetails(card);
 
 }
 
