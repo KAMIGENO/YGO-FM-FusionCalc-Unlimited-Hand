@@ -53,30 +53,26 @@
     }
 
 
-    function getMonsterCards() {
+    var monsterCards = allCards.filter(function (card) {
 
-        return allCards.filter(function (card) {
+        return isMonster(card);
 
-            return isMonster(card);
+    });
 
-        });
+    var monsterCardsByName = monsterCards.slice().sort(function (a, b) {
 
-    }
+        return a.Name.localeCompare(b.Name);
+
+    });
 
 
     function getCardsForTypes(typeIds) {
 
-        return getMonsterCards()
-            .filter(function (card) {
+        return monsterCardsByName.filter(function (card) {
 
-                return typeIds.indexOf(card.Type) !== -1;
+            return typeIds.indexOf(card.Type) !== -1;
 
-            })
-            .sort(function (a, b) {
-
-                return a.Name.localeCompare(b.Name);
-
-            });
+        });
 
     }
 
@@ -114,9 +110,7 @@
                 return {
                     typeId: Number(typeId),
                     typeName: getTypeName(Number(typeId)),
-                    cards: groups[typeId].sort(function (a, b) {
-                        return a.Name.localeCompare(b.Name);
-                    })
+                    cards: groups[typeId]
                 };
 
             })
@@ -170,7 +164,7 @@
         });
 
 
-        var neutralCards = getMonsterCards()
+        var neutralCards = monsterCardsByName
             .filter(function (card) {
 
                 return !positiveIds[card.Id] && !negativeIds[card.Id];
@@ -183,7 +177,7 @@
             });
 
 
-        statistics.push({
+        var statistic = {
             card: fieldCard,
             positiveCards: positiveCards,
             neutralCards: neutralCards,
@@ -195,7 +189,9 @@
             positiveGroups: buildTypeGroups(positiveCards),
             neutralGroups: buildTypeGroups(neutralCards),
             negativeGroups: buildTypeGroups(negativeCards)
-        });
+        };
+
+        statistics.push(statistic);
 
     });
 
@@ -254,7 +250,7 @@
             if (startRank === endRank) {
                 label = "Rank " + startRank;
             } else {
-                label = "Rank " + startRank + "--" + endRank;
+                label = "Rank " + startRank + "–" + endRank;
             }
 
 
@@ -341,9 +337,7 @@
 
     function getEffect(entry, monsterCard) {
 
-        if (entry.positiveCards.some(function (card) {
-            return card.Id === monsterCard.Id;
-        })) {
+        if (entry.positiveIdSet[monsterCard.Id]) {
             return {
                 label: "Positive",
                 change: "+500 ATK/DEF"
@@ -351,9 +345,7 @@
         }
 
 
-        if (entry.negativeCards.some(function (card) {
-            return card.Id === monsterCard.Id;
-        })) {
+        if (entry.negativeIdSet[monsterCard.Id]) {
             return {
                 label: "Negative",
                 change: "-500 ATK/DEF"
@@ -651,7 +643,7 @@
         }
 
 
-        return getMonsterCards()
+        return monsterCardsByName
             .filter(function (card) {
 
                 return card.Name
