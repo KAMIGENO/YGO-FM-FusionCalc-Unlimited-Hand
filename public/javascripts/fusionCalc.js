@@ -3,9 +3,9 @@
  * FILE: public/javascripts/fusionCalc.js
  * ------------------------------------------------------------
  *
- * Handles the 400-slot Fusion Calculator.
+ * Handles the 800-slot Fusion Calculator.
  * Only the currently visible 20 inputs exist in the DOM;
- * all 400 card selections are stored in handCards.
+ * all 800 card selections are stored in handCards.
  */
 
 
@@ -19,7 +19,7 @@ var outputLeft = document.getElementById("outputarealeft");
 var outputRight = document.getElementById("outputarearight");
 var handInputGroup = document.getElementById("hand-input-group");
 
-var HAND_SIZE = 400;
+var HAND_SIZE = 800;
 var PAGE_SIZE = 10;
 
 var handCards = new Array(HAND_SIZE).fill(null);
@@ -76,7 +76,7 @@ function getCardById(id) {
  * 3. FUSION AND EQUIP LOOKUPS
  *
  * Build O(1) pair lookups for the 79,800 possible pairs in a
- * completely filled 400-card hand.
+ * completely filled 800-card hand.
  * ------------------------------------------------------------
  */
 
