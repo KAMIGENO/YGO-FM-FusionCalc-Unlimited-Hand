@@ -20,7 +20,7 @@ var outputRight = document.getElementById("outputarearight");
 var handInputGroup = document.getElementById("hand-input-group");
 
 var HAND_SIZE = 400;
-var PAGE_SIZE = 20;
+var PAGE_SIZE = 10;
 
 var handCards = new Array(HAND_SIZE).fill(null);
 var currentPage = 1;
@@ -189,30 +189,7 @@ function escapeHTML(value) {
 
 
 function formatStats(attack, defense) {
-    return "(" + attack + "/" + defense + ")";
-}
-
-
-function formatCardInfo(card) {
-    if (!card) {
-        return "";
-    }
-
-    var typeName = cardTypes[card.Type] || "Unknown";
-    var starA = isMonster(card) ? (starNames[card.GuardianStarA] || "-") : "-";
-    var starB = isMonster(card) ? (starNames[card.GuardianStarB] || "-") : "-";
-    var attackDefense = isMonster(card)
-        ? card.Attack + "A / " + card.Defense + "D"
-        : "-";
-
-    return (
-        "ID: " + card.Id +
-        " | " + card.Name +
-        " | Type: " + typeName +
-        " | Guardian Star A: " + starA +
-        " | Guardian Star B: " + starB +
-        " | " + attackDefense
-    );
+    return attack + "A / " + defense + "D";
 }
 
 
@@ -221,33 +198,55 @@ function isMonster(card) {
 }
 
 
-function formatResultCard(card) {
+function formatCardId(id) {
+    return "#" + String(id).padStart(3, "0");
+}
 
+
+function formatGuardianStar(value) {
+    return starNames[value] || starNames[0];
+}
+
+
+function formatGuardianStars(card) {
+    return formatGuardianStar(card.GuardianStarA) + " / " + formatGuardianStar(card.GuardianStarB);
+}
+
+
+function formatCardSummary(card) {
     if (!card) {
         return "";
     }
 
-    var result = escapeHTML(formatCardInfo(card));
-
+    var result =
+        formatCardId(card.Id) +
+        " " +
+        card.Name +
+        " | Type: " +
+        (cardTypes[card.Type] || "Unknown");
 
     if (isMonster(card)) {
-
         result +=
-            " " +
-            formatStats(card.Attack, card.Defense);
-
-    } else {
-
-        result +=
-            " [" +
-            escapeHTML(cardTypes[card.Type]) +
-            "]";
-
+            " | Guardian Stars: " +
+            formatGuardianStars(card) +
+            " | " +
+            card.Attack +
+            "A / " +
+            card.Defense +
+            "D";
     }
 
-
     return result;
+}
 
+
+function formatInputCard(card) {
+    return formatCardId(card.Id) + " " + card.Name;
+}
+
+
+function formatResultCard(card) {
+    return formatCardSummary(card);
 }
 
 
@@ -257,10 +256,10 @@ function fusesToHTML(fuselist) {
         .map(function (fusion) {
 
             var res =
-                "<div class='result-div'>Input: " +
-                escapeHTML(fusion.card1.Name) +
-                "<br>Input: " +
-                escapeHTML(fusion.card2.Name);
+                "<div class='result-div'>" +
+                formatInputCard(fusion.card1) +
+                "<br>" +
+                formatInputCard(fusion.card2);
 
 
             if (fusion.glitch) {
@@ -274,139 +273,15 @@ function fusesToHTML(fuselist) {
 
                 res +=
                     "<br>Result: " +
-                    escapeHTML(formatCardInfo(fusion.result));
-
-
-                if (isMonster(fusion.result)) {
-
-                    res +=
-                        " " +
-                        formatStats(
-                            fusion.result.Attack,
-                            fusion.result.Defense
-                        );
-
-                } else {
-
-                    res +=
-                        " [" +
-                        escapeHTML(cardTypes[fusion.result.Type]) +
-                        "]";
-
-                }
+                    formatResultCard(fusion.result);
 
             }
 
 
-            return res + "<br><br></div>";
+            return res + "</div>";
 
         })
         .join("\n");
-
-}
-
-
-/*
- * ------------------------------------------------------------
- * 5. FUSION CALCULATION
- * ------------------------------------------------------------
- */
-
-function findFusions() {
-
-    var cards = handCards.filter(function (card) {
-        return card !== null;
-    });
-
-    var fuses = [];
-    var equips = [];
-
-
-    for (var i = 0; i < cards.length - 1; i++) {
-
-        var card1 = cards[i];
-        var card1Fusions = fusionLookup[card1.Id] || {};
-        var card1Equips = equipLookup[card1.Id] || {};
-
-
-        for (var j = i + 1; j < cards.length; j++) {
-
-            var card2 = cards[j];
-            var fusionResultId = card1Fusions[card2.Id];
-
-
-            if (fusionResultId) {
-
-                var fusionResult = getCardById(fusionResultId);
-
-
-                if (fusionResult) {
-
-                    fuses.push({
-                        card1: card1,
-                        card2: card2,
-                        result: fusionResult
-                    });
-
-                }
-
-            }
-
-
-            var glitchResultId =
-                (glitchFusionLookup[card1.Id] || {})[card2.Id];
-
-
-            if (glitchResultId) {
-
-                var glitchResult = getCardById(glitchResultId);
-
-
-                if (glitchResult) {
-
-                    fuses.push({
-                        card1: card1,
-                        card2: card2,
-                        result: glitchResult,
-                        glitch: true
-                    });
-
-                }
-
-            }
-
-
-            if (card1Equips[card2.Id]) {
-
-                equips.push({
-                    card1: card1,
-                    card2: card2
-                });
-
-            }
-
-        }
-
-    }
-
-
-    fuses.sort(function (a, b) {
-        return b.result.Attack - a.result.Attack;
-    });
-
-
-    outputLeft.innerHTML =
-        "<h2 class='center'>Fusions:</h2>" +
-        fusesToHTML(fuses);
-
-    var rituals = findRituals(cards);
-
-
-    outputRight.innerHTML =
-        "<h2 class='center'>Equips:</h2>" +
-        fusesToHTML(equips) +
-        "<h2 class='center'>Rituals:</h2>" +
-        ritualsToHTML(rituals);
 
 }
 
@@ -487,13 +362,13 @@ function ritualsToHTML(ritualList) {
 
             return (
                 "<div class='result-div'>Ritual: " +
-                escapeHTML(ritual.ritualCard.Name) +
+                formatInputCard(ritual.ritualCard) +
                 "<br>Material: " +
-                escapeHTML(ritual.card1.Name) +
+                formatInputCard(ritual.card1) +
                 "<br>Material: " +
-                escapeHTML(ritual.card2.Name) +
+                formatInputCard(ritual.card2) +
                 "<br>Material: " +
-                escapeHTML(ritual.card3.Name) +
+                formatInputCard(ritual.card3) +
                 "<br>Result: " +
                 formatResultCard(ritual.result) +
                 "<br><br></div>"
@@ -531,11 +406,11 @@ function updateCardInfo(input, info) {
     if (isMonster(card)) {
 
         info.textContent =
-            formatCardInfo(card);
+            formatCardSummary(card);
 
     } else {
 
-        info.textContent = "[" + cardTypes[card.Type] + "]";
+        info.textContent = formatCardSummary(card);
 
     }
 
