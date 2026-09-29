@@ -383,8 +383,10 @@ function fusesToHTML(fuselist) {
             if (fusion.result) {
                 res +=
                     "<p class=\"card-text fusion-search-result\">" +
-                    "<strong>Result:</strong><br>" +
-                    escapeHTML(formatCardSummary(fusion.result)).replace(/\n/g, "<br>") +
+                    "<strong>Result: " +
+                    escapeHTML(formatCardId(fusion.result.Id) + " " + fusion.result.Name) +
+                    "</strong><br>" +
+                    escapeHTML(formatCardDetails(fusion.result)) +
                     "</p>";
             }
 
