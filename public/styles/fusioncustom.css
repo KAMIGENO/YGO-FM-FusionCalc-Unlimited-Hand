@@ -1,7 +1,19 @@
+main.container {
+    max-width: 1500px;
+}
+
+.table-responsive {
+    width: 100%;
+}
+
+.table {
+    width: 100%;
+}
+
 .hand-input-group {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-template-rows: repeat(5, auto);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-rows: repeat(2, auto);
     grid-auto-flow: column;
     gap: 12px 18px;
     width: 100%;
@@ -94,7 +106,7 @@
 }
 
 .fusion-stats-table {
-    max-width: 900px;
+    max-width: none;
     margin: 0 auto;
 }
 
@@ -113,7 +125,7 @@
 }
 
 #fusion-details {
-    max-width: 900px;
+    max-width: none;
     margin: 0 auto;
 }
 
@@ -142,7 +154,7 @@
 }
 
 .equip-stats-table {
-    max-width: 900px;
+    max-width: none;
     margin: 0 auto;
 }
 
@@ -161,7 +173,7 @@
 }
 
 #equip-details {
-    max-width: 900px;
+    max-width: none;
     margin: 0 auto;
 }
 
@@ -175,4 +187,33 @@
         grid-template-columns: 1fr;
     }
 
+}
+
+
+
+
+.fusion-card-summary-secondary {
+    padding-top: 0.35rem;
+    color: #666;
+}
+
+.equip-monster-summary {
+    white-space: pre-line;
+}
+
+.field-positive {
+    color: #198754;
+    font-weight: 600;
+}
+
+.field-negative {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+@media (max-width: 767px) {
+    .hand-input-group {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
 }
