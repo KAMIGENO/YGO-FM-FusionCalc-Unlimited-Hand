@@ -130,6 +130,10 @@
 
 
     function formatGuardianStar(value) {
+        if (value === 10) {
+            return starNames[9];
+        }
+
         return starNames[value] || starNames[0];
     }
 
@@ -141,11 +145,11 @@
             card.Name +
             "\nType: " +
             (cardTypes[card.Type] || "Unknown") +
-            " - Guardian Stars: " +
+            " — Guardian Stars: " +
             formatGuardianStar(card.GuardianStarA) +
             " / " +
             formatGuardianStar(card.GuardianStarB) +
-            " - " +
+            " — " +
             card.Attack +
             "A / " +
             card.Defense +
