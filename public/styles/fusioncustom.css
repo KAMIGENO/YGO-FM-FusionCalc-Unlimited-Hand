@@ -272,20 +272,23 @@ main.container {
 
 
 /* ------------------------------------------------------------
-   FUSION CALCULATOR RESULT BOXES
+   FUSION CALCULATOR RESULTS COLUMN BALANCE
    ------------------------------------------------------------ */
 
-.result-div {
-    width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 1rem;
-    padding: 0.75rem 1rem;
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 0.25rem;
-    color: #212529;
+.fusion-calculator-results .row > .col-sm:first-child {
+    flex: 0 0 55%;
+    max-width: 55%;
 }
 
-.ritual-result > div + div {
-    margin-top: 0.35rem;
+.fusion-calculator-results .row > .col-sm:last-child {
+    flex: 0 0 45%;
+    max-width: 45%;
+}
+
+@media (max-width: 575px) {
+    .fusion-calculator-results .row > .col-sm:first-child,
+    .fusion-calculator-results .row > .col-sm:last-child {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
 }
