@@ -230,7 +230,7 @@ function formatCardDetails(card) {
 
     var details =
         "Type: " +
-        (cardTypes[card.Type] || "Unknown");
+        getCardTypeName(card);
 
     if (isMonster(card)) {
         details +=
@@ -869,17 +869,7 @@ function updateCardInfo(input, info) {
     }
 
 
-    var typeLabel = cardTypes[card.Type];
-
-
-    if (card.Type === 20) {
-        typeLabel = fieldCardIds[card.Id]
-            ? "Magic (Field)"
-            : "Magic (Effect)";
-    }
-
-
-    info.textContent = "Type: " + typeLabel;
+    info.textContent = "Type: " + getCardTypeName(card);
 
 }
 
