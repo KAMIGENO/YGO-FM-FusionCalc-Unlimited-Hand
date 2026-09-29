@@ -361,7 +361,12 @@
     }
 
 
-    function createEffectTable(title, cards, effectText) {
+    function formatCardId(id) {
+    return "#" + String(id).padStart(3, "0");
+}
+
+
+function createEffectTable(title, cards, effectText) {
 
         var wrapper = document.createElement("div");
         wrapper.className = "mb-5";
@@ -400,7 +405,7 @@
             var row = document.createElement("tr");
 
             var nameCell = document.createElement("td");
-            nameCell.textContent = card.Name;
+            nameCell.textContent = formatCardId(card.Id) + " " + card.Name;
 
             var typeCell = document.createElement("td");
             typeCell.textContent = getTypeName(card.Type);
@@ -475,7 +480,7 @@
             var cardsCell = document.createElement("td");
             cardsCell.textContent = group.cards
                 .map(function (card) {
-                    return card.Name;
+                    return formatCardId(card.Id) + " " + card.Name;
                 })
                 .join(", ");
 
@@ -602,6 +607,7 @@
             var negativeRank = negativeRankLabels[entry.card.Id] || "Rank -";
 
             summary.textContent =
+                formatCardId(entry.card.Id) + " " +
                 entry.card.Name +
                 " — + " + entry.positiveCount +
                 " / ± " + entry.neutralCount +
@@ -672,7 +678,7 @@
             var emptySearchRow = document.createElement("tr");
             var emptySearchCell = document.createElement("td");
 
-            emptySearchCell.colSpan = 5;
+            emptySearchCell.colSpan = 4;
             emptySearchCell.className = "text-center";
             emptySearchCell.textContent = "Type a monster name to search.";
 
@@ -689,7 +695,7 @@
             var noResultsRow = document.createElement("tr");
             var noResultsCell = document.createElement("td");
 
-            noResultsCell.colSpan = 5;
+            noResultsCell.colSpan = 4;
             noResultsCell.className = "text-center";
             noResultsCell.textContent = "No monster cards found.";
 
@@ -706,38 +712,68 @@
 
         monsters.forEach(function (monsterCard) {
 
-            var monsterTypeName = getTypeName(monsterCard.Type);
-
+            var positiveFields = [];
+            var negativeFields = [];
 
             statistics.forEach(function (entry) {
 
-                var effect = getEffect(entry, monsterCard);
-                var row = document.createElement("tr");
-
-                var nameCell = document.createElement("td");
-                nameCell.textContent = monsterCard.Name;
-
-                var typeCell = document.createElement("td");
-                typeCell.textContent = monsterTypeName;
-
-                var fieldCell = document.createElement("td");
-                fieldCell.textContent = entry.card.Name;
-
-                var effectCell = document.createElement("td");
-                effectCell.textContent = effect.label;
-
-                var changeCell = document.createElement("td");
-                changeCell.textContent = effect.change;
-
-                row.appendChild(nameCell);
-                row.appendChild(typeCell);
-                row.appendChild(fieldCell);
-                row.appendChild(effectCell);
-                row.appendChild(changeCell);
-
-                fragment.appendChild(row);
+                if (entry.positiveIdSet[monsterCard.Id]) {
+                    positiveFields.push(entry.card);
+                } else if (entry.negativeIdSet[monsterCard.Id]) {
+                    negativeFields.push(entry.card);
+                }
 
             });
+
+            positiveFields.sort(function (a, b) {
+                return a.Name.localeCompare(b.Name);
+            });
+
+            negativeFields.sort(function (a, b) {
+                return a.Name.localeCompare(b.Name);
+            });
+
+            var row = document.createElement("tr");
+
+            var nameCell = document.createElement("td");
+            nameCell.textContent = formatCardId(monsterCard.Id) + " " + monsterCard.Name;
+
+            var typeCell = document.createElement("td");
+            typeCell.textContent = getTypeName(monsterCard.Type);
+
+            var positiveCell = document.createElement("td");
+            positiveFields.forEach(function (fieldCard, index) {
+                if (index) {
+                    positiveCell.appendChild(document.createTextNode(", "));
+                }
+                var positive = document.createElement("span");
+                positive.className = "field-positive";
+                positive.textContent = "+ " + formatCardId(fieldCard.Id) + " " + fieldCard.Name;
+                positiveCell.appendChild(positive);
+            });
+            if (!positiveFields.length) {
+                positiveCell.textContent = "—";
+            }
+
+            var negativeCell = document.createElement("td");
+            negativeFields.forEach(function (fieldCard, index) {
+                if (index) {
+                    negativeCell.appendChild(document.createTextNode(", "));
+                }
+                var negative = document.createElement("span");
+                negative.className = "field-negative";
+                negative.textContent = "- " + formatCardId(fieldCard.Id) + " " + fieldCard.Name;
+                negativeCell.appendChild(negative);
+            });
+            if (!negativeFields.length) {
+                negativeCell.textContent = "—";
+            }
+
+            row.appendChild(nameCell);
+            row.appendChild(typeCell);
+            row.appendChild(positiveCell);
+            row.appendChild(negativeCell);
+            fragment.appendChild(row);
 
         });
 
