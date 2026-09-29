@@ -28,6 +28,7 @@
     var cardById = {};
     var statistics = [];
     var globalRankLabels = {};
+    var glitchFusionDetails = {};
 
 
     var sortSelect = document.getElementById("fusion-sort");
@@ -72,6 +73,70 @@
             }
 
             partners.add(fusion.card);
+
+        });
+
+
+        glitchFusions.forEach(function (glitchFusion) {
+
+            var glitchCard1 = null;
+            var glitchCard2 = null;
+            var glitchResult = null;
+
+            Object.keys(cardById).forEach(function (id) {
+
+                var candidate = cardById[id];
+
+                if (candidate.Name === glitchFusion.card1) {
+                    glitchCard1 = candidate;
+                }
+
+                if (candidate.Name === glitchFusion.card2) {
+                    glitchCard2 = candidate;
+                }
+
+                if (candidate.Name === glitchFusion.result) {
+                    glitchResult = candidate;
+                }
+
+            });
+
+
+            if (!glitchCard1 || !glitchCard2 || !glitchResult) {
+                return;
+            }
+
+
+            if (glitchCard1.Id === cardId) {
+
+                partners.add(glitchCard2.Id);
+
+                if (!glitchFusionDetails[cardId]) {
+                    glitchFusionDetails[cardId] = [];
+                }
+
+                glitchFusionDetails[cardId].push({
+                    partnerId: glitchCard2.Id,
+                    resultId: glitchResult.Id
+                });
+
+            }
+
+
+            if (glitchCard2.Id === cardId) {
+
+                partners.add(glitchCard1.Id);
+
+                if (!glitchFusionDetails[cardId]) {
+                    glitchFusionDetails[cardId] = [];
+                }
+
+                glitchFusionDetails[cardId].push({
+                    partnerId: glitchCard1.Id,
+                    resultId: glitchResult.Id
+                });
+
+            }
 
         });
 
@@ -414,6 +479,30 @@
             resultCell.textContent = detail.resultCard
                 ? detail.resultCard.Name
                 : "Unknown Result";
+
+            row.appendChild(partnerCell);
+            row.appendChild(resultCell);
+            tbody.appendChild(row);
+
+        });
+
+
+        (glitchFusionDetails[entry.card.Id] || []).forEach(function (glitch) {
+
+            var row = document.createElement("tr");
+            var partnerCell = document.createElement("td");
+            var resultCell = document.createElement("td");
+
+            var partnerCard = cardById[glitch.partnerId];
+            var resultCard = cardById[glitch.resultId];
+
+            partnerCell.textContent = partnerCard
+                ? partnerCard.Name
+                : "Unknown Card";
+
+            resultCell.innerHTML =
+                "<strong>Glitch Fusion</strong><br>" +
+                (resultCard ? resultCard.Name : "Unknown Result");
 
             row.appendChild(partnerCell);
             row.appendChild(resultCell);
