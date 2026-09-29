@@ -319,19 +319,23 @@
      * 7
      */
 
-    function getRankLabels(results) {
+    function getGlobalRankLabels() {
 
-        var rankLabels = new Array(results.length);
+        var rankedResults = statistics.slice();
+
+        sortStatistics(rankedResults);
+
+        var rankLabels = {};
 
         var i = 0;
 
-        while (i < results.length) {
+        while (i < rankedResults.length) {
 
             /*
              * Only cards with the same fusion count are tied.
              */
 
-            var count = results[i].count;
+            var count = rankedResults[i].count;
 
 
             /*
@@ -349,8 +353,8 @@
              */
 
             while (
-                j < results.length &&
-                results[j].count === count
+                j < rankedResults.length &&
+                rankedResults[j].count === count
             ) {
 
                 j++;
@@ -391,7 +395,7 @@
 
             for (var k = i; k < j; k++) {
 
-                rankLabels[k] = label;
+                rankLabels[rankedResults[k].card.Id] = label;
 
             }
 
@@ -452,10 +456,11 @@
 
 
         /*
-         * Calculate ranks AFTER sorting.
+         * Global ranks are calculated from the complete statistics set.
+         * Filtering only changes which rows are visible.
          */
 
-        var rankLabels = getRankLabels(results);
+        var rankLabels = getGlobalRankLabels();
 
 
         tableBody.innerHTML = "";
@@ -476,7 +481,7 @@
 
             var rankCell = document.createElement("td");
 
-            rankCell.textContent = rankLabels[index];
+            rankCell.textContent = rankLabels[entry.card.Id];
             rankCell.style.verticalAlign = "middle";
 
 
