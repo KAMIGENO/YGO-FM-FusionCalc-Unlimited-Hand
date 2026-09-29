@@ -241,3 +241,31 @@ main.container {
 .fusion-source-credit {
     margin-top: 2rem !important;
 }
+
+/* ------------------------------------------------------------
+   FUSION CALCULATOR CHAINS
+   ------------------------------------------------------------ */
+
+.fusion-chain-result,
+.equip-result {
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+}
+
+.fusion-chain-step {
+    text-align: left;
+}
+
+.fusion-chain-followup {
+    margin-top: 0.75rem;
+    margin-left: 2rem;
+    padding-left: 1rem;
+    border-left: 2px solid #dddddd;
+}
+
+.equip-result {
+    margin-bottom: 0.75rem;
+}
