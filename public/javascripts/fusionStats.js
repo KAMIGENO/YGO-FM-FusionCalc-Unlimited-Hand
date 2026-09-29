@@ -323,7 +323,19 @@
 
         var rankedResults = statistics.slice();
 
-        sortStatistics(rankedResults);
+        /*
+         * Rankings are always based on fusion-partner count,
+         * regardless of the table's current display sort.
+         */
+        rankedResults.sort(function (a, b) {
+
+            if (b.count !== a.count) {
+                return b.count - a.count;
+            }
+
+            return a.card.Name.localeCompare(b.card.Name);
+
+        });
 
         var rankLabels = {};
 
