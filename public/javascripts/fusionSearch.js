@@ -242,6 +242,72 @@ function formatInputCard(card) {
 }
 
 
+function getFieldsForCard(card) {
+
+    if (!card || !fieldList) {
+        return [];
+    }
+
+
+    return fieldList
+        .map(function (definition) {
+
+            var fieldCard = getCardById(definition.CardId);
+
+
+            if (!fieldCard) {
+                return null;
+            }
+
+
+            if (definition.PositiveTypes.indexOf(card.Type) !== -1) {
+                return {
+                    card: fieldCard,
+                    positive: true
+                };
+            }
+
+
+            if (definition.NegativeTypes.indexOf(card.Type) !== -1) {
+                return {
+                    card: fieldCard,
+                    positive: false
+                };
+            }
+
+
+            return null;
+
+        })
+        .filter(function (entry) {
+            return !!entry;
+        });
+
+}
+
+
+function fieldsToHTML(fieldEntries) {
+
+    return fieldEntries
+        .map(function (entry) {
+
+            return (
+                "<p class=\"card-text mb-2\">" +
+                "<span class=\"" +
+                (entry.positive ? "field-positive" : "field-negative") +
+                "\">" +
+                (entry.positive ? "+" : "-") +
+                escapeHTML(entry.card.Name) +
+                "</span>" +
+                "</p>"
+            );
+
+        })
+        .join("");
+
+}
+
+
 function createSideCard(card) {
 
     var modelCard =
@@ -492,12 +558,16 @@ function searchByName() {
         });
 
 
+    var fields = getFieldsForCard(card);
     var rituals = getRitualsForCard(card.Id);
 
 
     outputRight.innerHTML =
         "<h2 class='text-center my-4'>Equips</h2>" +
-        equipsToHTML(equips);
+        equipsToHTML(equips) +
+        (fields.length > 0
+            ? "<h2 class='text-center my-4'>Fields</h2>" + fieldsToHTML(fields)
+            : "");
 
     outputLeft.innerHTML =
         (fuses.length > 0
