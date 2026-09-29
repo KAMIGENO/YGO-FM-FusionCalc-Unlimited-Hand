@@ -230,7 +230,7 @@ function formatCardDetails(card) {
 
     var details =
         "Type: " +
-        (cardTypes[card.Type] || "Unknown");
+        getCardTypeName(card);
 
     if (isMonster(card)) {
         details +=
@@ -723,7 +723,6 @@ function findFusions() {
     outputLeft.innerHTML =
         "<h2 class='text-left'>Fusions:</h2>" +
         fusionChainsToHTML(chains) +
-        "<div style='height: 20px;'></div>" +
         "<h2 class='text-left'>Rituals:</h2>" +
         ritualsToHTML(rituals);
 
@@ -731,7 +730,6 @@ function findFusions() {
     outputRight.innerHTML =
         "<h2 class='text-left'>Equips:</h2>" +
         equipsToHTML(equipEntries) +
-        "<div style='height: 20px;'></div>" +
         "<h2 class='text-left'>Fields:</h2>" +
         fields;
 
