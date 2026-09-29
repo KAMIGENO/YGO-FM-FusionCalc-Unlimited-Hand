@@ -219,71 +219,7 @@
      * ------------------------------------------------------------
      */
 
-        function isMonster(card) {
-        return !!card && card.Type < 20;
-    }
-
-
-    function formatCardId(id) {
-        return "#" + String(id).padStart(3, "0");
-    }
-
-
-    function formatGuardianStar(value) {
-        if (value === 10) {
-            return starNames[9];
-        }
-
-        return starNames[value] || starNames[0];
-    }
-
-
-    function formatCardSummary(card) {
-        var summary =
-            formatCardId(card.Id) +
-            " " +
-            card.Name +
-            " | Type: " +
-            (cardTypes[card.Type] || "Unknown");
-
-        if (isMonster(card)) {
-            summary +=
-                " | Guardian Stars: " +
-                formatGuardianStar(card.GuardianStarA) +
-                " / " +
-                formatGuardianStar(card.GuardianStarB) +
-                " | " +
-                card.Attack +
-                "A / " +
-                card.Defense +
-                "D";
-        }
-
-        return summary;
-    }
-
-
-    function appendCardSummary(cell, card, suffix) {
-        var nameLine = document.createElement("div");
-        nameLine.textContent = formatCardId(card.Id) + " " + card.Name;
-
-        var infoLine = document.createElement("div");
-        infoLine.className = "text-muted";
-        infoLine.textContent = formatCardSummary(card).split(" | ").slice(1).join(" — ");
-
-        cell.appendChild(nameLine);
-        cell.appendChild(infoLine);
-
-        if (suffix) {
-            var suffixLine = document.createElement("div");
-            suffixLine.className = "font-weight-bold";
-            suffixLine.textContent = suffix;
-            cell.appendChild(suffixLine);
-        }
-    }
-
-
-function sortStatistics(results) {
+    function sortStatistics(results) {
 
         var sortType = sortSelect.value;
 
@@ -380,38 +316,24 @@ function sortStatistics(results) {
             row.className = "fusion-stats-row";
             row.dataset.cardId = entry.card.Id;
 
+
             var rankCell = document.createElement("td");
             rankCell.textContent = globalRankLabels[entry.card.Id];
-            rankCell.rowSpan = 2;
-            rankCell.className = "align-middle text-center";
 
-            var cardCell = document.createElement("td");
-            cardCell.className = "fusion-card-summary";
 
-            var nameLine = document.createElement("div");
-            nameLine.textContent = formatCardId(entry.card.Id) + " " + entry.card.Name;
+            var nameCell = document.createElement("td");
+            nameCell.innerHTML = formatBoldCardLabel(entry.card);
 
-            cardCell.appendChild(nameLine);
 
             var countCell = document.createElement("td");
             countCell.textContent = entry.count;
-            countCell.rowSpan = 2;
-            countCell.className = "align-middle text-center";
+
 
             row.appendChild(rankCell);
-            row.appendChild(cardCell);
+            row.appendChild(nameCell);
             row.appendChild(countCell);
+
             tableBody.appendChild(row);
-
-            var secondRow = document.createElement("tr");
-            secondRow.className = "fusion-stats-row";
-            secondRow.dataset.cardId = entry.card.Id;
-
-            var spacerCell = document.createElement("td");
-            spacerCell.className = "fusion-card-summary-secondary";
-            spacerCell.textContent = formatCardSummary(entry.card).split(" | ").slice(1).join(" — ");
-            secondRow.appendChild(spacerCell);
-            tableBody.appendChild(secondRow);
 
         });
 
@@ -447,6 +369,33 @@ function sortStatistics(results) {
      * ------------------------------------------------------------
      */
 
+    function formatCardId(id) {
+
+        return "#" + String(id).padStart(3, "0");
+
+    }
+
+
+    function formatCardLabel(card) {
+
+        if (!card) {
+            return "Unknown Card";
+        }
+
+        return formatCardId(card.Id) + " " + card.Name;
+
+    }
+
+
+    function formatBoldCardLabel(card) {
+
+        return "<strong>" +
+            escapeHTML(formatCardLabel(card)) +
+            "</strong>";
+
+    }
+
+
     function showCardDetails(cardId) {
 
         var entry = statisticsById[cardId];
@@ -457,8 +406,8 @@ function sortStatistics(results) {
         }
 
 
-        detailsTitle.textContent =
-            entry.card.Name +
+        detailsTitle.innerHTML =
+            formatBoldCardLabel(entry.card) +
             " — " +
             entry.count +
             " Fusion Partners";
@@ -537,20 +486,18 @@ function sortStatistics(results) {
             var partnerCell = document.createElement("td");
             var resultCell = document.createElement("td");
 
-            if (detail.partnerCard) {
-                appendCardSummary(partnerCell, detail.partnerCard);
-            } else {
-                partnerCell.textContent = "Unknown Card";
-            }
+            partnerCell.innerHTML = formatBoldCardLabel(detail.partnerCard);
 
             if (detail.resultCard) {
-                appendCardSummary(
-                    resultCell,
-                    detail.resultCard,
-                    detail.isGlitch ? "Glitch Fusion" : ""
-                );
+
+                resultCell.innerHTML =
+                    formatBoldCardLabel(detail.resultCard) +
+                    (detail.isGlitch ? " (Glitch Fusion)" : "");
+
             } else {
+
                 resultCell.textContent = "Unknown Result";
+
             }
 
             row.appendChild(partnerCell);
