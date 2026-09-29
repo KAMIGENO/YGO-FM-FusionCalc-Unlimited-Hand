@@ -26,11 +26,10 @@ var handCards = new Array(HAND_SIZE).fill(null);
 var currentPage = 1;
 var totalPages = Math.ceil(HAND_SIZE / PAGE_SIZE);
 
-var cardNames = card_db()
-    .get()
-    .map(function (card) {
-        return card.Name;
-    });
+var allCards = card_db().get();
+var cardNames = allCards.map(function (card) {
+    return card.Name;
+});
 
 
 /*
@@ -46,9 +45,7 @@ var cardByName = {};
 var cardById = {};
 
 
-card_db()
-    .get()
-    .forEach(function (card) {
+allCards.forEach(function (card) {
 
         cardByName[card.Name.toLowerCase()] = card;
         cardById[card.Id] = card;
