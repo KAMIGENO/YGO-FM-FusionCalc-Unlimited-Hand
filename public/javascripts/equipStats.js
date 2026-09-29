@@ -24,6 +24,30 @@
 
 
     var cardById = {};
+
+    function formatCardInfo(card) {
+        if (!card) {
+            return "Unknown Card";
+        }
+
+        var isMonster = card.Type < 20;
+        var typeName = cardTypes[card.Type] || "Unknown";
+        var starA = isMonster ? (starNames[card.GuardianStarA] || "-") : "-";
+        var starB = isMonster ? (starNames[card.GuardianStarB] || "-") : "-";
+        var attackDefense = isMonster
+            ? card.Attack + "A / " + card.Defense + "D"
+            : "-";
+
+        return (
+            "ID: " + card.Id +
+            " | " + card.Name +
+            " | Type: " + typeName +
+            " | Guardian Star A: " + starA +
+            " | Guardian Star B: " + starB +
+            " | " + attackDefense
+        );
+    }
+
     var statistics = [];
     var statisticsById = {};
     var globalRankLabels = {};
@@ -400,7 +424,7 @@
             var row = document.createElement("tr");
             var monsterCell = document.createElement("td");
 
-            monsterCell.textContent = monsterCard.Name;
+            monsterCell.textContent = formatCardInfo(monsterCard);
 
             row.appendChild(monsterCell);
             tbody.appendChild(row);
