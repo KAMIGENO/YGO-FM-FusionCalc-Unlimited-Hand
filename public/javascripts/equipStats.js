@@ -25,6 +25,7 @@
 
     var cardById = {};
     var statistics = [];
+    var statisticsById = {};
     var globalRankLabels = {};
 
 
@@ -37,7 +38,10 @@
     var detailsContainer = document.getElementById("equip-details");
 
 
-    card_db().get().forEach(function (card) {
+    var allCards = card_db().get();
+
+
+    allCards.forEach(function (card) {
 
         cardById[card.Id] = card;
 
@@ -72,7 +76,7 @@
      * ------------------------------------------------------------
      */
 
-    card_db().get().forEach(function (card) {
+    allCards.forEach(function (card) {
 
         if (!isEquip(card)) {
             return;
@@ -102,11 +106,14 @@
         });
 
 
-        statistics.push({
+        var statistic = {
             card: card,
             partnerIds: partnerIds,
             count: partnerIds.length
-        });
+        };
+
+        statistics.push(statistic);
+        statisticsById[card.Id] = statistic;
 
     });
 
@@ -163,7 +170,7 @@
                 label =
                     "Rank " +
                     startRank +
-                    "--" +
+                    "–" +
                     endRank;
             }
 
@@ -338,11 +345,7 @@
 
     function showEquipDetails(cardId) {
 
-        var entry = statistics.find(function (item) {
-
-            return String(item.card.Id) === String(cardId);
-
-        });
+        var entry = statisticsById[cardId];
 
 
         if (!entry) {
