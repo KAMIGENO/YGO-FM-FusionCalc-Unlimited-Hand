@@ -700,7 +700,7 @@
             if (detail.resultCard) {
                 resultCell.innerHTML =
                     formatBoldCardLabel(detail.resultCard) +
-                    (detail.isGlitch ? " (Glitch Fusion)" : "") +
+                    (detail.isGlitch ? " <strong>(Glitch Fusion)</strong>" : "") +
                     "<br>" +
                     escapeHTML(formatCardDetails(detail.resultCard));
             } else {
