@@ -4,7 +4,7 @@
  * ------------------------------------------------------------
  *
  * Handles the 800-slot Fusion Calculator.
- * Only the currently visible 10 inputs exist in the DOM;
+ * Only the currently visible 20 inputs exist in the DOM;
  * all 800 card selections are stored in handCards.
  */
 
@@ -679,7 +679,8 @@ function fieldsToHTML(cards) {
                 (field.entries[0].positive ? "field-positive" : "field-negative") +
                 "'>" +
                 (field.entries[0].positive ? "+" : "-") +
-                escapeHTML(field.card.Name) +
+                " " +
+                escapeHTML(formatInputCard(field.card)) +
                 "</strong>";
 
 
