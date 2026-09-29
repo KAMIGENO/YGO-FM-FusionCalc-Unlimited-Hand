@@ -71,23 +71,6 @@ function getCardById(id) {
 }
 
 
-function getCardTypeName(card) {
-
-    if (!card) {
-        return "Unknown";
-    }
-
-    if (card.Type === 20) {
-        return [330, 331, 332, 333, 334, 335].indexOf(card.Id) !== -1
-            ? "Magic (Field)"
-            : "Magic (Effect)";
-    }
-
-    return cardTypes[card.Type] || "Unknown";
-
-}
-
-
 function getCardByName(name) {
 
     if (!name) {
@@ -222,7 +205,7 @@ function formatCardDetails(card) {
 
     var details =
         "Type: " +
-        getCardTypeName(card);
+        (cardTypes[card.Type] || "Unknown");
 
     if (isMonster(card)) {
         details +=
@@ -259,75 +242,6 @@ function formatInputCard(card) {
 }
 
 
-function getFieldsForCard(card) {
-
-    if (!card || !fieldList) {
-        return [];
-    }
-
-
-    return fieldList
-        .map(function (definition) {
-
-            var fieldCard = getCardById(definition.CardId);
-
-
-            if (!fieldCard) {
-                return null;
-            }
-
-
-            if (definition.PositiveTypes.indexOf(card.Type) !== -1) {
-                return {
-                    card: fieldCard,
-                    positive: true
-                };
-            }
-
-
-            if (definition.NegativeTypes.indexOf(card.Type) !== -1) {
-                return {
-                    card: fieldCard,
-                    positive: false
-                };
-            }
-
-
-            return null;
-
-        })
-        .filter(function (entry) {
-            return !!entry;
-        });
-
-}
-
-
-function fieldsToHTML(fieldEntries) {
-
-    return fieldEntries
-        .map(function (entry) {
-
-            return (
-                "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
-                "<div class=\"card-body text-dark\">" +
-                "<p class=\"card-text mb-0\">" +
-                "<span class=\"" +
-                (entry.positive ? "field-positive" : "field-negative") +
-                "\">" +
-                (entry.positive ? "+" : "-") +
-                escapeHTML(entry.card.Name) +
-                "</span>" +
-                "</p>" +
-                "</div></div>"
-            );
-
-        })
-        .join("");
-
-}
-
-
 function createSideCard(card) {
 
     var modelCard =
@@ -342,7 +256,7 @@ function createSideCard(card) {
         escapeHTML(card.Description) +
         "</p>" +
         "<p class=\"card-text\"><strong>Type:</strong> " +
-        escapeHTML(getCardTypeName(card)) +
+        escapeHTML(cardTypes[card.Type]) +
         "</p>";
 
 
@@ -400,8 +314,10 @@ function fusesToHTML(fuselist) {
             if (fusion.result) {
                 res +=
                     "<p class=\"card-text fusion-search-result\">" +
-                    "<strong>Result:</strong><br>" +
-                    escapeHTML(formatCardSummary(fusion.result)).replace(/\n/g, "<br>") +
+                    "<strong>Result: " +
+                    escapeHTML(formatCardId(fusion.result.Id) + " " + fusion.result.Name) +
+                    "</strong><br>" +
+                    escapeHTML(formatCardDetails(fusion.result)) +
                     "</p>";
             }
 
@@ -578,16 +494,12 @@ function searchByName() {
         });
 
 
-    var fields = getFieldsForCard(card);
     var rituals = getRitualsForCard(card.Id);
 
 
     outputRight.innerHTML =
         "<h2 class='text-center my-4'>Equips</h2>" +
-        equipsToHTML(equips) +
-        (fields.length > 0
-            ? "<h2 class='text-center my-4'>Fields</h2>" + fieldsToHTML(fields)
-            : "");
+        equipsToHTML(equips);
 
     outputLeft.innerHTML =
         (fuses.length > 0
