@@ -26,12 +26,19 @@
             }
 
             .glitch-fusions-page > .row {
+                width: 100%;
                 margin-left: 0;
                 margin-right: 0;
             }
 
+            .glitch-fusions-page > .row > .col {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
             .glitch-fusions-table {
                 width: 100%;
+                max-width: 100%;
                 table-layout: fixed;
                 margin-left: 0;
                 margin-right: 0;
@@ -39,20 +46,18 @@
 
             .glitch-fusions-table th,
             .glitch-fusions-table td {
-                white-space: nowrap;
-            }
-
-            .glitch-fusions-table th:nth-child(1),
-            .glitch-fusions-table td:nth-child(1),
-            .glitch-fusions-table th:nth-child(2),
-            .glitch-fusions-table td:nth-child(2),
-            .glitch-fusions-table th:nth-child(3),
-            .glitch-fusions-table td:nth-child(3) {
                 width: 33.333333%;
+                box-sizing: border-box;
+                overflow: hidden;
             }
 
             .glitch-fusions-table td > div:first-child {
                 font-weight: 700;
+            }
+
+            .glitch-fusions-table .fusion-card-summary-secondary,
+            .glitch-fusions-table .fusion-card-summary-stats {
+                white-space: normal;
             }
         </style>
     </head>
@@ -77,84 +82,84 @@
                 <div class="col">
                     <h2 class="text-main my-5 text-center">GLITCH FUSIONS</h2>
                     <p class="text-center">The following glitch fusions are separate from the normal fusion database.</p>
-                    <div class="table-responsive">
+                    <div>
                         <table class="table table-striped table-bordered glitch-fusions-table">
                             <thead><tr><th>Result</th><th>Input 1</th><th>Input 2</th></tr></thead>
                             <tbody>
                                 <tr>
-                                    <td><div>#004 Baby Dragon</div><div class="fusion-card-summary-secondary">Type: Dragon — Guardian Stars: Pluto / Moon — 1200A / 700D</div></td>
-                                    <td><div>#023 The Wicked Worm Beast</div><div class="fusion-card-summary-secondary">Type: Beast — Guardian Stars: Pluto / Venus — 1400A / 700D</div></td>
-                                    <td><div>#147 Monster Egg</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Pluto / Saturn — 600A / 900D</div></td>
+                                    <td><div>#004 Baby Dragon</div><div class="fusion-card-summary-secondary">Type: Dragon — Guardian Stars: Pluto / Moon</div><div class="fusion-card-summary-stats">1200A / 700D</div></td>
+                                    <td><div>#023 The Wicked Worm Beast</div><div class="fusion-card-summary-secondary">Type: Beast — Guardian Stars: Pluto / Venus</div><div class="fusion-card-summary-stats">1400A / 700D</div></td>
+                                    <td><div>#147 Monster Egg</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Pluto / Saturn</div><div class="fusion-card-summary-stats">600A / 900D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#004 Baby Dragon</div><div class="fusion-card-summary-secondary">Type: Dragon — Guardian Stars: Pluto / Moon — 1200A / 700D</div></td>
-                                    <td><div>#026 Battle Ox</div><div class="fusion-card-summary-secondary">Type: Beast-Warrior — Guardian Stars: Saturn / Venus — 1700A / 1000D</div></td>
-                                    <td><div>#138 Dragon Statue</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Pluto / Jupiter — 1100A / 900D</div></td>
+                                    <td><div>#004 Baby Dragon</div><div class="fusion-card-summary-secondary">Type: Dragon — Guardian Stars: Pluto / Moon</div><div class="fusion-card-summary-stats">1200A / 700D</div></td>
+                                    <td><div>#026 Battle Ox</div><div class="fusion-card-summary-secondary">Type: Beast-Warrior — Guardian Stars: Saturn / Venus</div><div class="fusion-card-summary-stats">1700A / 1000D</div></td>
+                                    <td><div>#138 Dragon Statue</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Pluto / Jupiter</div><div class="fusion-card-summary-stats">1100A / 900D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#004 Baby Dragon</div><div class="fusion-card-summary-secondary">Type: Dragon — Guardian Stars: Pluto / Moon — 1200A / 700D</div></td>
-                                    <td><div>#040 Dragon Piper</div><div class="fusion-card-summary-secondary">Type: Pyro — Guardian Stars: Jupiter / Venus — 200A / 1800D</div></td>
-                                    <td><div>#126 Orion the Battle King</div><div class="fusion-card-summary-secondary">Type: Fairy — Guardian Stars: Moon / Uranus — 1800A / 1500D</div></td>
+                                    <td><div>#004 Baby Dragon</div><div class="fusion-card-summary-secondary">Type: Dragon — Guardian Stars: Pluto / Moon</div><div class="fusion-card-summary-stats">1200A / 700D</div></td>
+                                    <td><div>#040 Dragon Piper</div><div class="fusion-card-summary-secondary">Type: Pyro — Guardian Stars: Jupiter / Venus</div><div class="fusion-card-summary-stats">200A / 1800D</div></td>
+                                    <td><div>#126 Orion the Battle King</div><div class="fusion-card-summary-secondary">Type: Fairy — Guardian Stars: Moon / Uranus</div><div class="fusion-card-summary-stats">1800A / 1500D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#064 Tiger Axe</div><div class="fusion-card-summary-secondary">Type: Beast-Warrior — Guardian Stars: Saturn / Mercury — 1300A / 1100D</div></td>
-                                    <td><div>#167 Ancient Jar</div><div class="fusion-card-summary-secondary">Type: Rock — Guardian Stars: Pluto / Mercury — 400A / 200D</div></td>
-                                    <td><div>#225 Fiend Sword</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Venus / Sun — 1400A / 800D</div></td>
+                                    <td><div>#064 Tiger Axe</div><div class="fusion-card-summary-secondary">Type: Beast-Warrior — Guardian Stars: Saturn / Mercury</div><div class="fusion-card-summary-stats">1300A / 1100D</div></td>
+                                    <td><div>#167 Ancient Jar</div><div class="fusion-card-summary-secondary">Type: Rock — Guardian Stars: Pluto / Mercury</div><div class="fusion-card-summary-stats">400A / 200D</div></td>
+                                    <td><div>#225 Fiend Sword</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Venus / Sun</div><div class="fusion-card-summary-stats">1400A / 800D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#072 Cocoon of Evolution</div><div class="fusion-card-summary-secondary">Type: Insect — Guardian Stars: Saturn / Venus — 0A / 2000D</div></td>
-                                    <td><div>#022 Summoned Skull</div><div class="fusion-card-summary-secondary">Type: Fiend — Guardian Stars: Venus / Neptune — 2500A / 1200D</div></td>
-                                    <td><div>#031 Koumori Dragon</div><div class="fusion-card-summary-secondary">Type: Dragon — Guardian Stars: Venus / Saturn — 1500A / 1200D</div></td>
+                                    <td><div>#072 Cocoon of Evolution</div><div class="fusion-card-summary-secondary">Type: Insect — Guardian Stars: Saturn / Venus</div><div class="fusion-card-summary-stats">0A / 2000D</div></td>
+                                    <td><div>#022 Summoned Skull</div><div class="fusion-card-summary-secondary">Type: Fiend — Guardian Stars: Venus / Neptune</div><div class="fusion-card-summary-stats">2500A / 1200D</div></td>
+                                    <td><div>#031 Koumori Dragon</div><div class="fusion-card-summary-secondary">Type: Dragon — Guardian Stars: Venus / Saturn</div><div class="fusion-card-summary-stats">1500A / 1200D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#072 Cocoon of Evolution</div><div class="fusion-card-summary-secondary">Type: Insect — Guardian Stars: Saturn / Venus — 0A / 2000D</div></td>
-                                    <td><div>#064 Tiger Axe</div><div class="fusion-card-summary-secondary">Type: Beast-Warrior — Guardian Stars: Saturn / Mercury — 1300A / 1100D</div></td>
-                                    <td><div>#168 Darkfire Dragon</div><div class="fusion-card-summary-secondary">Type: Dragon — Guardian Stars: Jupiter / Venus — 1500A / 1250D</div></td>
+                                    <td><div>#072 Cocoon of Evolution</div><div class="fusion-card-summary-secondary">Type: Insect — Guardian Stars: Saturn / Venus</div><div class="fusion-card-summary-stats">0A / 2000D</div></td>
+                                    <td><div>#064 Tiger Axe</div><div class="fusion-card-summary-secondary">Type: Beast-Warrior — Guardian Stars: Saturn / Mercury</div><div class="fusion-card-summary-stats">1300A / 1100D</div></td>
+                                    <td><div>#168 Darkfire Dragon</div><div class="fusion-card-summary-secondary">Type: Dragon — Guardian Stars: Jupiter / Venus</div><div class="fusion-card-summary-stats">1500A / 1250D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#072 Cocoon of Evolution</div><div class="fusion-card-summary-secondary">Type: Insect — Guardian Stars: Saturn / Venus — 0A / 2000D</div></td>
-                                    <td><div>#074 Giant Soldier of Stone</div><div class="fusion-card-summary-secondary">Type: Rock — Guardian Stars: Pluto / Venus — 1300A / 2000D</div></td>
-                                    <td><div>#150 Akihiron</div><div class="fusion-card-summary-secondary">Type: Aqua — Guardian Stars: Mercury / Saturn — 1700A / 1400D</div></td>
+                                    <td><div>#072 Cocoon of Evolution</div><div class="fusion-card-summary-secondary">Type: Insect — Guardian Stars: Saturn / Venus</div><div class="fusion-card-summary-stats">0A / 2000D</div></td>
+                                    <td><div>#074 Giant Soldier of Stone</div><div class="fusion-card-summary-secondary">Type: Rock — Guardian Stars: Pluto / Venus</div><div class="fusion-card-summary-stats">1300A / 2000D</div></td>
+                                    <td><div>#150 Akihiron</div><div class="fusion-card-summary-secondary">Type: Aqua — Guardian Stars: Mercury / Saturn</div><div class="fusion-card-summary-stats">1700A / 1400D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#072 Cocoon of Evolution</div><div class="fusion-card-summary-secondary">Type: Insect — Guardian Stars: Saturn / Venus — 0A / 2000D</div></td>
-                                    <td><div>#127 Ansatsu</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Sun / Mercury — 1700A / 1200D</div></td>
-                                    <td><div>#128 LaMoon</div><div class="fusion-card-summary-secondary">Type: Spellcaster — Guardian Stars: Moon / Pluto — 1200A / 1700D</div></td>
+                                    <td><div>#072 Cocoon of Evolution</div><div class="fusion-card-summary-secondary">Type: Insect — Guardian Stars: Saturn / Venus</div><div class="fusion-card-summary-stats">0A / 2000D</div></td>
+                                    <td><div>#127 Ansatsu</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Sun / Mercury</div><div class="fusion-card-summary-stats">1700A / 1200D</div></td>
+                                    <td><div>#128 LaMoon</div><div class="fusion-card-summary-secondary">Type: Spellcaster — Guardian Stars: Moon / Pluto</div><div class="fusion-card-summary-stats">1200A / 1700D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#084 Reaper of the Cards</div><div class="fusion-card-summary-secondary">Type: Fiend — Guardian Stars: Venus / Neptune — 1380A / 1930D</div></td>
-                                    <td><div>#031 Koumori Dragon</div><div class="fusion-card-summary-secondary">Type: Dragon — Guardian Stars: Venus / Saturn — 1500A / 1200D</div></td>
-                                    <td><div>#034 Saggi the Dark Clown</div><div class="fusion-card-summary-secondary">Type: Spellcaster — Guardian Stars: Sun / Venus — 600A / 1500D</div></td>
+                                    <td><div>#084 Reaper of the Cards</div><div class="fusion-card-summary-secondary">Type: Fiend — Guardian Stars: Venus / Neptune</div><div class="fusion-card-summary-stats">1380A / 1930D</div></td>
+                                    <td><div>#031 Koumori Dragon</div><div class="fusion-card-summary-secondary">Type: Dragon — Guardian Stars: Venus / Saturn</div><div class="fusion-card-summary-stats">1500A / 1200D</div></td>
+                                    <td><div>#034 Saggi the Dark Clown</div><div class="fusion-card-summary-secondary">Type: Spellcaster — Guardian Stars: Sun / Venus</div><div class="fusion-card-summary-stats">600A / 1500D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#132 The 13th Grave</div><div class="fusion-card-summary-secondary">Type: Zombie — Guardian Stars: Venus / Neptune — 1200A / 900D</div></td>
-                                    <td><div>#066 Kojikocy</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Pluto / Venus — 1500A / 1200D</div></td>
-                                    <td><div>#098 Clown Zombie</div><div class="fusion-card-summary-secondary">Type: Zombie — Guardian Stars: Venus / Neptune — 1350A / 0D</div></td>
+                                    <td><div>#132 The 13th Grave</div><div class="fusion-card-summary-secondary">Type: Zombie — Guardian Stars: Venus / Neptune</div><div class="fusion-card-summary-stats">1200A / 900D</div></td>
+                                    <td><div>#066 Kojikocy</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Pluto / Venus</div><div class="fusion-card-summary-stats">1500A / 1200D</div></td>
+                                    <td><div>#098 Clown Zombie</div><div class="fusion-card-summary-secondary">Type: Zombie — Guardian Stars: Venus / Neptune</div><div class="fusion-card-summary-stats">1350A / 0D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#132 The 13th Grave</div><div class="fusion-card-summary-secondary">Type: Zombie — Guardian Stars: Venus / Neptune — 1200A / 900D</div></td>
-                                    <td><div>#120 Dream Clown</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Venus / Uranus — 1200A / 900D</div></td>
-                                    <td><div>#166 Mysterious Puppeteer</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Pluto / Sun — 1000A / 1500D</div></td>
+                                    <td><div>#132 The 13th Grave</div><div class="fusion-card-summary-secondary">Type: Zombie — Guardian Stars: Venus / Neptune</div><div class="fusion-card-summary-stats">1200A / 900D</div></td>
+                                    <td><div>#120 Dream Clown</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Venus / Uranus</div><div class="fusion-card-summary-stats">1200A / 900D</div></td>
+                                    <td><div>#166 Mysterious Puppeteer</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Pluto / Sun</div><div class="fusion-card-summary-stats">1000A / 1500D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#136 Witty Phantom</div><div class="fusion-card-summary-secondary">Type: Fiend — Guardian Stars: Sun / Jupiter — 1400A / 1300D</div></td>
-                                    <td><div>#045 Oscillo Hero #2</div><div class="fusion-card-summary-secondary">Type: Thunder — Guardian Stars: Neptune / Moon — 1000A / 500D</div></td>
-                                    <td><div>#170 Spirit of the Harp</div><div class="fusion-card-summary-secondary">Type: Fairy — Guardian Stars: Moon / Jupiter — 800A / 2000D</div></td>
+                                    <td><div>#136 Witty Phantom</div><div class="fusion-card-summary-secondary">Type: Fiend — Guardian Stars: Sun / Jupiter</div><div class="fusion-card-summary-stats">1400A / 1300D</div></td>
+                                    <td><div>#045 Oscillo Hero #2</div><div class="fusion-card-summary-secondary">Type: Thunder — Guardian Stars: Neptune / Moon</div><div class="fusion-card-summary-stats">1000A / 500D</div></td>
+                                    <td><div>#170 Spirit of the Harp</div><div class="fusion-card-summary-secondary">Type: Fairy — Guardian Stars: Moon / Jupiter</div><div class="fusion-card-summary-stats">800A / 2000D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#136 Witty Phantom</div><div class="fusion-card-summary-secondary">Type: Fiend — Guardian Stars: Sun / Jupiter — 1400A / 1300D</div></td>
-                                    <td><div>#061 Wolf</div><div class="fusion-card-summary-secondary">Type: Beast — Guardian Stars: Saturn / Neptune — 1200A / 800D</div></td>
-                                    <td><div>#144 Djinn the Watcher of the Wind</div><div class="fusion-card-summary-secondary">Type: Spellcaster — Guardian Stars: Uranus / Sun — 700A / 900D</div></td>
+                                    <td><div>#136 Witty Phantom</div><div class="fusion-card-summary-secondary">Type: Fiend — Guardian Stars: Sun / Jupiter</div><div class="fusion-card-summary-stats">1400A / 1300D</div></td>
+                                    <td><div>#061 Wolf</div><div class="fusion-card-summary-secondary">Type: Beast — Guardian Stars: Saturn / Neptune</div><div class="fusion-card-summary-stats">1200A / 800D</div></td>
+                                    <td><div>#144 Djinn the Watcher of the Wind</div><div class="fusion-card-summary-secondary">Type: Spellcaster — Guardian Stars: Uranus / Sun</div><div class="fusion-card-summary-stats">700A / 900D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#136 Witty Phantom</div><div class="fusion-card-summary-secondary">Type: Fiend — Guardian Stars: Sun / Jupiter — 1400A / 1300D</div></td>
-                                    <td><div>#090 Gyakutenno Megami</div><div class="fusion-card-summary-secondary">Type: Fairy — Guardian Stars: Moon / Mercury — 1800A / 2000D</div></td>
-                                    <td><div>#130 Weather Control</div><div class="fusion-card-summary-secondary">Type: Fairy — Guardian Stars: Moon / Neptune — 600A / 400D</div></td>
+                                    <td><div>#136 Witty Phantom</div><div class="fusion-card-summary-secondary">Type: Fiend — Guardian Stars: Sun / Jupiter</div><div class="fusion-card-summary-stats">1400A / 1300D</div></td>
+                                    <td><div>#090 Gyakutenno Megami</div><div class="fusion-card-summary-secondary">Type: Fairy — Guardian Stars: Moon / Mercury</div><div class="fusion-card-summary-stats">1800A / 2000D</div></td>
+                                    <td><div>#130 Weather Control</div><div class="fusion-card-summary-secondary">Type: Fairy — Guardian Stars: Moon / Neptune</div><div class="fusion-card-summary-stats">600A / 400D</div></td>
                                 </tr>
                                 <tr>
-                                    <td><div>#136 Witty Phantom</div><div class="fusion-card-summary-secondary">Type: Fiend — Guardian Stars: Sun / Jupiter — 1400A / 1300D</div></td>
-                                    <td><div>#096 Armored Zombie</div><div class="fusion-card-summary-secondary">Type: Zombie — Guardian Stars: Venus / Neptune — 1500A / 0D</div></td>
-                                    <td><div>#231 Wood Clown</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Sun / Jupiter — 800A / 1200D</div></td>
+                                    <td><div>#136 Witty Phantom</div><div class="fusion-card-summary-secondary">Type: Fiend — Guardian Stars: Sun / Jupiter</div><div class="fusion-card-summary-stats">1400A / 1300D</div></td>
+                                    <td><div>#096 Armored Zombie</div><div class="fusion-card-summary-secondary">Type: Zombie — Guardian Stars: Venus / Neptune</div><div class="fusion-card-summary-stats">1500A / 0D</div></td>
+                                    <td><div>#231 Wood Clown</div><div class="fusion-card-summary-secondary">Type: Warrior — Guardian Stars: Sun / Jupiter</div><div class="fusion-card-summary-stats">800A / 1200D</div></td>
                                 </tr>
                             </tbody>
                         </table>
