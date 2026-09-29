@@ -446,11 +446,20 @@
 
             });
 
+            var glitchDetail = (glitchFusionDetails[entry.card.Id] || []).find(function (glitch) {
+
+                return String(glitch.partnerId) === String(partnerId);
+
+            });
+
             return {
                 partnerCard: partnerCard,
-                resultCard: fusionEntry
-                    ? cardById[fusionEntry.result]
-                    : null
+                resultCard: glitchDetail
+                    ? cardById[glitchDetail.resultId]
+                    : fusionEntry
+                      ? cardById[fusionEntry.result]
+                      : null,
+                isGlitch: !!glitchDetail
             };
 
         });
@@ -477,7 +486,7 @@
                 : "Unknown Card";
 
             resultCell.textContent = detail.resultCard
-                ? detail.resultCard.Name
+                ? detail.resultCard.Name + (detail.isGlitch ? " (Glitch Fusion)" : "")
                 : "Unknown Result";
 
             row.appendChild(partnerCell);
@@ -486,29 +495,6 @@
 
         });
 
-
-        (glitchFusionDetails[entry.card.Id] || []).forEach(function (glitch) {
-
-            var row = document.createElement("tr");
-            var partnerCell = document.createElement("td");
-            var resultCell = document.createElement("td");
-
-            var partnerCard = cardById[glitch.partnerId];
-            var resultCard = cardById[glitch.resultId];
-
-            partnerCell.textContent = partnerCard
-                ? partnerCard.Name
-                : "Unknown Card";
-
-            resultCell.innerHTML =
-                "<strong>Glitch Fusion</strong><br>" +
-                (resultCard ? resultCard.Name : "Unknown Result");
-
-            row.appendChild(partnerCell);
-            row.appendChild(resultCell);
-            tbody.appendChild(row);
-
-        });
 
 
         /*
