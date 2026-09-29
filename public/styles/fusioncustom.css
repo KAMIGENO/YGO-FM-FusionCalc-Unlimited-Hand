@@ -4,10 +4,12 @@ main.container {
 
 .table-responsive {
     width: 100%;
+    overflow-x: visible;
 }
 
 .table {
     width: 100%;
+    max-width: 100%;
 }
 
 .hand-input-group {
@@ -302,6 +304,67 @@ main.container {
 .fusion-calculator-results .row > .col-sm:last-child {
     flex: 0 0 45%;
     max-width: 45%;
+}
+
+@media (max-width: 767px) {
+
+    .table-responsive {
+        overflow-x: visible;
+    }
+
+    .table {
+        table-layout: fixed;
+        font-size: 0.9rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.5rem;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    .equip-stats-table th:nth-child(1),
+    .equip-stats-table td:nth-child(1),
+    .fusion-stats-table th:nth-child(1),
+    .fusion-stats-table td:nth-child(1) {
+        width: 18%;
+    }
+
+    .equip-stats-table th:nth-child(2),
+    .equip-stats-table td:nth-child(2),
+    .fusion-stats-table th:nth-child(2),
+    .fusion-stats-table td:nth-child(2) {
+        width: 47%;
+    }
+
+    .equip-stats-table th:nth-child(3),
+    .equip-stats-table td:nth-child(3),
+    .fusion-stats-table th:nth-child(3),
+    .fusion-stats-table td:nth-child(3) {
+        width: 35%;
+    }
+
+    .glitch-fusions-table th,
+    .glitch-fusions-table td {
+        width: 33.333333%;
+    }
+
+    #monster-field-search-section .table th,
+    #monster-field-search-section .table td {
+        width: 25%;
+    }
+
+    .hand-page-navigation {
+        gap: 8px;
+    }
+
+    .hand-page-label {
+        min-width: 0;
+        font-size: 0.9rem;
+    }
+
 }
 
 @media (max-width: 575px) {
