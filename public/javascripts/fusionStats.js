@@ -28,6 +28,7 @@
     var cardById = {};
     var cardByName = {};
     var statistics = [];
+    var statisticsById = {};
     var globalRankLabels = {};
     var glitchFusionDetails = {};
 
@@ -49,26 +50,15 @@
     });
 
 
-    /*
-     * ------------------------------------------------------------
-     * 2. BUILD GLITCH FUSION LOOKUPS
-     *
-     * Resolve the 15 glitch definitions once instead of scanning
-     * every card for every glitch definition for every card.
-     * ------------------------------------------------------------
-     */
-
     glitchFusions.forEach(function (glitchFusion) {
 
         var glitchCard1 = cardByName[glitchFusion.card1];
         var glitchCard2 = cardByName[glitchFusion.card2];
         var glitchResult = cardByName[glitchFusion.result];
 
-
         if (!glitchCard1 || !glitchCard2 || !glitchResult) {
             return;
         }
-
 
         if (!glitchFusionDetails[glitchCard1.Id]) {
             glitchFusionDetails[glitchCard1.Id] = [];
@@ -78,7 +68,6 @@
             partnerId: glitchCard2.Id,
             resultId: glitchResult.Id
         });
-
 
         if (!glitchFusionDetails[glitchCard2.Id]) {
             glitchFusionDetails[glitchCard2.Id] = [];
@@ -94,7 +83,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 3. BUILD FUSION STATISTICS
+     * 2. BUILD FUSION STATISTICS
      *
      * Each card is counted against UNIQUE fusion partners.
      * ------------------------------------------------------------
@@ -128,22 +117,24 @@
 
         });
 
-
         var partnerIds = Array.from(partners);
 
 
-        statistics.push({
+        var statistic = {
             card: card,
             partnerIds: partnerIds,
             count: partnerIds.length
-        });
+        };
+
+        statistics.push(statistic);
+        statisticsById[card.Id] = statistic;
 
     });
 
 
     /*
      * ------------------------------------------------------------
-     * 4. CALCULATE GLOBAL RANKS
+     * 3. CALCULATE GLOBAL RANKS
      *
      * Global ranks are always based on count descending.
      * Filtering never changes these labels.
@@ -199,7 +190,7 @@
                 label =
                     "Rank " +
                     startRank +
-                    "--" +
+                    "–" +
                     endRank;
 
             }
@@ -224,7 +215,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 5. SORTING
+     * 4. SORTING
      * ------------------------------------------------------------
      */
 
@@ -273,7 +264,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 6. FILTERING
+     * 5. FILTERING
      *
      * Filtering only controls visibility.
      * Global rank values are preserved.
@@ -305,7 +296,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 7. RENDER MAIN TABLE
+     * 6. RENDER MAIN TABLE
      * ------------------------------------------------------------
      */
 
@@ -374,17 +365,13 @@
 
     /*
      * ------------------------------------------------------------
-     * 8. RENDER CARD DETAILS
+     * 7. RENDER CARD DETAILS
      * ------------------------------------------------------------
      */
 
     function showCardDetails(cardId) {
 
-        var entry = statistics.find(function (item) {
-
-            return String(item.card.Id) === String(cardId);
-
-        });
+        var entry = statisticsById[cardId];
 
 
         if (!entry) {
@@ -423,22 +410,25 @@
 
         var tbody = document.createElement("tbody");
         var fusionList = fusionsList[entry.card.Id] || [];
+        var fusionByPartnerId = {};
+        var glitchByPartnerId = {};
+
+
+        fusionList.forEach(function (fusion) {
+            fusionByPartnerId[fusion.card] = fusion;
+        });
+
+
+        (glitchFusionDetails[entry.card.Id] || []).forEach(function (glitch) {
+            glitchByPartnerId[glitch.partnerId] = glitch;
+        });
 
 
         var detailEntries = entry.partnerIds.map(function (partnerId) {
 
             var partnerCard = cardById[partnerId];
-            var fusionEntry = fusionList.find(function (fusion) {
-
-                return String(fusion.card) === String(partnerId);
-
-            });
-
-            var glitchDetail = (glitchFusionDetails[entry.card.Id] || []).find(function (glitch) {
-
-                return String(glitch.partnerId) === String(partnerId);
-
-            });
+            var fusionEntry = fusionByPartnerId[partnerId];
+            var glitchDetail = glitchByPartnerId[partnerId];
 
             return {
                 partnerCard: partnerCard,
@@ -522,7 +512,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 9. EVENT HANDLERS
+     * 8. EVENT HANDLERS
      * ------------------------------------------------------------
      */
 
@@ -551,7 +541,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 10. INITIAL RENDER
+     * 9. INITIAL RENDER
      * ------------------------------------------------------------
      */
 
