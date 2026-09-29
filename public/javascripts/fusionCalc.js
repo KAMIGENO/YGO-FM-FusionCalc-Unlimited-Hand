@@ -84,6 +84,12 @@ var fusionLookup = {};
 var glitchFusionLookup = {};
 var equipLookup = {};
 var ritualDefinitions = [];
+var fieldCardIds = {};
+
+
+fieldList.forEach(function (definition) {
+    fieldCardIds[definition.CardId] = true;
+});
 
 
 fusionsList.forEach(function (fusionList, cardId) {
@@ -591,6 +597,112 @@ function equipsToHTML(equipEntries) {
 }
 
 
+function getFieldsForCard(card) {
+
+    if (!card || !isMonster(card)) {
+        return [];
+    }
+
+
+    return fieldList
+        .map(function (definition) {
+
+            var fieldCard = getCardById(definition.CardId);
+
+
+            if (!fieldCard) {
+                return null;
+            }
+
+
+            if (definition.PositiveTypes.indexOf(card.Type) !== -1) {
+                return {
+                    card: fieldCard,
+                    positive: true
+                };
+            }
+
+
+            if (definition.NegativeTypes.indexOf(card.Type) !== -1) {
+                return {
+                    card: fieldCard,
+                    positive: false
+                };
+            }
+
+
+            return null;
+
+        })
+        .filter(function (entry) {
+            return !!entry;
+        });
+
+}
+
+
+function fieldsToHTML(cards) {
+
+    var fields = {};
+
+
+    cards.forEach(function (card) {
+
+        getFieldsForCard(card).forEach(function (entry) {
+
+            if (!fields[entry.card.Id]) {
+                fields[entry.card.Id] = {
+                    card: entry.card,
+                    entries: []
+                };
+            }
+
+
+            fields[entry.card.Id].entries.push({
+                card: card,
+                positive: entry.positive
+            });
+
+        });
+
+    });
+
+
+    return Object.keys(fields)
+        .map(function (fieldId) {
+
+            var field = fields[fieldId];
+
+            var html =
+                "<div class='result-div field-result'>" +
+                "<strong class='" +
+                (field.entries[0].positive ? "field-positive" : "field-negative") +
+                "'>" +
+                (field.entries[0].positive ? "+" : "-") +
+                escapeHTML(field.card.Name) +
+                "</strong>";
+
+
+            field.entries.forEach(function (entry) {
+                html +=
+                    "<br>" +
+                    "<span class='" +
+                    (entry.positive ? "field-positive" : "field-negative") +
+                    "'>" +
+                    (entry.positive ? "+" : "-") +
+                    "</span> " +
+                    escapeHTML(formatInputCard(entry.card));
+            });
+
+
+            return html + "</div>";
+
+        })
+        .join("\n");
+
+}
+
+
 function findFusions() {
 
     var cards = handCards.filter(function (card) {
@@ -602,19 +714,24 @@ function findFusions() {
     var equipEntries = buildEquipTargets(cards, chains);
 
 
+    var rituals = findRituals(cards);
+    var fields = fieldsToHTML(cards.filter(function (card) {
+        return isMonster(card);
+    }));
+
+
     outputLeft.innerHTML =
         "<h2 class='text-left'>Fusions:</h2>" +
-        fusionChainsToHTML(chains);
-
-
-    var rituals = findRituals(cards);
+        fusionChainsToHTML(chains) +
+        "<h2 class='text-left'>Rituals:</h2>" +
+        ritualsToHTML(rituals);
 
 
     outputRight.innerHTML =
         "<h2 class='text-left'>Equips:</h2>" +
         equipsToHTML(equipEntries) +
-        "<h2 class='text-left'>Rituals:</h2>" +
-        ritualsToHTML(rituals);
+        "<h2 class='text-left'>Fields:</h2>" +
+        fields;
 
 }
 
@@ -747,11 +864,22 @@ function updateCardInfo(input, info) {
         info.textContent =
             formatCardDetails(card);
 
-    } else {
-
-        info.textContent = formatCardSummary(card);
+        return;
 
     }
+
+
+    var typeLabel = cardTypes[card.Type];
+
+
+    if (card.Type === 20) {
+        typeLabel = fieldCardIds[card.Id]
+            ? "Magic (Field)"
+            : "Magic (Effect)";
+    }
+
+
+    info.textContent = "Type: " + typeLabel;
 
 }
 
