@@ -230,6 +230,10 @@
 
 
     function formatGuardianStar(value) {
+        if (value === 10) {
+            return starNames[9];
+        }
+
         return starNames[value] || starNames[0];
     }
 
@@ -265,7 +269,7 @@
 
         var infoLine = document.createElement("div");
         infoLine.className = "text-muted";
-        infoLine.textContent = formatCardSummary(card).split(" | ").slice(1).join(" - ");
+        infoLine.textContent = formatCardSummary(card).split(" | ").slice(1).join(" — ");
 
         cell.appendChild(nameLine);
         cell.appendChild(infoLine);
@@ -405,7 +409,7 @@ function sortStatistics(results) {
 
             var spacerCell = document.createElement("td");
             spacerCell.className = "fusion-card-summary-secondary";
-            spacerCell.textContent = formatCardSummary(entry.card).split(" | ").slice(1).join(" - ");
+            spacerCell.textContent = formatCardSummary(entry.card).split(" | ").slice(1).join(" — ");
             secondRow.appendChild(spacerCell);
             tableBody.appendChild(secondRow);
 
