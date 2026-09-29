@@ -204,6 +204,10 @@ function formatCardId(id) {
 
 
 function formatGuardianStar(value) {
+    if (value === 10) {
+        return starNames[9];
+    }
+
     return starNames[value] || starNames[0];
 }
 
@@ -213,30 +217,42 @@ function formatGuardianStars(card) {
 }
 
 
-function formatCardSummary(card) {
+function formatCardDetails(card) {
     if (!card) {
         return "";
     }
 
-    var result =
-        formatCardId(card.Id) +
-        " " +
-        card.Name +
-        " | Type: " +
+    var details =
+        "Type: " +
         (cardTypes[card.Type] || "Unknown");
 
     if (isMonster(card)) {
-        result +=
-            " | Guardian Stars: " +
+        details +=
+            " — Guardian Stars: " +
             formatGuardianStars(card) +
-            " | " +
+            " — " +
             card.Attack +
             "A / " +
             card.Defense +
             "D";
     }
 
-    return result;
+    return details;
+}
+
+
+function formatCardSummary(card) {
+    if (!card) {
+        return "";
+    }
+
+    return (
+        formatCardId(card.Id) +
+        " " +
+        card.Name +
+        "\n" +
+        formatCardDetails(card)
+    );
 }
 
 
@@ -256,32 +272,110 @@ function fusesToHTML(fuselist) {
         .map(function (fusion) {
 
             var res =
-                "<div class='result-div'>" +
-                formatInputCard(fusion.card1) +
-                "<br>" +
-                formatInputCard(fusion.card2);
-
+                "<div class='result-div'>";
 
             if (fusion.glitch) {
-
-                res += "<br><strong>Glitch Fusion</strong>";
-
+                res += "<strong>Glitch Fusion</strong><br>";
             }
 
+            res +=
+                escapeHTML(formatInputCard(fusion.card1)) +
+                "<br>" +
+                escapeHTML(formatInputCard(fusion.card2));
 
             if (fusion.result) {
-
                 res +=
                     "<br>Result: " +
-                    formatResultCard(fusion.result);
-
+                    escapeHTML(formatCardSummary(fusion.result)).replace(/\n/g, "<br>");
             }
-
 
             return res + "</div>";
 
         })
         .join("\n");
+
+}
+
+
+
+/*
+ * ------------------------------------------------------------
+ * 6. FUSION CALCULATION
+ * ------------------------------------------------------------
+ */
+
+function findFusions() {
+
+    var cards = handCards.filter(function (card) {
+        return card !== null;
+    });
+
+    var fuses = [];
+    var equips = [];
+
+    for (var i = 0; i < cards.length - 1; i++) {
+
+        var card1 = cards[i];
+        var card1Fusions = fusionLookup[card1.Id] || {};
+        var card1Equips = equipLookup[card1.Id] || {};
+
+        for (var j = i + 1; j < cards.length; j++) {
+
+            var card2 = cards[j];
+            var fusionResultId = card1Fusions[card2.Id];
+
+            if (fusionResultId) {
+                var fusionResult = getCardById(fusionResultId);
+
+                if (fusionResult) {
+                    fuses.push({
+                        card1: card1,
+                        card2: card2,
+                        result: fusionResult
+                    });
+                }
+            }
+
+            var glitchResultId =
+                (glitchFusionLookup[card1.Id] || {})[card2.Id];
+
+            if (glitchResultId) {
+                var glitchResult = getCardById(glitchResultId);
+
+                if (glitchResult) {
+                    fuses.push({
+                        card1: card1,
+                        card2: card2,
+                        result: glitchResult,
+                        glitch: true
+                    });
+                }
+            }
+
+            if (card1Equips[card2.Id]) {
+                equips.push({
+                    card1: card1,
+                    card2: card2
+                });
+            }
+        }
+    }
+
+    fuses.sort(function (a, b) {
+        return b.result.Attack - a.result.Attack;
+    });
+
+    outputLeft.innerHTML =
+        "<h2 class='text-left'>Fusions:</h2>" +
+        fusesToHTML(fuses);
+
+    var rituals = findRituals(cards);
+
+    outputRight.innerHTML =
+        "<h2 class='text-left'>Equips:</h2>" +
+        fusesToHTML(equips) +
+        "<h2 class='text-left'>Rituals:</h2>" +
+        ritualsToHTML(rituals);
 
 }
 
@@ -406,7 +500,7 @@ function updateCardInfo(input, info) {
     if (isMonster(card)) {
 
         info.textContent =
-            formatCardSummary(card);
+            formatCardDetails(card);
 
     } else {
 
@@ -433,7 +527,7 @@ function createInput(slotNumber) {
                 ? "0" + slotNumber
                 : String(slotNumber);
 
-    number.textContent = paddedSlotNumber + ".  ";
+    number.textContent = paddedSlotNumber + ". ";
 
 
     var input = document.createElement("input");
