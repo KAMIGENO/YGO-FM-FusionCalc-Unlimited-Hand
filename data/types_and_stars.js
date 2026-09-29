@@ -1,4 +1,3 @@
-================================================
 var cardTypes = [
     "Dragon",
     "Spellcaster",
@@ -39,9 +38,6 @@ var starNames = [
     "Venus",
 ];
 
-
-
-
 var fieldCardIds = {
     330: true,
     331: true,
@@ -50,7 +46,6 @@ var fieldCardIds = {
     334: true,
     335: true,
 };
-
 
 function getCardTypeName(card) {
 
