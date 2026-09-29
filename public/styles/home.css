@@ -10,6 +10,12 @@ body {
     font-family: var(--varela), "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+/* Keep the Bootstrap navbar horizontal on narrow screens so the logo and menu button share one row. */
+.navbar {
+    flex-direction: row;
+}
+
+
 .polymerization {
     width: 100%;
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
@@ -163,7 +169,11 @@ body {
     margin-left: 10px;
 }
 
-@media (max-width: 576px) {
+@media (max-width: 767px) {
+    #container-space {
+        height: 300px;
+    }
+
     .hero-title {
         font-size: 1.6rem;
         text-align: center;
