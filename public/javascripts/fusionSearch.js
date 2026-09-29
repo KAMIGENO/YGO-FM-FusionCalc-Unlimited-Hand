@@ -98,6 +98,31 @@ var glitchFusionDefinitions = glitchFusions.map(function (fusion) {
 });
 
 
+var glitchFusionsByCardId = {};
+var glitchFusionsByResultId = {};
+
+
+glitchFusionDefinitions.forEach(function (fusion) {
+
+    if (!glitchFusionsByCardId[fusion.card1.Id]) {
+        glitchFusionsByCardId[fusion.card1.Id] = [];
+    }
+
+    if (!glitchFusionsByCardId[fusion.card2.Id]) {
+        glitchFusionsByCardId[fusion.card2.Id] = [];
+    }
+
+    glitchFusionsByCardId[fusion.card1.Id].push(fusion);
+    glitchFusionsByCardId[fusion.card2.Id].push(fusion);
+
+    if (!glitchFusionsByResultId[fusion.result.Id]) {
+        glitchFusionsByResultId[fusion.result.Id] = [];
+    }
+
+    glitchFusionsByResultId[fusion.result.Id].push(fusion);
+
+});
+
 function escapeHTML(value) {
 
     return String(value)
@@ -390,18 +415,14 @@ function searchByName() {
     });
 
 
-    glitchFusionDefinitions.forEach(function (fusion) {
+    (glitchFusionsByCardId[card.Id] || []).forEach(function (fusion) {
 
-        if (fusion.card1.Id === card.Id || fusion.card2.Id === card.Id) {
-
-            fuses.push({
-                card1: fusion.card1,
-                card2: fusion.card2,
-                result: fusion.result,
-                glitch: true
-            });
-
-        }
+        fuses.push({
+            card1: fusion.card1,
+            card2: fusion.card2,
+            result: fusion.result,
+            glitch: true
+        });
 
     });
 
@@ -482,17 +503,13 @@ function searchForResult() {
         });
 
 
-    glitchFusionDefinitions.forEach(function (fusion) {
+    (glitchFusionsByResultId[card.Id] || []).forEach(function (fusion) {
 
-        if (fusion.result.Id === card.Id) {
-
-            results.push({
-                card1: fusion.card1,
-                card2: fusion.card2,
-                glitch: true
-            });
-
-        }
+        results.push({
+            card1: fusion.card1,
+            card2: fusion.card2,
+            glitch: true
+        });
 
     });
 
