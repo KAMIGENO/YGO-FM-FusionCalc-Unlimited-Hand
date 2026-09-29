@@ -304,76 +304,313 @@ function fusesToHTML(fuselist) {
  * ------------------------------------------------------------
  */
 
+function getFusion(card1, card2) {
+
+    var resultId =
+        (fusionLookup[card1.Id] || {})[card2.Id];
+
+
+    if (resultId) {
+
+        return {
+            result: getCardById(resultId),
+            glitch: false
+        };
+
+    }
+
+
+    resultId =
+        (fusionLookup[card2.Id] || {})[card1.Id];
+
+
+    if (resultId) {
+
+        return {
+            result: getCardById(resultId),
+            glitch: false
+        };
+
+    }
+
+
+    resultId =
+        (glitchFusionLookup[card1.Id] || {})[card2.Id];
+
+
+    if (resultId) {
+
+        return {
+            result: getCardById(resultId),
+            glitch: true
+        };
+
+    }
+
+
+    return null;
+
+}
+
+
+function extendFusionChain(resultCard, cards, usedIndexes, steps, chains) {
+
+    var extended = false;
+
+
+    for (var i = 0; i < cards.length; i++) {
+
+        if (usedIndexes.indexOf(i) !== -1) {
+            continue;
+        }
+
+
+        var nextFusion = getFusion(resultCard, cards[i]);
+
+
+        if (!nextFusion || !nextFusion.result) {
+            continue;
+        }
+
+
+        extended = true;
+
+
+        var nextUsedIndexes = usedIndexes.concat(i);
+        var nextSteps = steps.concat({
+            card1: resultCard,
+            card2: cards[i],
+            result: nextFusion.result,
+            glitch: nextFusion.glitch
+        });
+
+
+        extendFusionChain(
+            nextFusion.result,
+            cards,
+            nextUsedIndexes,
+            nextSteps,
+            chains
+        );
+
+    }
+
+
+    if (!extended) {
+        chains.push(steps);
+    }
+
+}
+
+
+function buildFusionChains(cards) {
+
+    var chains = [];
+
+
+    for (var i = 0; i < cards.length - 1; i++) {
+
+        for (var j = i + 1; j < cards.length; j++) {
+
+            var fusion = getFusion(cards[i], cards[j]);
+
+
+            if (!fusion || !fusion.result) {
+                continue;
+            }
+
+
+            extendFusionChain(
+                fusion.result,
+                cards,
+                [i, j],
+                [{
+                    card1: cards[i],
+                    card2: cards[j],
+                    result: fusion.result,
+                    glitch: fusion.glitch
+                }],
+                chains
+            );
+
+        }
+
+    }
+
+
+    return chains;
+
+}
+
+
+function canEquip(equipCard, targetCard) {
+
+    return !!(
+        equipCard &&
+        targetCard &&
+        equipLookup[equipCard.Id] &&
+        equipLookup[equipCard.Id][targetCard.Id]
+    );
+
+}
+
+
+function buildEquipTargets(cards, chains) {
+
+    var equipCards = cards.filter(function (card) {
+        return !!equipLookup[card.Id];
+    });
+
+
+    if (equipCards.length === 0) {
+        return [];
+    }
+
+
+    var targets = [];
+    var targetIds = {};
+
+
+    cards.forEach(function (card) {
+
+        if (!targetIds[card.Id]) {
+            targetIds[card.Id] = true;
+            targets.push(card);
+        }
+
+    });
+
+
+    chains.forEach(function (chain) {
+
+        chain.forEach(function (step) {
+
+            if (step.result && !targetIds[step.result.Id]) {
+                targetIds[step.result.Id] = true;
+                targets.push(step.result);
+            }
+
+        });
+
+    });
+
+
+    return equipCards.map(function (equipCard) {
+
+        return {
+            equip: equipCard,
+            targets: targets.filter(function (targetCard) {
+                return (
+                    targetCard.Id !== equipCard.Id &&
+                    canEquip(equipCard, targetCard)
+                );
+            })
+        };
+
+    }).filter(function (entry) {
+        return entry.targets.length > 0;
+    });
+
+}
+
+
+function formatFusionStep(step, isFirstStep) {
+
+    var html =
+        "<div class='fusion-chain-step" +
+        (isFirstStep ? "" : " fusion-chain-followup") +
+        "'>";
+
+
+    if (step.glitch) {
+        html += "<strong>Glitch Fusion</strong><br>";
+    }
+
+
+    html +=
+        escapeHTML(formatInputCard(step.card1)) +
+        " + " +
+        escapeHTML(formatInputCard(step.card2)) +
+        " = " +
+        escapeHTML(formatInputCard(step.result));
+
+
+    html +=
+        "<br>" +
+        escapeHTML(formatCardDetails(step.result));
+
+
+    return html + "</div>";
+
+}
+
+
+function fusionChainsToHTML(chains) {
+
+    return chains
+        .map(function (chain) {
+
+            return (
+                "<div class='result-div fusion-chain-result'>" +
+                chain.map(function (step, index) {
+                    return formatFusionStep(step, index === 0);
+                }).join("") +
+                "</div>"
+            );
+
+        })
+        .join("\n");
+
+}
+
+
+function equipsToHTML(equipEntries) {
+
+    return equipEntries
+        .map(function (entry) {
+
+            return (
+                "<div class='result-div equip-result'>" +
+                "<strong>" +
+                escapeHTML(formatInputCard(entry.equip)) +
+                "</strong>" +
+                entry.targets.map(function (target) {
+                    return (
+                        "<br>Equips: " +
+                        escapeHTML(formatInputCard(target))
+                    );
+                }).join("") +
+                "</div>"
+            );
+
+        })
+        .join("\n");
+
+}
+
+
 function findFusions() {
 
     var cards = handCards.filter(function (card) {
         return card !== null;
     });
 
-    var fuses = [];
-    var equips = [];
 
-    for (var i = 0; i < cards.length - 1; i++) {
+    var chains = buildFusionChains(cards);
+    var equipEntries = buildEquipTargets(cards, chains);
 
-        var card1 = cards[i];
-        var card1Fusions = fusionLookup[card1.Id] || {};
-        var card1Equips = equipLookup[card1.Id] || {};
-
-        for (var j = i + 1; j < cards.length; j++) {
-
-            var card2 = cards[j];
-            var fusionResultId = card1Fusions[card2.Id];
-
-            if (fusionResultId) {
-                var fusionResult = getCardById(fusionResultId);
-
-                if (fusionResult) {
-                    fuses.push({
-                        card1: card1,
-                        card2: card2,
-                        result: fusionResult
-                    });
-                }
-            }
-
-            var glitchResultId =
-                (glitchFusionLookup[card1.Id] || {})[card2.Id];
-
-            if (glitchResultId) {
-                var glitchResult = getCardById(glitchResultId);
-
-                if (glitchResult) {
-                    fuses.push({
-                        card1: card1,
-                        card2: card2,
-                        result: glitchResult,
-                        glitch: true
-                    });
-                }
-            }
-
-            if (card1Equips[card2.Id]) {
-                equips.push({
-                    card1: card1,
-                    card2: card2
-                });
-            }
-        }
-    }
-
-    fuses.sort(function (a, b) {
-        return b.result.Attack - a.result.Attack;
-    });
 
     outputLeft.innerHTML =
         "<h2 class='text-left'>Fusions:</h2>" +
-        fusesToHTML(fuses);
+        fusionChainsToHTML(chains);
+
 
     var rituals = findRituals(cards);
 
+
     outputRight.innerHTML =
         "<h2 class='text-left'>Equips:</h2>" +
-        fusesToHTML(equips) +
+        equipsToHTML(equipEntries) +
         "<h2 class='text-left'>Rituals:</h2>" +
         ritualsToHTML(rituals);
 
