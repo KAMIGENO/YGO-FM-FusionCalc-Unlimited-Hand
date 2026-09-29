@@ -129,6 +129,23 @@
     }
 
 
+    function escapeHTML(value) {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/\'/g, "&#039;");
+    }
+
+
+    function formatBoldCardLabel(card) {
+        return "<strong>" +
+            escapeHTML(formatCardId(card.Id) + " " + card.Name) +
+            "</strong>";
+    }
+
+
     function formatGuardianStar(value) {
         if (value === 10) {
             return starNames[9];
@@ -140,19 +157,17 @@
 
     function formatMonsterSummary(card) {
         return (
-            formatCardId(card.Id) +
-            " " +
-            card.Name +
-            "\nType: " +
-            (cardTypes[card.Type] || "Unknown") +
+            formatBoldCardLabel(card) +
+            "<br>Type: " +
+            escapeHTML(cardTypes[card.Type] || "Unknown") +
             " — Guardian Stars: " +
-            formatGuardianStar(card.GuardianStarA) +
+            escapeHTML(formatGuardianStar(card.GuardianStarA)) +
             " / " +
-            formatGuardianStar(card.GuardianStarB) +
+            escapeHTML(formatGuardianStar(card.GuardianStarB)) +
             " — " +
-            card.Attack +
+            escapeHTML(card.Attack) +
             "A / " +
-            card.Defense +
+            escapeHTML(card.Defense) +
             "D"
         );
     }
@@ -330,7 +345,7 @@ function calculateGlobalRanks() {
 
 
             var nameCell = document.createElement("td");
-            nameCell.textContent = formatCardId(entry.card.Id) + " " + entry.card.Name;
+            nameCell.innerHTML = formatBoldCardLabel(entry.card);
 
 
             var countCell = document.createElement("td");
@@ -387,8 +402,8 @@ function calculateGlobalRanks() {
         }
 
 
-        detailsTitle.textContent =
-            entry.card.Name +
+        detailsTitle.innerHTML =
+            formatBoldCardLabel(entry.card) +
             " — " +
             entry.count +
             " Compatible Monsters";
@@ -434,7 +449,7 @@ function calculateGlobalRanks() {
             var row = document.createElement("tr");
             var monsterCell = document.createElement("td");
             monsterCell.className = "equip-monster-summary";
-            monsterCell.textContent = formatMonsterSummary(monsterCard);
+            monsterCell.innerHTML = formatMonsterSummary(monsterCard);
 
             row.appendChild(monsterCell);
             tbody.appendChild(row);
