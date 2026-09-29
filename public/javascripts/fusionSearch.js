@@ -258,7 +258,7 @@ function fusesToHTML(fuselist) {
 
                 res +=
                     "<p class=\"card-text\"><strong>Result:</strong> " +
-                    escapeHTML(fusion.result.Name);
+                    escapeHTML(formatCardInfo(fusion.result));
 
 
                 if (fusion.result.Type < 20) {
@@ -337,10 +337,7 @@ function ritualsToHTML(ritualList) {
                 escapeHTML(materials[2].Name) +
                 "</p>" +
                 "<p class=\"card-text\"><strong>Result:</strong> " +
-                escapeHTML(result.Name) +
-                (result.Type < 20
-                    ? " (" + result.Attack + "/" + result.Defense + ")"
-                    : " [" + escapeHTML(cardTypes[result.Type]) + "]") +
+                escapeHTML(formatCardInfo(result)) +
                 "</p>" +
                 "</div></div>"
             );
