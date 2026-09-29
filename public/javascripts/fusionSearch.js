@@ -205,7 +205,7 @@ function formatCardDetails(card) {
 
     var details =
         "Type: " +
-        (cardTypes[card.Type] || "Unknown");
+        getCardTypeName(card);
 
     if (isMonster(card)) {
         details +=
@@ -256,7 +256,7 @@ function createSideCard(card) {
         escapeHTML(card.Description) +
         "</p>" +
         "<p class=\"card-text\"><strong>Type:</strong> " +
-        escapeHTML(cardTypes[card.Type]) +
+        escapeHTML(getCardTypeName(card)) +
         "</p>";
 
 
