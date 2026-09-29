@@ -83,7 +83,7 @@
             return "Magic-User (Spellcaster)";
         }
 
-        return getCardTypeName({ Id: null, Type: typeId });
+        return cardTypes[typeId] || "Unknown";
 
     }
 
@@ -186,6 +186,8 @@
             neutralCount: neutralCards.length,
             negativeCount: negativeCards.length,
             nonNeutralCount: positiveCards.length + negativeCards.length,
+            positiveIdSet: positiveIds,
+            negativeIdSet: negativeIds,
             positiveGroups: buildTypeGroups(positiveCards),
             neutralGroups: buildTypeGroups(neutralCards),
             negativeGroups: buildTypeGroups(negativeCards)
