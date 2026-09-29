@@ -174,6 +174,58 @@ function createDangerMessage(input) {
  * ------------------------------------------------------------
  */
 
+function isMonster(card) {
+    return !!card && card.Type < 20;
+}
+
+
+function formatCardId(id) {
+    return "#" + String(id).padStart(3, "0");
+}
+
+
+function formatGuardianStar(value) {
+    return starNames[value] || starNames[0];
+}
+
+
+function formatGuardianStars(card) {
+    return formatGuardianStar(card.GuardianStarA) + " / " + formatGuardianStar(card.GuardianStarB);
+}
+
+
+function formatCardSummary(card) {
+    if (!card) {
+        return "";
+    }
+
+    var result =
+        formatCardId(card.Id) +
+        " " +
+        card.Name +
+        " | Type: " +
+        (cardTypes[card.Type] || "Unknown");
+
+    if (isMonster(card)) {
+        result +=
+            " | Guardian Stars: " +
+            formatGuardianStars(card) +
+            " | " +
+            card.Attack +
+            "A / " +
+            card.Defense +
+            "D";
+    }
+
+    return result;
+}
+
+
+function formatInputCard(card) {
+    return formatCardId(card.Id) + " " + card.Name;
+}
+
+
 function createSideCard(card) {
 
     var modelCard =
@@ -182,45 +234,36 @@ function createSideCard(card) {
         "<div class=\"col\">" +
         "<div class=\"card-body\">" +
         "<h5 class=\"card-title\">" +
-        escapeHTML(card.Name) +
+        formatCardId(card.Id) + " " + escapeHTML(card.Name) +
         "</h5>" +
         "<p class=\"card-text\">" +
         escapeHTML(card.Description) +
         "</p>" +
-        "<p class=\"card-text\"><strong>ATK / DEF:</strong> " +
-        card.Attack +
-        " / " +
-        card.Defense +
-        "</p>" +
         "<p class=\"card-text\"><strong>Type:</strong> " +
         escapeHTML(cardTypes[card.Type]) +
-        "</p>" +
+        "</p>";
+
+
+    if (isMonster(card)) {
+        modelCard +=
+            "<p class=\"card-text\"><strong>Guardian Stars:</strong> " +
+            escapeHTML(formatGuardianStars(card)) +
+            "</p>" +
+            "<p class=\"card-text\"><strong>ATK / DEF:</strong> " +
+            card.Attack + "A / " + card.Defense + "D" +
+            "</p>";
+    }
+
+    modelCard +=
         "<p class=\"card-text\"><strong>Stars:</strong> " +
         card.Stars +
         "</p>" +
         "<p class=\"card-text\"><strong>Password:</strong> " +
         escapeHTML(card.CardCode) +
         "</p>" +
-        "</div>" +
-        "</div>" +
-        "</div>" +
-        "</div>";
+        "</div></div></div></div>";
 
-
-    if (card.Type < 20) {
-        return modelCard;
-    }
-
-
-    return modelCard.replace(
-        "<p class=\"card-text\"><strong>ATK / DEF:</strong> " +
-        card.Attack +
-        " / " +
-        card.Defense +
-        "</p>",
-        ""
-    );
-
+    return modelCard;
 }
 
 
@@ -236,52 +279,27 @@ function fusesToHTML(fuselist) {
         .map(function (fusion) {
 
             var res =
-                "<div class=\"card border-dark mb-3\" style=\"max-width: 18rem;\">" +
+                "<div class=\"card border-dark mb-3\" style=\"max-width: 40rem;\">" +
                 "<div class=\"card-body text-dark\">" +
-                "<p class=\"card-text\"><strong>Input:</strong> " +
-                escapeHTML(fusion.card1.Name) +
+                "<p class=\"card-text\">" +
+                formatInputCard(fusion.card1) +
                 "</p>" +
-                "<p class=\"card-text\"><strong>Input:</strong> " +
-                escapeHTML(fusion.card2.Name) +
+                "<p class=\"card-text\">" +
+                formatInputCard(fusion.card2) +
                 "</p>";
 
 
             if (fusion.glitch) {
-
                 res +=
                     "<p class=\"card-text\"><strong>Glitch Fusion</strong></p>";
-
             }
 
 
             if (fusion.result) {
-
                 res +=
                     "<p class=\"card-text\"><strong>Result:</strong> " +
-                    escapeHTML(formatCardInfo(fusion.result));
-
-
-                if (fusion.result.Type < 20) {
-
-                    res +=
-                        " (" +
-                        fusion.result.Attack +
-                        "/" +
-                        fusion.result.Defense +
-                        ")";
-
-                } else {
-
-                    res +=
-                        " [" +
-                        escapeHTML(cardTypes[fusion.result.Type]) +
-                        "]";
-
-                }
-
-
-                res += "</p>";
-
+                    formatCardSummary(fusion.result) +
+                    "</p>";
             }
 
 
@@ -325,19 +343,19 @@ function ritualsToHTML(ritualList) {
                 "<div class=\"card border-dark mb-3\" style=\"max-width: 18rem;\">" +
                 "<div class=\"card-body text-dark\">" +
                 "<p class=\"card-text\"><strong>Ritual:</strong> " +
-                escapeHTML(ritualCard.Name) +
+                formatInputCard(ritualCard) +
                 "</p>" +
                 "<p class=\"card-text\"><strong>Material:</strong> " +
-                escapeHTML(materials[0].Name) +
+                formatInputCard(materials[0]) +
                 "</p>" +
                 "<p class=\"card-text\"><strong>Material:</strong> " +
-                escapeHTML(materials[1].Name) +
+                formatInputCard(materials[1]) +
                 "</p>" +
                 "<p class=\"card-text\"><strong>Material:</strong> " +
-                escapeHTML(materials[2].Name) +
+                formatInputCard(materials[2]) +
                 "</p>" +
                 "<p class=\"card-text\"><strong>Result:</strong> " +
-                escapeHTML(formatCardInfo(result)) +
+                formatCardSummary(result) +
                 "</p>" +
                 "</div></div>"
             );
