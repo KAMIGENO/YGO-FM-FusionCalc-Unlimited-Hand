@@ -292,14 +292,17 @@ function fieldsToHTML(fieldEntries) {
         .map(function (entry) {
 
             return (
-                "<p class=\"card-text mb-2\">" +
+                "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
+                "<div class=\"card-body text-dark\">" +
+                "<p class=\"card-text mb-0\">" +
                 "<span class=\"" +
                 (entry.positive ? "field-positive" : "field-negative") +
                 "\">" +
                 (entry.positive ? "+" : "-") +
                 escapeHTML(entry.card.Name) +
                 "</span>" +
-                "</p>"
+                "</p>" +
+                "</div></div>"
             );
 
         })
