@@ -175,8 +175,9 @@ body {
     }
 
     .hero-title {
-        font-size: 1.3rem;
+        font-size: clamp(1rem, 4vw, 1.3rem);
         text-align: center;
+        white-space: nowrap;
     }
     .text-subtext {
         font-size: 1.2rem;
