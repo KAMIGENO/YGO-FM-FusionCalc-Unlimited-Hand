@@ -84,6 +84,7 @@ function getCardById(id) {
  */
 
 var fusionLookup = {};
+var glitchFusionLookup = {};
 var equipLookup = {};
 var ritualDefinitions = [];
 
@@ -106,6 +107,33 @@ fusionsList.forEach(function (fusionList, cardId) {
         fusionLookup[cardId][fusion.card] = fusion.result;
 
     });
+
+});
+
+
+glitchFusions.forEach(function (fusion) {
+
+    var card1 = getCardByName(fusion.card1);
+    var card2 = getCardByName(fusion.card2);
+    var result = getCardByName(fusion.result);
+
+
+    if (!card1 || !card2 || !result) {
+        return;
+    }
+
+
+    if (!glitchFusionLookup[card1.Id]) {
+        glitchFusionLookup[card1.Id] = {};
+    }
+
+    if (!glitchFusionLookup[card2.Id]) {
+        glitchFusionLookup[card2.Id] = {};
+    }
+
+
+    glitchFusionLookup[card1.Id][card2.Id] = result.Id;
+    glitchFusionLookup[card2.Id][card1.Id] = result.Id;
 
 });
 
@@ -215,6 +243,13 @@ function fusesToHTML(fuselist) {
                 escapeHTML(fusion.card2.Name);
 
 
+            if (fusion.glitch) {
+
+                res += "<br><strong>Glitch Fusion</strong>";
+
+            }
+
+
             if (fusion.result) {
 
                 res +=
@@ -291,6 +326,29 @@ function findFusions() {
                         card1: card1,
                         card2: card2,
                         result: fusionResult
+                    });
+
+                }
+
+            }
+
+
+            var glitchResultId =
+                (glitchFusionLookup[card1.Id] || {})[card2.Id];
+
+
+            if (glitchResultId) {
+
+                var glitchResult = getCardById(glitchResultId);
+
+
+                if (glitchResult) {
+
+                    fuses.push({
+                        card1: card1,
+                        card2: card2,
+                        result: glitchResult,
+                        glitch: true
                     });
 
                 }
