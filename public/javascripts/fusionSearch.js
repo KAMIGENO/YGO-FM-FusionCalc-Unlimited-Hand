@@ -349,6 +349,69 @@ function equipsToHTML(equipList) {
 }
 
 
+function getFieldsForCard(card) {
+
+    if (!card || !isMonster(card) || typeof fieldList === "undefined") {
+        return [];
+    }
+
+    return fieldList.reduce(function (results, field) {
+
+        var positive = field.PositiveTypes.indexOf(card.Type) !== -1;
+        var negative = field.NegativeTypes.indexOf(card.Type) !== -1;
+
+        if (positive || negative) {
+            var fieldCard = getCardById(field.CardId);
+
+            if (fieldCard) {
+                if (positive) {
+                    results.push({
+                        card: fieldCard,
+                        positive: true
+                    });
+                }
+
+                if (negative) {
+                    results.push({
+                        card: fieldCard,
+                        positive: false
+                    });
+                }
+            }
+        }
+
+        return results;
+
+    }, []);
+
+}
+
+
+function fieldsToHTML(fields) {
+
+    return fields
+        .map(function (entry) {
+
+            return (
+                "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
+                "<div class=\"card-body text-dark\">" +
+                "<p class=\"card-text mb-0\">" +
+                "<span class=\"" +
+                (entry.positive ? "field-positive" : "field-negative") +
+                "\">" +
+                (entry.positive ? "+" : "-") +
+                escapeHTML(entry.card.Name) +
+                "</span>" +
+                "</p>" +
+                "</div></div>"
+            );
+
+        })
+        .join("");
+
+}
+
+
 function ritualCardNames(ritual) {
 
     return [
@@ -495,11 +558,15 @@ function searchByName() {
 
 
     var rituals = getRitualsForCard(card.Id);
+    var fields = getFieldsForCard(card);
 
 
     outputRight.innerHTML =
         "<h2 class='text-center my-4'>Equips</h2>" +
-        equipsToHTML(equips);
+        equipsToHTML(equips) +
+        (fields.length > 0
+            ? "<h2 class='text-center my-4'>Fields</h2>" + fieldsToHTML(fields)
+            : "");
 
     outputLeft.innerHTML =
         (fuses.length > 0
