@@ -1,3 +1,4 @@
+================================================
 var cardTypes = [
     "Dragon",
     "Spellcaster",
@@ -37,3 +38,30 @@ var starNames = [
     "Moon",
     "Venus",
 ];
+
+
+
+
+var fieldCardIds = {
+    330: true,
+    331: true,
+    332: true,
+    333: true,
+    334: true,
+    335: true,
+};
+
+
+function getCardTypeName(card) {
+
+    if (!card) {
+        return "Unknown";
+    }
+
+    if (card.Type === 20) {
+        return fieldCardIds[card.Id] ? "Magic (Field)" : "Magic (Effect)";
+    }
+
+    return cardTypes[card.Type] || "Unknown";
+
+}
