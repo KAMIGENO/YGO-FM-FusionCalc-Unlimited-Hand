@@ -26,6 +26,7 @@
 
 
     var cardById = {};
+    var cardByName = {};
     var statistics = [];
     var globalRankLabels = {};
     var glitchFusionDetails = {};
@@ -43,13 +44,57 @@
     card_db().get().forEach(function (card) {
 
         cardById[card.Id] = card;
+        cardByName[card.Name] = card;
 
     });
 
 
     /*
      * ------------------------------------------------------------
-     * 2. BUILD FUSION STATISTICS
+     * 2. BUILD GLITCH FUSION LOOKUPS
+     *
+     * Resolve the 15 glitch definitions once instead of scanning
+     * every card for every glitch definition for every card.
+     * ------------------------------------------------------------
+     */
+
+    glitchFusions.forEach(function (glitchFusion) {
+
+        var glitchCard1 = cardByName[glitchFusion.card1];
+        var glitchCard2 = cardByName[glitchFusion.card2];
+        var glitchResult = cardByName[glitchFusion.result];
+
+
+        if (!glitchCard1 || !glitchCard2 || !glitchResult) {
+            return;
+        }
+
+
+        if (!glitchFusionDetails[glitchCard1.Id]) {
+            glitchFusionDetails[glitchCard1.Id] = [];
+        }
+
+        glitchFusionDetails[glitchCard1.Id].push({
+            partnerId: glitchCard2.Id,
+            resultId: glitchResult.Id
+        });
+
+
+        if (!glitchFusionDetails[glitchCard2.Id]) {
+            glitchFusionDetails[glitchCard2.Id] = [];
+        }
+
+        glitchFusionDetails[glitchCard2.Id].push({
+            partnerId: glitchCard1.Id,
+            resultId: glitchResult.Id
+        });
+
+    });
+
+
+    /*
+     * ------------------------------------------------------------
+     * 3. BUILD FUSION STATISTICS
      *
      * Each card is counted against UNIQUE fusion partners.
      * ------------------------------------------------------------
@@ -77,66 +122,9 @@
         });
 
 
-        glitchFusions.forEach(function (glitchFusion) {
+        (glitchFusionDetails[cardId] || []).forEach(function (glitchDetail) {
 
-            var glitchCard1 = null;
-            var glitchCard2 = null;
-            var glitchResult = null;
-
-            Object.keys(cardById).forEach(function (id) {
-
-                var candidate = cardById[id];
-
-                if (candidate.Name === glitchFusion.card1) {
-                    glitchCard1 = candidate;
-                }
-
-                if (candidate.Name === glitchFusion.card2) {
-                    glitchCard2 = candidate;
-                }
-
-                if (candidate.Name === glitchFusion.result) {
-                    glitchResult = candidate;
-                }
-
-            });
-
-
-            if (!glitchCard1 || !glitchCard2 || !glitchResult) {
-                return;
-            }
-
-
-            if (glitchCard1.Id === cardId) {
-
-                partners.add(glitchCard2.Id);
-
-                if (!glitchFusionDetails[cardId]) {
-                    glitchFusionDetails[cardId] = [];
-                }
-
-                glitchFusionDetails[cardId].push({
-                    partnerId: glitchCard2.Id,
-                    resultId: glitchResult.Id
-                });
-
-            }
-
-
-            if (glitchCard2.Id === cardId) {
-
-                partners.add(glitchCard1.Id);
-
-                if (!glitchFusionDetails[cardId]) {
-                    glitchFusionDetails[cardId] = [];
-                }
-
-                glitchFusionDetails[cardId].push({
-                    partnerId: glitchCard1.Id,
-                    resultId: glitchResult.Id
-                });
-
-            }
+            partners.add(glitchDetail.partnerId);
 
         });
 
@@ -155,7 +143,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 3. CALCULATE GLOBAL RANKS
+     * 4. CALCULATE GLOBAL RANKS
      *
      * Global ranks are always based on count descending.
      * Filtering never changes these labels.
@@ -236,7 +224,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 4. SORTING
+     * 5. SORTING
      * ------------------------------------------------------------
      */
 
@@ -285,7 +273,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 5. FILTERING
+     * 6. FILTERING
      *
      * Filtering only controls visibility.
      * Global rank values are preserved.
@@ -317,7 +305,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 6. RENDER MAIN TABLE
+     * 7. RENDER MAIN TABLE
      * ------------------------------------------------------------
      */
 
@@ -386,7 +374,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 7. RENDER CARD DETAILS
+     * 8. RENDER CARD DETAILS
      * ------------------------------------------------------------
      */
 
@@ -534,7 +522,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 8. EVENT HANDLERS
+     * 9. EVENT HANDLERS
      * ------------------------------------------------------------
      */
 
@@ -563,7 +551,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 9. INITIAL RENDER
+     * 10. INITIAL RENDER
      * ------------------------------------------------------------
      */
 
