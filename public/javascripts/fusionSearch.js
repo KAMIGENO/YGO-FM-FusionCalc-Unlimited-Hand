@@ -71,6 +71,23 @@ function getCardById(id) {
 }
 
 
+function getCardTypeName(card) {
+
+    if (!card) {
+        return "Unknown";
+    }
+
+    if (card.Type === 20) {
+        return [330, 331, 332, 333, 334, 335].indexOf(card.Id) !== -1
+            ? "Magic (Field)"
+            : "Magic (Effect)";
+    }
+
+    return cardTypes[card.Type] || "Unknown";
+
+}
+
+
 function getCardByName(name) {
 
     if (!name) {
@@ -174,6 +191,143 @@ function createDangerMessage(input) {
  * ------------------------------------------------------------
  */
 
+function isMonster(card) {
+    return !!card && card.Type < 20;
+}
+
+
+function formatCardId(id) {
+    return "#" + String(id).padStart(3, "0");
+}
+
+
+function formatGuardianStar(value) {
+    if (value === 10) {
+        return starNames[9];
+    }
+
+    return starNames[value] || starNames[0];
+}
+
+
+function formatGuardianStars(card) {
+    return formatGuardianStar(card.GuardianStarA) + " / " + formatGuardianStar(card.GuardianStarB);
+}
+
+
+function formatCardDetails(card) {
+    if (!card) {
+        return "";
+    }
+
+    var details =
+        "Type: " +
+        getCardTypeName(card);
+
+    if (isMonster(card)) {
+        details +=
+            " — Guardian Stars: " +
+            formatGuardianStars(card) +
+            " — " +
+            card.Attack +
+            "A / " +
+            card.Defense +
+            "D";
+    }
+
+    return details;
+}
+
+
+function formatCardSummary(card) {
+    if (!card) {
+        return "";
+    }
+
+    return (
+        formatCardId(card.Id) +
+        " " +
+        card.Name +
+        "\n" +
+        formatCardDetails(card)
+    );
+}
+
+
+function formatInputCard(card) {
+    return formatCardId(card.Id) + " " + card.Name;
+}
+
+
+function getFieldsForCard(card) {
+
+    if (!card || !fieldList) {
+        return [];
+    }
+
+
+    return fieldList
+        .map(function (definition) {
+
+            var fieldCard = getCardById(definition.CardId);
+
+
+            if (!fieldCard) {
+                return null;
+            }
+
+
+            if (definition.PositiveTypes.indexOf(card.Type) !== -1) {
+                return {
+                    card: fieldCard,
+                    positive: true
+                };
+            }
+
+
+            if (definition.NegativeTypes.indexOf(card.Type) !== -1) {
+                return {
+                    card: fieldCard,
+                    positive: false
+                };
+            }
+
+
+            return null;
+
+        })
+        .filter(function (entry) {
+            return !!entry;
+        });
+
+}
+
+
+function fieldsToHTML(fieldEntries) {
+
+    return fieldEntries
+        .map(function (entry) {
+
+            return (
+                "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
+                "<div class=\"card-body text-dark\">" +
+                "<p class=\"card-text mb-0\">" +
+                "<span class=\"" +
+                (entry.positive ? "field-positive" : "field-negative") +
+                "\">" +
+                (entry.positive ? "+" : "-") +
+                escapeHTML(entry.card.Name) +
+                "</span>" +
+                "</p>" +
+                "</div></div>"
+            );
+
+        })
+        .join("");
+
+}
+
+
 function createSideCard(card) {
 
     var modelCard =
@@ -182,45 +336,36 @@ function createSideCard(card) {
         "<div class=\"col\">" +
         "<div class=\"card-body\">" +
         "<h5 class=\"card-title\">" +
-        escapeHTML(card.Name) +
+        formatCardId(card.Id) + " " + escapeHTML(card.Name) +
         "</h5>" +
         "<p class=\"card-text\">" +
         escapeHTML(card.Description) +
         "</p>" +
-        "<p class=\"card-text\"><strong>ATK / DEF:</strong> " +
-        card.Attack +
-        " / " +
-        card.Defense +
-        "</p>" +
         "<p class=\"card-text\"><strong>Type:</strong> " +
         escapeHTML(getCardTypeName(card)) +
-        "</p>" +
+        "</p>";
+
+
+    if (isMonster(card)) {
+        modelCard +=
+            "<p class=\"card-text\"><strong>Guardian Stars:</strong> " +
+            escapeHTML(formatGuardianStars(card)) +
+            "</p>" +
+            "<p class=\"card-text\"><strong>ATK / DEF:</strong> " +
+            card.Attack + "A / " + card.Defense + "D" +
+            "</p>";
+    }
+
+    modelCard +=
         "<p class=\"card-text\"><strong>Stars:</strong> " +
         card.Stars +
         "</p>" +
         "<p class=\"card-text\"><strong>Password:</strong> " +
         escapeHTML(card.CardCode) +
         "</p>" +
-        "</div>" +
-        "</div>" +
-        "</div>" +
-        "</div>";
+        "</div></div></div></div>";
 
-
-    if (card.Type < 20) {
-        return modelCard;
-    }
-
-
-    return modelCard.replace(
-        "<p class=\"card-text\"><strong>ATK / DEF:</strong> " +
-        card.Attack +
-        " / " +
-        card.Defense +
-        "</p>",
-        ""
-    );
-
+    return modelCard;
 }
 
 
@@ -236,56 +381,51 @@ function fusesToHTML(fuselist) {
         .map(function (fusion) {
 
             var res =
-                "<div class=\"card border-dark mb-3\" style=\"max-width: 18rem;\">" +
-                "<div class=\"card-body text-dark\">" +
-                "<p class=\"card-text\"><strong>Input:</strong> " +
-                escapeHTML(fusion.card1.Name) +
-                "</p>" +
-                "<p class=\"card-text\"><strong>Input:</strong> " +
-                escapeHTML(fusion.card2.Name) +
-                "</p>";
-
+                "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
+                "<div class=\"card-body text-dark\">";
 
             if (fusion.glitch) {
-
                 res +=
                     "<p class=\"card-text\"><strong>Glitch Fusion</strong></p>";
-
             }
 
+            res +=
+                "<p class=\"card-text\">" +
+                escapeHTML(formatInputCard(fusion.card1)) +
+                "</p>" +
+                "<p class=\"card-text\">" +
+                escapeHTML(formatInputCard(fusion.card2)) +
+                "</p>";
 
             if (fusion.result) {
-
                 res +=
-                    "<p class=\"card-text\"><strong>Result:</strong> " +
-                    escapeHTML(fusion.result.Name);
-
-
-                if (fusion.result.Type < 20) {
-
-                    res +=
-                        " (" +
-                        fusion.result.Attack +
-                        "/" +
-                        fusion.result.Defense +
-                        ")";
-
-                } else {
-
-                    res +=
-                        " [" +
-                        escapeHTML(getCardTypeName(fusion.result)) +
-                        "]";
-
-                }
-
-
-                res += "</p>";
-
+                    "<p class=\"card-text fusion-search-result\">" +
+                    "<strong>Result:</strong><br>" +
+                    escapeHTML(formatCardSummary(fusion.result)).replace(/\n/g, "<br>") +
+                    "</p>";
             }
 
-
             return res + "</div></div>";
+
+        })
+        .join("");
+
+}
+
+
+function equipsToHTML(equipList) {
+
+    return equipList
+        .map(function (equip) {
+
+            return (
+                "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
+                "<div class=\"card-body text-dark\">" +
+                "<p class=\"card-text\">" +
+                escapeHTML(formatInputCard(equip.card2)) +
+                "</p>" +
+                "</div></div>"
+            );
 
         })
         .join("");
@@ -325,22 +465,19 @@ function ritualsToHTML(ritualList) {
                 "<div class=\"card border-dark mb-3\" style=\"max-width: 18rem;\">" +
                 "<div class=\"card-body text-dark\">" +
                 "<p class=\"card-text\"><strong>Ritual:</strong> " +
-                escapeHTML(ritualCard.Name) +
+                formatInputCard(ritualCard) +
                 "</p>" +
                 "<p class=\"card-text\"><strong>Material:</strong> " +
-                escapeHTML(materials[0].Name) +
+                formatInputCard(materials[0]) +
                 "</p>" +
                 "<p class=\"card-text\"><strong>Material:</strong> " +
-                escapeHTML(materials[1].Name) +
+                formatInputCard(materials[1]) +
                 "</p>" +
                 "<p class=\"card-text\"><strong>Material:</strong> " +
-                escapeHTML(materials[2].Name) +
+                formatInputCard(materials[2]) +
                 "</p>" +
                 "<p class=\"card-text\"><strong>Result:</strong> " +
-                escapeHTML(result.Name) +
-                (result.Type < 20
-                    ? " (" + result.Attack + "/" + result.Defense + ")"
-                    : " [" + escapeHTML(getCardTypeName(result)) + "]") +
+                formatCardSummary(result) +
                 "</p>" +
                 "</div></div>"
             );
@@ -437,16 +574,20 @@ function searchByName() {
 
         })
         .filter(function (equip) {
-            return !!equip.card2;
+            return !!equip.card2 && equip.card2.Id !== card.Id;
         });
 
 
+    var fields = getFieldsForCard(card);
     var rituals = getRitualsForCard(card.Id);
 
 
     outputRight.innerHTML =
-        "<h2 class='text-center my-4'>Can be equipped</h2>" +
-        fusesToHTML(equips);
+        "<h2 class='text-center my-4'>Equips</h2>" +
+        equipsToHTML(equips) +
+        (fields.length > 0
+            ? "<h2 class='text-center my-4'>Fields</h2>" + fieldsToHTML(fields)
+            : "");
 
     outputLeft.innerHTML =
         (fuses.length > 0
