@@ -82,6 +82,22 @@ function getCardByName(name) {
 }
 
 
+var glitchFusionDefinitions = glitchFusions.map(function (fusion) {
+
+    return {
+        card1: getCardByName(fusion.card1),
+        card2: getCardByName(fusion.card2),
+        result: getCardByName(fusion.result),
+        glitch: true
+    };
+
+}).filter(function (fusion) {
+
+    return fusion.card1 && fusion.card2 && fusion.result;
+
+});
+
+
 function escapeHTML(value) {
 
     return String(value)
@@ -203,6 +219,14 @@ function fusesToHTML(fuselist) {
                 "<p class=\"card-text\"><strong>Input:</strong> " +
                 escapeHTML(fusion.card2.Name) +
                 "</p>";
+
+
+            if (fusion.glitch) {
+
+                res +=
+                    "<p class=\"card-text\"><strong>Glitch Fusion</strong></p>";
+
+            }
 
 
             if (fusion.result) {
@@ -366,6 +390,22 @@ function searchByName() {
     });
 
 
+    glitchFusionDefinitions.forEach(function (fusion) {
+
+        if (fusion.card1.Id === card.Id || fusion.card2.Id === card.Id) {
+
+            fuses.push({
+                card1: fusion.card1,
+                card2: fusion.card2,
+                result: fusion.result,
+                glitch: true
+            });
+
+        }
+
+    });
+
+
     var equips = (equipsList[card.Id] || [])
         .map(function (targetId) {
 
@@ -440,6 +480,21 @@ function searchForResult() {
         .filter(function (fusion) {
             return fusion.card1 && fusion.card2;
         });
+
+
+    glitchFusionDefinitions.forEach(function (fusion) {
+
+        if (fusion.result.Id === card.Id) {
+
+            results.push({
+                card1: fusion.card1,
+                card2: fusion.card2,
+                glitch: true
+            });
+
+        }
+
+    });
 
 
     outputLeft.innerHTML =
@@ -518,5 +573,3 @@ resetBtn.onclick = function () {
  * END OF FILE
  * ------------------------------------------------------------
  */
-
-
