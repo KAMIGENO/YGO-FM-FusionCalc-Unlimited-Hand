@@ -249,9 +249,9 @@ function createSideCard(card) {
         "<div class=\"row no-gutters\">" +
         "<div class=\"col\">" +
         "<div class=\"card-body\">" +
-        "<h5 class=\"card-title\">" +
+        "<h5 class=\"card-title\"><strong>" +
         formatCardId(card.Id) + " " + escapeHTML(card.Name) +
-        "</h5>" +
+        "</strong></h5>" +
         "<p class=\"card-text\">" +
         escapeHTML(card.Description) +
         "</p>" +
@@ -333,9 +333,9 @@ function equipsToHTML(equipList) {
             return (
                 "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
                 "<div class=\"card-body text-dark\">" +
-                "<p class=\"card-text\">" +
+                "<p class=\"card-text\"><strong>" +
                 escapeHTML(formatInputCard(equip.card2)) +
-                "</p>" +
+                "</strong></p>" +
                 "</div></div>"
             );
 
@@ -392,12 +392,13 @@ function fieldsToHTML(fields) {
                 "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
                 "<div class=\"card-body text-dark\">" +
                 "<p class=\"card-text mb-0\">" +
-                "<span class=\"" +
+                "<strong class=\"" +
                 (entry.positive ? "field-positive" : "field-negative") +
                 "\">" +
                 (entry.positive ? "+" : "-") +
-                escapeHTML(entry.card.Name) +
-                "</span>" +
+                " " +
+                escapeHTML(formatInputCard(entry.card)) +
+                "</strong>" +
                 "</p>" +
                 "</div></div>"
             );
