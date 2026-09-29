@@ -217,30 +217,6 @@ function formatGuardianStars(card) {
 }
 
 
-function isFieldCard(card) {
-    return !!card &&
-        card.Type === 20 &&
-        fieldList.some(function (definition) {
-            return definition.CardId === card.Id;
-        });
-}
-
-
-function formatCardType(card) {
-    if (!card) {
-        return "Unknown";
-    }
-
-
-    if (card.Type === 20) {
-        return isFieldCard(card) ? "Magic (Field)" : "Magic (Effect)";
-    }
-
-
-    return cardTypes[card.Type] || "Unknown";
-}
-
-
 function formatCardDetails(card) {
     if (!card) {
         return "";
@@ -248,7 +224,7 @@ function formatCardDetails(card) {
 
     var details =
         "Type: " +
-        formatCardType(card);
+        (cardTypes[card.Type] || "Unknown");
 
     if (isMonster(card)) {
         details +=
@@ -556,7 +532,9 @@ function formatFusionStep(step, isFirstStep) {
         " + " +
         escapeHTML(formatInputCard(step.card2)) +
         " = " +
-        escapeHTML(formatInputCard(step.result));
+        "<strong>" +
+        escapeHTML(formatInputCard(step.result)) +
+        "</strong>";
 
 
     html +=
@@ -716,17 +694,23 @@ function ritualsToHTML(ritualList) {
         .map(function (ritual) {
 
             return (
-                "<div class='result-div'>Ritual: " +
-                formatInputCard(ritual.ritualCard) +
-                "<br>Material: " +
-                formatInputCard(ritual.card1) +
-                "<br>Material: " +
-                formatInputCard(ritual.card2) +
-                "<br>Material: " +
-                formatInputCard(ritual.card3) +
-                "<br>Result: " +
-                formatResultCard(ritual.result) +
-                "<br><br></div>"
+                "<div class='result-div ritual-result'>" +
+                "<div><strong>Ritual:</strong> " +
+                escapeHTML(formatInputCard(ritual.ritualCard)) +
+                "</div>" +
+                "<div><strong>Material:</strong> " +
+                escapeHTML(formatInputCard(ritual.card1)) +
+                "</div>" +
+                "<div><strong>Material:</strong> " +
+                escapeHTML(formatInputCard(ritual.card2)) +
+                "</div>" +
+                "<div><strong>Material:</strong> " +
+                escapeHTML(formatInputCard(ritual.card3)) +
+                "</div>" +
+                "<div><strong>Result:</strong> " +
+                escapeHTML(formatResultCard(ritual.result)).replace(/\n/g, "<br>") +
+                "</div>" +
+                "</div>"
             );
 
         })
@@ -758,7 +742,16 @@ function updateCardInfo(input, info) {
     }
 
 
-    info.textContent = formatCardDetails(card);
+    if (isMonster(card)) {
+
+        info.textContent =
+            formatCardDetails(card);
+
+    } else {
+
+        info.textContent = formatCardSummary(card);
+
+    }
 
 }
 
