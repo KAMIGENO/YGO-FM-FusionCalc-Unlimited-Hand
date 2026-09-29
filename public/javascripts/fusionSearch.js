@@ -185,6 +185,10 @@ function formatCardId(id) {
 
 
 function formatGuardianStar(value) {
+    if (value === 10) {
+        return starNames[9];
+    }
+
     return starNames[value] || starNames[0];
 }
 
@@ -194,30 +198,42 @@ function formatGuardianStars(card) {
 }
 
 
-function formatCardSummary(card) {
+function formatCardDetails(card) {
     if (!card) {
         return "";
     }
 
-    var result =
-        formatCardId(card.Id) +
-        " " +
-        card.Name +
-        " | Type: " +
+    var details =
+        "Type: " +
         (cardTypes[card.Type] || "Unknown");
 
     if (isMonster(card)) {
-        result +=
-            " | Guardian Stars: " +
+        details +=
+            " — Guardian Stars: " +
             formatGuardianStars(card) +
-            " | " +
+            " — " +
             card.Attack +
             "A / " +
             card.Defense +
             "D";
     }
 
-    return result;
+    return details;
+}
+
+
+function formatCardSummary(card) {
+    if (!card) {
+        return "";
+    }
+
+    return (
+        formatCardId(card.Id) +
+        " " +
+        card.Name +
+        "\n" +
+        formatCardDetails(card)
+    );
 }
 
 
@@ -279,31 +295,51 @@ function fusesToHTML(fuselist) {
         .map(function (fusion) {
 
             var res =
-                "<div class=\"card border-dark mb-3\" style=\"max-width: 40rem;\">" +
-                "<div class=\"card-body text-dark\">" +
-                "<p class=\"card-text\">" +
-                formatInputCard(fusion.card1) +
-                "</p>" +
-                "<p class=\"card-text\">" +
-                formatInputCard(fusion.card2) +
-                "</p>";
-
+                "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
+                "<div class=\"card-body text-dark\">";
 
             if (fusion.glitch) {
                 res +=
                     "<p class=\"card-text\"><strong>Glitch Fusion</strong></p>";
             }
 
+            res +=
+                "<p class=\"card-text\">" +
+                escapeHTML(formatInputCard(fusion.card1)) +
+                "</p>" +
+                "<p class=\"card-text\">" +
+                escapeHTML(formatInputCard(fusion.card2)) +
+                "</p>";
 
             if (fusion.result) {
                 res +=
-                    "<p class=\"card-text\"><strong>Result:</strong> " +
-                    formatCardSummary(fusion.result) +
+                    "<p class=\"card-text fusion-search-result\">" +
+                    "<strong>Result:</strong><br>" +
+                    escapeHTML(formatCardSummary(fusion.result)).replace(/\n/g, "<br>") +
                     "</p>";
             }
 
-
             return res + "</div></div>";
+
+        })
+        .join("");
+
+}
+
+
+function equipsToHTML(equipList) {
+
+    return equipList
+        .map(function (equip) {
+
+            return (
+                "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
+                "<div class=\"card-body text-dark\">" +
+                "<p class=\"card-text\">" +
+                escapeHTML(formatInputCard(equip.card2)) +
+                "</p>" +
+                "</div></div>"
+            );
 
         })
         .join("");
@@ -452,7 +488,7 @@ function searchByName() {
 
         })
         .filter(function (equip) {
-            return !!equip.card2;
+            return !!equip.card2 && equip.card2.Id !== card.Id;
         });
 
 
@@ -460,8 +496,8 @@ function searchByName() {
 
 
     outputRight.innerHTML =
-        "<h2 class='text-center my-4'>Can be equipped</h2>" +
-        fusesToHTML(equips);
+        "<h2 class='text-center my-4'>Equips</h2>" +
+        equipsToHTML(equips);
 
     outputLeft.innerHTML =
         (fuses.length > 0
