@@ -647,15 +647,13 @@
 
         if (fusionList) {
 
-            entry.partnerIds.forEach(function (partnerId) {
+            fusionList.forEach(function (fusionEntry) {
 
-                var fusionEntry = fusionList.find(function (fusion) {
-                    return String(fusion.card) === String(partnerId);
-                });
+                var partnerId = fusionEntry.card;
 
                 detailEntries.push({
                     partnerCard: cardById[partnerId],
-                    resultCard: fusionEntry ? cardById[fusionEntry.result] : null,
+                    resultCard: cardById[fusionEntry.result],
                     isGlitch: false
                 });
 
