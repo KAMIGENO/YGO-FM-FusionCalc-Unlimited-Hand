@@ -24,30 +24,6 @@
 
 
     var cardById = {};
-
-    function formatCardInfo(card) {
-        if (!card) {
-            return "Unknown Card";
-        }
-
-        var isMonster = card.Type < 20;
-        var typeName = cardTypes[card.Type] || "Unknown";
-        var starA = isMonster ? (starNames[card.GuardianStarA] || "-") : "-";
-        var starB = isMonster ? (starNames[card.GuardianStarB] || "-") : "-";
-        var attackDefense = isMonster
-            ? card.Attack + "A / " + card.Defense + "D"
-            : "-";
-
-        return (
-            "ID: " + card.Id +
-            " | " + card.Name +
-            " | Type: " + typeName +
-            " | Guardian Star A: " + starA +
-            " | Guardian Star B: " + starB +
-            " | " + attackDefense
-        );
-    }
-
     var statistics = [];
     var statisticsById = {};
     var globalRankLabels = {};
@@ -148,7 +124,37 @@
      * ------------------------------------------------------------
      */
 
-    function calculateGlobalRanks() {
+        function formatCardId(id) {
+        return "#" + String(id).padStart(3, "0");
+    }
+
+
+    function formatGuardianStar(value) {
+        return starNames[value] || starNames[0];
+    }
+
+
+    function formatMonsterSummary(card) {
+        return (
+            formatCardId(card.Id) +
+            " " +
+            card.Name +
+            "\nType: " +
+            (cardTypes[card.Type] || "Unknown") +
+            " - Guardian Stars: " +
+            formatGuardianStar(card.GuardianStarA) +
+            " / " +
+            formatGuardianStar(card.GuardianStarB) +
+            " - " +
+            card.Attack +
+            "A / " +
+            card.Defense +
+            "D"
+        );
+    }
+
+
+function calculateGlobalRanks() {
 
         var rankedResults = statistics.slice();
 
@@ -320,7 +326,7 @@
 
 
             var nameCell = document.createElement("td");
-            nameCell.textContent = entry.card.Name;
+            nameCell.textContent = formatCardId(entry.card.Id) + " " + entry.card.Name;
 
 
             var countCell = document.createElement("td");
@@ -423,8 +429,8 @@
 
             var row = document.createElement("tr");
             var monsterCell = document.createElement("td");
-
-            monsterCell.textContent = formatCardInfo(monsterCard);
+            monsterCell.className = "equip-monster-summary";
+            monsterCell.textContent = formatMonsterSummary(monsterCard);
 
             row.appendChild(monsterCell);
             tbody.appendChild(row);
