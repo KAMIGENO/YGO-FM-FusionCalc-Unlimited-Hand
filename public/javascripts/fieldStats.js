@@ -22,6 +22,7 @@
 
     var cardById = {};
     var statistics = [];
+    var fieldEffectsByCardId = {};
 
 
     var sortSelect = document.getElementById("field-sort");
@@ -191,6 +192,32 @@
             negativeGroups: buildTypeGroups(negativeCards)
         };
 
+        positiveCards.forEach(function (card) {
+
+            if (!fieldEffectsByCardId[card.Id]) {
+                fieldEffectsByCardId[card.Id] = {
+                    positive: [],
+                    negative: []
+                };
+            }
+
+            fieldEffectsByCardId[card.Id].positive.push(fieldCard.Name);
+
+        });
+
+        negativeCards.forEach(function (card) {
+
+            if (!fieldEffectsByCardId[card.Id]) {
+                fieldEffectsByCardId[card.Id] = {
+                    positive: [],
+                    negative: []
+                };
+            }
+
+            fieldEffectsByCardId[card.Id].negative.push(fieldCard.Name);
+
+        });
+
         statistics.push(statistic);
 
     });
@@ -335,303 +362,80 @@
      * ------------------------------------------------------------
      */
 
-    function getEffect(entry, monsterCard) {
+    function getGuardianStarName(starId) {
 
-        if (entry.positiveIdSet[monsterCard.Id]) {
-            return {
-                label: "Positive",
-                change: "+500 ATK/DEF"
-            };
+        if (starId == null) {
+            return "-";
         }
 
 
-        if (entry.negativeIdSet[monsterCard.Id]) {
-            return {
-                label: "Negative",
-                change: "-500 ATK/DEF"
-            };
+        return starNames[starId - 1] || "-";
+
+    }
+
+
+    function createFieldEffectCell(card) {
+
+        var cell = document.createElement("td");
+        var effects = fieldEffectsByCardId[card.Id];
+
+
+        if (!effects) {
+            cell.textContent = "-";
+            return cell;
         }
 
 
-        return {
-            label: "Neutral",
-            change: "No ATK/DEF change"
-        };
+        effects.positive.forEach(function (fieldName) {
 
-    }
+            var positive = document.createElement("div");
+            var positiveSign = document.createElement("span");
 
+            positiveSign.className = "text-success font-weight-bold";
+            positiveSign.textContent = "+";
 
-    function createEffectTable(title, cards, effectText) {
-
-        var wrapper = document.createElement("div");
-        wrapper.className = "mb-5";
-
-
-        var heading = document.createElement("h4");
-        heading.className = "text-main my-4";
-        heading.textContent = title;
-        wrapper.appendChild(heading);
-
-
-        var table = document.createElement("table");
-        table.className = "table table-striped table-bordered";
-
-
-        var thead = document.createElement("thead");
-        var headerRow = document.createElement("tr");
-
-        ["Monster Card", "Monster Type", "Effect"].forEach(function (text) {
-
-            var th = document.createElement("th");
-            th.textContent = text;
-            headerRow.appendChild(th);
-
-        });
-
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-
-        var tbody = document.createElement("tbody");
-
-
-        cards.forEach(function (card) {
-
-            var row = document.createElement("tr");
-
-            var nameCell = document.createElement("td");
-            nameCell.textContent = card.Name;
-
-            var typeCell = document.createElement("td");
-            typeCell.textContent = getTypeName(card.Type);
-
-            var effectCell = document.createElement("td");
-            effectCell.textContent = effectText;
-
-            row.appendChild(nameCell);
-            row.appendChild(typeCell);
-            row.appendChild(effectCell);
-            tbody.appendChild(row);
+            positive.appendChild(positiveSign);
+            positive.appendChild(document.createTextNode(" " + fieldName));
+            cell.appendChild(positive);
 
         });
 
 
-        table.appendChild(tbody);
-        wrapper.appendChild(table);
+        effects.negative.forEach(function (fieldName) {
 
+            var negative = document.createElement("div");
+            var negativeSign = document.createElement("span");
 
-        return wrapper;
+            negativeSign.className = "text-danger font-weight-bold";
+            negativeSign.textContent = "-";
 
-    }
-
-
-    function createTypeGroupTable(title, groups, effectText) {
-
-        var wrapper = document.createElement("div");
-        wrapper.className = "mb-5";
-
-
-        var heading = document.createElement("h4");
-        heading.className = "text-main my-4";
-        heading.textContent = title;
-        wrapper.appendChild(heading);
-
-
-        var table = document.createElement("table");
-        table.className = "table table-striped table-bordered";
-
-
-        var thead = document.createElement("thead");
-        var headerRow = document.createElement("tr");
-
-        ["Monster Type", "Cards Affected", "Effect", "Affected Cards"].forEach(function (text) {
-
-            var th = document.createElement("th");
-            th.textContent = text;
-            headerRow.appendChild(th);
-
-        });
-
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-
-        var tbody = document.createElement("tbody");
-
-
-        groups.forEach(function (group) {
-
-            var row = document.createElement("tr");
-
-            var typeCell = document.createElement("td");
-            typeCell.textContent = group.typeName;
-
-            var countCell = document.createElement("td");
-            countCell.textContent = group.cards.length;
-
-            var effectCell = document.createElement("td");
-            effectCell.textContent = effectText;
-
-            var cardsCell = document.createElement("td");
-            cardsCell.textContent = group.cards
-                .map(function (card) {
-                    return card.Name;
-                })
-                .join(", ");
-
-            row.appendChild(typeCell);
-            row.appendChild(countCell);
-            row.appendChild(effectCell);
-            row.appendChild(cardsCell);
-            tbody.appendChild(row);
+            negative.appendChild(negativeSign);
+            negative.appendChild(document.createTextNode(" " + fieldName));
+            cell.appendChild(negative);
 
         });
 
 
-        table.appendChild(tbody);
-        wrapper.appendChild(table);
-
-
-        return wrapper;
-
-    }
-
-
-    function createFieldDetails(entry) {
-
-        var wrapper = document.createElement("div");
-        wrapper.className = "mt-3";
-
-
-        var description = document.createElement("p");
-        description.className = "text-center";
-        description.textContent =
-            "Positive: " + entry.positiveCount +
-            " | Neutral: " + entry.neutralCount +
-            " | Negative: " + entry.negativeCount;
-        wrapper.appendChild(description);
-
-
-        if (entry.positiveCards.length) {
-            wrapper.appendChild(
-                createEffectTable(
-                    "Positive Card Effects",
-                    entry.positiveCards,
-                    "+500 ATK/DEF"
-                )
-            );
-
-            wrapper.appendChild(
-                createTypeGroupTable(
-                    "Positive Monster Type Groups",
-                    entry.positiveGroups,
-                    "+500 ATK/DEF"
-                )
-            );
+        if (!effects.positive.length && !effects.negative.length) {
+            cell.textContent = "-";
         }
 
 
-        wrapper.appendChild(
-            createEffectTable(
-                "Neutral Card Effects",
-                entry.neutralCards,
-                "No ATK/DEF change"
-            )
-        );
-
-        wrapper.appendChild(
-            createTypeGroupTable(
-                "Neutral Monster Type Groups",
-                entry.neutralGroups,
-                "No ATK/DEF change"
-            )
-        );
-
-
-        if (entry.negativeCards.length) {
-            wrapper.appendChild(
-                createEffectTable(
-                    "Negative Card Effects",
-                    entry.negativeCards,
-                    "-500 ATK/DEF"
-                )
-            );
-
-            wrapper.appendChild(
-                createTypeGroupTable(
-                    "Negative Monster Type Groups",
-                    entry.negativeGroups,
-                    "-500 ATK/DEF"
-                )
-            );
-        }
-
-
-        return wrapper;
+        return cell;
 
     }
 
 
-    /*
-     * ------------------------------------------------------------
-     * 6. RENDER EXPANDABLE FIELD LIST
-     * ------------------------------------------------------------
-     */
+    function createCardDataCell(card, value) {
 
-    function renderFields() {
-
-        var results = statistics.slice();
-
-        sortStatistics(results);
-
-        fieldListContainer.innerHTML = "";
-
-
-        results.forEach(function (entry) {
-
-            var details = document.createElement("details");
-            details.className = "mb-3 border rounded bg-white p-2";
-
-
-            var summary = document.createElement("summary");
-            summary.className = "font-weight-bold p-2";
-            summary.style.cursor = "pointer";
-
-            var positiveRank = positiveRankLabels[entry.card.Id] || "Rank -";
-            var neutralRank = neutralRankLabels[entry.card.Id] || "Rank -";
-            var negativeRank = negativeRankLabels[entry.card.Id] || "Rank -";
-
-            summary.textContent =
-                entry.card.Name +
-                " — + " + entry.positiveCount +
-                " / ± " + entry.neutralCount +
-                " / - " + entry.negativeCount +
-                " | POSITIVE " + positiveRank.replace("Rank ", "Rank: ") +
-                " / NEUTRAL " + neutralRank.replace("Rank ", "Rank: ") +
-                " / NEGATIVE " + negativeRank.replace("Rank ", "Rank: ");
-
-            details.appendChild(summary);
-            details.appendChild(createFieldDetails(entry));
-
-            fieldListContainer.appendChild(details);
-
-        });
-
-
-        var blankRow = document.createElement("div");
-        blankRow.style.height = "20px";
-        fieldListContainer.appendChild(blankRow);
+        var cell = document.createElement("td");
+        cell.textContent = value;
+        return cell;
 
     }
 
 
-    /*
-     * ------------------------------------------------------------
-     * 7. MONSTER SEARCH
-     * ------------------------------------------------------------
-     */
-
-    function getFilteredMonsters() {
+    function getFilteredCards() {
 
         var searchText = monsterFilterInput.value
             .trim()
@@ -643,7 +447,7 @@
         }
 
 
-        return monsterCardsByName
+        return allCards
             .filter(function (card) {
 
                 return card.Name
@@ -660,9 +464,15 @@
     }
 
 
+    /*
+     * ------------------------------------------------------------
+     * 7. CARD SEARCH
+     * ------------------------------------------------------------
+     */
+
     function renderMonsterSearch() {
 
-        var monsters = getFilteredMonsters();
+        var cards = getFilteredCards();
 
         monsterSearchBody.innerHTML = "";
 
@@ -672,9 +482,9 @@
             var emptySearchRow = document.createElement("tr");
             var emptySearchCell = document.createElement("td");
 
-            emptySearchCell.colSpan = 5;
+            emptySearchCell.colSpan = 7;
             emptySearchCell.className = "text-center";
-            emptySearchCell.textContent = "Type a monster name to search.";
+            emptySearchCell.textContent = "Type a card name to search.";
 
             emptySearchRow.appendChild(emptySearchCell);
             monsterSearchBody.appendChild(emptySearchRow);
@@ -684,14 +494,14 @@
         }
 
 
-        if (!monsters.length) {
+        if (!cards.length) {
 
             var noResultsRow = document.createElement("tr");
             var noResultsCell = document.createElement("td");
 
-            noResultsCell.colSpan = 5;
+            noResultsCell.colSpan = 7;
             noResultsCell.className = "text-center";
-            noResultsCell.textContent = "No monster cards found.";
+            noResultsCell.textContent = "No cards found.";
 
             noResultsRow.appendChild(noResultsCell);
             monsterSearchBody.appendChild(noResultsRow);
@@ -704,40 +514,33 @@
         var fragment = document.createDocumentFragment();
 
 
-        monsters.forEach(function (monsterCard) {
+        cards.forEach(function (card) {
 
-            var monsterTypeName = getTypeName(monsterCard.Type);
+            var row = document.createElement("tr");
+            var monster = isMonster(card);
 
+            row.appendChild(createCardDataCell(card, card.Id));
+            row.appendChild(createCardDataCell(card, card.Name));
+            row.appendChild(createCardDataCell(card, getTypeName(card.Type)));
+            row.appendChild(createCardDataCell(
+                card,
+                monster ? getGuardianStarName(card.GuardianStarA) : "-"
+            ));
+            row.appendChild(createCardDataCell(
+                card,
+                monster ? getGuardianStarName(card.GuardianStarB) : "-"
+            ));
 
-            statistics.forEach(function (entry) {
+            var attack = monster && card.Attack != null ? card.Attack : "-";
+            var defense = monster && card.Defense != null ? card.Defense : "-";
+            row.appendChild(createCardDataCell(
+                card,
+                attack + "A / " + defense + "D"
+            ));
 
-                var effect = getEffect(entry, monsterCard);
-                var row = document.createElement("tr");
+            row.appendChild(monster ? createFieldEffectCell(card) : createCardDataCell(card, "-"));
 
-                var nameCell = document.createElement("td");
-                nameCell.textContent = monsterCard.Name;
-
-                var typeCell = document.createElement("td");
-                typeCell.textContent = monsterTypeName;
-
-                var fieldCell = document.createElement("td");
-                fieldCell.textContent = entry.card.Name;
-
-                var effectCell = document.createElement("td");
-                effectCell.textContent = effect.label;
-
-                var changeCell = document.createElement("td");
-                changeCell.textContent = effect.change;
-
-                row.appendChild(nameCell);
-                row.appendChild(typeCell);
-                row.appendChild(fieldCell);
-                row.appendChild(effectCell);
-                row.appendChild(changeCell);
-
-                fragment.appendChild(row);
-
-            });
+            fragment.appendChild(row);
 
         });
 
