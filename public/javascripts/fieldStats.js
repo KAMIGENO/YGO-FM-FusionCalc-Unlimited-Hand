@@ -188,7 +188,9 @@
             nonNeutralCount: positiveCards.length + negativeCards.length,
             positiveGroups: buildTypeGroups(positiveCards),
             neutralGroups: buildTypeGroups(neutralCards),
-            negativeGroups: buildTypeGroups(negativeCards)
+            negativeGroups: buildTypeGroups(negativeCards),
+            positiveIdSet: positiveIds,
+            negativeIdSet: negativeIds
         };
 
         statistics.push(statistic);
