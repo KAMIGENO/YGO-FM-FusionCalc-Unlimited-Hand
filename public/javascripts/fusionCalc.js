@@ -193,6 +193,29 @@ function formatStats(attack, defense) {
 }
 
 
+function formatCardInfo(card) {
+    if (!card) {
+        return "";
+    }
+
+    var typeName = cardTypes[card.Type] || "Unknown";
+    var starA = isMonster(card) ? (starNames[card.GuardianStarA] || "-") : "-";
+    var starB = isMonster(card) ? (starNames[card.GuardianStarB] || "-") : "-";
+    var attackDefense = isMonster(card)
+        ? card.Attack + "A / " + card.Defense + "D"
+        : "-";
+
+    return (
+        "ID: " + card.Id +
+        " | " + card.Name +
+        " | Type: " + typeName +
+        " | Guardian Star A: " + starA +
+        " | Guardian Star B: " + starB +
+        " | " + attackDefense
+    );
+}
+
+
 function isMonster(card) {
     return !!card && card.Type < 20;
 }
@@ -204,7 +227,7 @@ function formatResultCard(card) {
         return "";
     }
 
-    var result = escapeHTML(card.Name);
+    var result = escapeHTML(formatCardInfo(card));
 
 
     if (isMonster(card)) {
@@ -251,7 +274,7 @@ function fusesToHTML(fuselist) {
 
                 res +=
                     "<br>Result: " +
-                    escapeHTML(fusion.result.Name);
+                    escapeHTML(formatCardInfo(fusion.result));
 
 
                 if (isMonster(fusion.result)) {
@@ -508,10 +531,7 @@ function updateCardInfo(input, info) {
     if (isMonster(card)) {
 
         info.textContent =
-            formatStats(card.Attack, card.Defense) +
-            " [" +
-            cardTypes[card.Type] +
-            "]";
+            formatCardInfo(card);
 
     } else {
 
