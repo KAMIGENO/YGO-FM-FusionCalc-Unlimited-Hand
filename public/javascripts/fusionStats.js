@@ -322,10 +322,15 @@
 
 
             var nameCell = document.createElement("td");
-            nameCell.innerHTML = formatBoldCardLabel(entry.card);
+            nameCell.innerHTML = formatCardTableLabel(entry.card);
 
 
             var countCell = document.createElement("td");
+
+
+            rankCell.style.verticalAlign = "middle";
+            nameCell.style.verticalAlign = "middle";
+            countCell.style.verticalAlign = "middle";
             countCell.textContent = entry.count;
 
 
@@ -369,18 +374,6 @@
      * ------------------------------------------------------------
      */
 
-    function escapeHTML(value) {
-
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-
-    }
-
-
     function formatCardId(id) {
 
         return "#" + String(id).padStart(3, "0");
@@ -399,11 +392,89 @@
     }
 
 
-    function formatBoldCardLabel(card) {
+    function escapeHTML(value) {
 
-        return "<strong>" +
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+
+    }
+
+
+    function isMonster(card) {
+
+        return !!card && card.Type < 20;
+
+    }
+
+
+    function formatGuardianStar(value) {
+
+        if (value === 10) {
+            return starNames[9];
+        }
+
+        return starNames[value] || starNames[0];
+
+    }
+
+
+    function formatGuardianStars(card) {
+
+        return formatGuardianStar(card.GuardianStarA) +
+            " / " +
+            formatGuardianStar(card.GuardianStarB);
+
+    }
+
+
+    function formatCardDetails(card) {
+
+        if (!card) {
+            return "";
+        }
+
+        var details =
+            "Type: " +
+            getCardTypeName(card);
+
+        if (isMonster(card)) {
+
+            details +=
+                " — Guardian Stars: " +
+                formatGuardianStars(card) +
+                " — " +
+                card.Attack +
+                "A / " +
+                card.Defense +
+                "D";
+
+        }
+
+        return details;
+
+    }
+
+
+    function formatCardTableLabel(card, isGlitch) {
+
+        var label =
+            "<strong>" +
             escapeHTML(formatCardLabel(card)) +
             "</strong>";
+
+        if (isGlitch) {
+            label += " (Glitch Fusion)";
+        }
+
+        label +=
+            "<br>" +
+            escapeHTML(formatCardDetails(card));
+
+        return label;
 
     }
 
@@ -498,13 +569,19 @@
             var partnerCell = document.createElement("td");
             var resultCell = document.createElement("td");
 
-            partnerCell.innerHTML = formatBoldCardLabel(detail.partnerCard);
+            partnerCell.style.verticalAlign = "middle";
+            resultCell.style.verticalAlign = "middle";
+
+            partnerCell.innerHTML =
+                formatCardTableLabel(detail.partnerCard);
 
             if (detail.resultCard) {
 
                 resultCell.innerHTML =
-                    formatBoldCardLabel(detail.resultCard) +
-                    (detail.isGlitch ? " (Glitch Fusion)" : "");
+                    formatCardTableLabel(
+                        detail.resultCard,
+                        detail.isGlitch
+                    );
 
             } else {
 
