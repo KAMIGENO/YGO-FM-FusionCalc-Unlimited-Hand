@@ -16,17 +16,39 @@
         <link rel="stylesheet" type="text/css" href="public/styles/fusioncustom.css" />
         <style>
             .glitch-fusions-page {
-                width: 1600px;
+                width: calc(100% - 2rem);
                 max-width: 1600px;
+                margin-left: auto;
+                margin-right: auto;
+                padding-left: 0;
+                padding-right: 0;
+                box-sizing: border-box;
+            }
+
+            .glitch-fusions-page > .row {
+                margin-left: 0;
+                margin-right: 0;
             }
 
             .glitch-fusions-table {
                 width: 100%;
-                min-width: 1600px;
+                table-layout: fixed;
+                margin-left: 0;
+                margin-right: 0;
             }
 
+            .glitch-fusions-table th,
             .glitch-fusions-table td {
                 white-space: nowrap;
+            }
+
+            .glitch-fusions-table th:nth-child(1),
+            .glitch-fusions-table td:nth-child(1),
+            .glitch-fusions-table th:nth-child(2),
+            .glitch-fusions-table td:nth-child(2),
+            .glitch-fusions-table th:nth-child(3),
+            .glitch-fusions-table td:nth-child(3) {
+                width: 33.333333%;
             }
 
             .glitch-fusions-table td > div:first-child {
