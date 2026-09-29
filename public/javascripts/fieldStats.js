@@ -701,7 +701,13 @@
         }
 
 
+        var fragment = document.createDocumentFragment();
+
+
         monsters.forEach(function (monsterCard) {
+
+            var monsterTypeName = getTypeName(monsterCard.Type);
+
 
             statistics.forEach(function (entry) {
 
@@ -712,7 +718,7 @@
                 nameCell.textContent = monsterCard.Name;
 
                 var typeCell = document.createElement("td");
-                typeCell.textContent = getTypeName(monsterCard.Type);
+                typeCell.textContent = monsterTypeName;
 
                 var fieldCell = document.createElement("td");
                 fieldCell.textContent = entry.card.Name;
@@ -729,11 +735,14 @@
                 row.appendChild(effectCell);
                 row.appendChild(changeCell);
 
-                monsterSearchBody.appendChild(row);
+                fragment.appendChild(row);
 
             });
 
         });
+
+
+        monsterSearchBody.appendChild(fragment);
 
     }
 
