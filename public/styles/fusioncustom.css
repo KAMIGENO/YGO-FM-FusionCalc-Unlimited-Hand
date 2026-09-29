@@ -12,8 +12,8 @@ main.container {
 
 .hand-input-group {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    grid-template-rows: repeat(2, auto);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(5, auto);
     grid-auto-flow: column;
     gap: 12px 18px;
     width: 100%;
@@ -21,7 +21,7 @@ main.container {
 
 .hand-slot {
     display: grid;
-    grid-template-columns: 4ch minmax(0, 1fr);
+    grid-template-columns: 5ch minmax(0, 1fr);
     grid-template-rows: auto auto;
     column-gap: 8px;
     align-items: center;
@@ -32,7 +32,7 @@ main.container {
 .hand-slot-number {
     grid-column: 1;
     grid-row: 1;
-    width: 6ch;
+    width: 5ch;
     font-weight: bold;
     text-align: right;
     margin: 0;
@@ -216,4 +216,28 @@ main.container {
         grid-template-columns: 1fr;
         grid-template-rows: auto;
     }
+}
+
+
+/* ------------------------------------------------------------
+   SEARCH / SOURCE CREDIT / CARD DETAIL LAYOUT
+   ------------------------------------------------------------ */
+
+#output-area-left,
+#output-area-right {
+    width: 100%;
+    text-align: left;
+}
+
+.fusion-search-result-card {
+    max-width: 100% !important;
+    text-align: left;
+}
+
+.fusion-search-result {
+    white-space: normal;
+}
+
+.fusion-source-credit {
+    margin-top: 2rem !important;
 }
