@@ -230,27 +230,11 @@
 
 
     function formatCardCell(card) {
-        if (!card) {
-            return "";
-        }
-
-        var html =
+        return (
             formatBoldCardLabel(card) +
-            "<br>Type: " +
-            escapeHTML(getCardTypeName(card));
-
-        if (isMonster(card)) {
-            html +=
-                "<br>Guardian Stars: " +
-                escapeHTML(formatGuardianStars(card)) +
-                "<br>" +
-                escapeHTML(card.Attack) +
-                "A / " +
-                escapeHTML(card.Defense) +
-                "D";
-        }
-
-        return html;
+            "<br>" +
+            escapeHTML(formatCardDetails(card))
+        );
     }
 
 
@@ -617,7 +601,7 @@
 
 
         detailsTitle.innerHTML =
-            formatCardCell(entry.card) +
+            formatBoldCardLabel(entry.card) +
             "<br>" +
             entry.count +
             " Fusion Partners";
@@ -729,8 +713,10 @@
 
             if (detail.resultCard) {
                 resultCell.innerHTML =
-                    formatCardCell(detail.resultCard) +
-                    (detail.isGlitch ? " <strong>(Glitch Fusion)</strong>" : "");
+                    formatBoldCardLabel(detail.resultCard) +
+                    (detail.isGlitch ? " <strong>(Glitch Fusion)</strong>" : "") +
+                    "<br>" +
+                    escapeHTML(formatCardDetails(detail.resultCard));
             } else {
                 resultCell.textContent = "Unknown Result";
             }
