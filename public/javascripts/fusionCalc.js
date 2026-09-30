@@ -267,8 +267,27 @@ function formatInputCard(card) {
 }
 
 
+function formatBoldInputCard(card) {
+    return "<strong>" + escapeHTML(formatInputCard(card)) + "</strong>";
+}
+
+
 function formatResultCard(card) {
     return formatCardSummary(card);
+}
+
+
+function formatBoldResultCard(card) {
+    if (!card) {
+        return "";
+    }
+
+    return (
+        "<strong>" +
+        escapeHTML(formatCardId(card.Id) + " " + card.Name) +
+        "</strong><br>" +
+        escapeHTML(formatCardDetails(card))
+    );
 }
 
 
@@ -285,14 +304,14 @@ function fusesToHTML(fuselist) {
             }
 
             res +=
-                escapeHTML(formatInputCard(fusion.card1)) +
+                formatBoldInputCard(fusion.card1) +
                 "<br>" +
-                escapeHTML(formatInputCard(fusion.card2));
+                formatBoldInputCard(fusion.card2);
 
             if (fusion.result) {
                 res +=
                     "<br>Result: " +
-                    escapeHTML(formatCardSummary(fusion.result)).replace(/\n/g, "<br>");
+                    formatBoldResultCard(fusion.result);
             }
 
             return res + "</div>";
@@ -534,13 +553,11 @@ function formatFusionStep(step, isFirstStep) {
 
 
     html +=
-        escapeHTML(formatInputCard(step.card1)) +
+        formatBoldInputCard(step.card1) +
         " + " +
-        escapeHTML(formatInputCard(step.card2)) +
+        formatBoldInputCard(step.card2) +
         " = " +
-        "<strong>" +
-        escapeHTML(formatInputCard(step.result)) +
-        "</strong>";
+        formatBoldInputCard(step.result);
 
 
     html +=
@@ -579,13 +596,11 @@ function equipsToHTML(equipEntries) {
 
             return (
                 "<div class='result-div equip-result'>" +
-                "<strong>" +
-                escapeHTML(formatInputCard(entry.equip)) +
-                "</strong>" +
+                formatBoldInputCard(entry.equip) +
                 entry.targets.map(function (target) {
                     return (
                         "<br>Equips: " +
-                        escapeHTML(formatInputCard(target))
+                        formatBoldInputCard(target)
                     );
                 }).join("") +
                 "</div>"
@@ -680,7 +695,7 @@ function fieldsToHTML(cards) {
                 "'>" +
                 (field.entries[0].positive ? "+" : "-") +
                 " " +
-                escapeHTML(formatInputCard(field.card)) +
+                formatBoldInputCard(field.card) +
                 "</strong>";
 
 
@@ -692,7 +707,7 @@ function fieldsToHTML(cards) {
                     "'>" +
                     (entry.positive ? "+" : "-") +
                     "</span> " +
-                    escapeHTML(formatInputCard(entry.card));
+                    formatBoldInputCard(entry.card);
             });
 
 
@@ -814,19 +829,19 @@ function ritualsToHTML(ritualList) {
             return (
                 "<div class='result-div ritual-result'>" +
                 "<div><strong>Ritual:</strong> " +
-                escapeHTML(formatInputCard(ritual.ritualCard)) +
+                formatBoldInputCard(ritual.ritualCard) +
                 "</div>" +
                 "<div><strong>Material:</strong> " +
-                escapeHTML(formatInputCard(ritual.card1)) +
+                formatBoldInputCard(ritual.card1) +
                 "</div>" +
                 "<div><strong>Material:</strong> " +
-                escapeHTML(formatInputCard(ritual.card2)) +
+                formatBoldInputCard(ritual.card2) +
                 "</div>" +
                 "<div><strong>Material:</strong> " +
-                escapeHTML(formatInputCard(ritual.card3)) +
+                formatBoldInputCard(ritual.card3) +
                 "</div>" +
                 "<div><strong>Result:</strong> " +
-                escapeHTML(formatResultCard(ritual.result)).replace(/\n/g, "<br>") +
+                formatBoldResultCard(ritual.result) +
                 "</div>" +
                 "</div>"
             );
@@ -994,7 +1009,7 @@ function initializeAutocomplete(input, info, slotIndex) {
 
         handCards[slotIndex] = getCardByName(input.value);
 
-        updateCardInfo(input, info);
+        updateCardInfo(input, info);updateCardInfo(input, info);
 
         findFusions();
 
