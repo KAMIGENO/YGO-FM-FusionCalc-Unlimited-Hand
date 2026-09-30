@@ -184,7 +184,7 @@ function calculateGlobalRanks() {
                 return b.count - a.count;
             }
 
-            return a.card.Name.localeCompare(b.card.Name);
+            return a.card.Id - b.card.Id;
 
         });
 
@@ -427,7 +427,7 @@ function calculateGlobalRanks() {
 
         detailsTitle.innerHTML =
             formatBoldCardLabel(entry.card) +
-            " — " +
+            "<br>" +
             entry.count +
             " Compatible Monsters";
 
