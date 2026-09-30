@@ -398,7 +398,7 @@
 
 
         var table = document.createElement("table");
-        table.className = "table table-striped table-bordered field-type-group-table";
+        table.className = "table table-striped table-bordered field-effect-table";
 
 
         var thead = document.createElement("thead");
@@ -462,7 +462,7 @@
 
 
         var table = document.createElement("table");
-        table.className = "table table-striped table-bordered";
+        table.className = "table table-striped table-bordered field-type-group-table";
 
 
         var thead = document.createElement("thead");
@@ -488,24 +488,23 @@
             var row = document.createElement("tr");
 
             var typeCell = document.createElement("td");
-            typeCell.className = "field-type-group-value";
             typeCell.textContent = group.typeName;
+            typeCell.className = "field-group-summary-cell";
 
             var countCell = document.createElement("td");
-            countCell.className = "field-type-group-value";
             countCell.textContent = group.cards.length;
+            countCell.className = "field-group-summary-cell";
 
             var effectCell = document.createElement("td");
-            effectCell.className = "field-type-group-value";
             effectCell.textContent = effectText;
+            effectCell.className = "field-group-summary-cell field-group-effect-cell";
 
             var cardsCell = document.createElement("td");
-            cardsCell.className = "field-type-group-cards";
             cardsCell.innerHTML = group.cards
                 .map(function (card) {
-                    return "<div class=\"field-type-group-card\">" +
+                    return '<div class="field-group-card">' +
                         formatBoldCardLabel(card) +
-                        "</div>";
+                        '</div>';
                 })
                 .join("");
 
@@ -752,11 +751,14 @@
 
             var nameCell = document.createElement("td");
             nameCell.innerHTML = formatBoldCardLabel(monsterCard);
+            nameCell.style.verticalAlign = "middle";
 
             var typeCell = document.createElement("td");
             typeCell.textContent = getTypeName(monsterCard.Type);
+            typeCell.style.verticalAlign = "middle";
 
             var beneficialCell = document.createElement("td");
+            beneficialCell.style.verticalAlign = "middle";
             beneficialCell.innerHTML = beneficialFields.length
                 ? beneficialFields
                     .map(function (fieldCard) {
@@ -768,6 +770,7 @@
                 : '<span style="display: block; text-align: center;">—</span>';
 
             var harmfulCell = document.createElement("td");
+            harmfulCell.style.verticalAlign = "middle";
             harmfulCell.innerHTML = harmfulFields.length
                 ? harmfulFields
                     .map(function (fieldCard) {
