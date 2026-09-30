@@ -379,7 +379,7 @@
 
         return {
             label: "Neutral",
-            change: "No ATK/DEF change"
+            change: "No effect."
         };
 
     }
@@ -488,18 +488,19 @@
             var row = document.createElement("tr");
 
             var typeCell = document.createElement("td");
-            typeCell.className = "field-type-group-type";
+            typeCell.className = "field-type-group-value";
             typeCell.textContent = group.typeName;
 
             var countCell = document.createElement("td");
-            countCell.className = "field-type-group-count";
+            countCell.className = "field-type-group-value";
             countCell.textContent = group.cards.length;
 
             var effectCell = document.createElement("td");
-            effectCell.className = "field-type-group-effect";
+            effectCell.className = "field-type-group-value";
             effectCell.textContent = effectText;
 
             var cardsCell = document.createElement("td");
+            cardsCell.className = "field-type-group-cards";
             cardsCell.innerHTML = group.cards
                 .map(function (card) {
                     return "<div class=\"field-type-group-card\">" +
@@ -564,7 +565,7 @@
             createEffectTable(
                 "Neutral Card Effects",
                 entry.neutralCards,
-                "No ATK/DEF change"
+                "No effect."
             )
         );
 
@@ -572,7 +573,7 @@
             createTypeGroupTable(
                 "Neutral Monster Type Groups",
                 entry.neutralGroups,
-                "No ATK/DEF change"
+                "No effect."
             )
         );
 
