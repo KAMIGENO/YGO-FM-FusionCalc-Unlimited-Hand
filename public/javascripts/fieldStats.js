@@ -54,7 +54,7 @@
     function formatFieldCardSummary(card) {
         return (
             formatBoldCardLabel(card) +
-            "<br>Type: Magic (Field)"
+            "<br><span style=\"font-weight: normal;\">Type: Magic (Field)</span>"
         );
     }
 
