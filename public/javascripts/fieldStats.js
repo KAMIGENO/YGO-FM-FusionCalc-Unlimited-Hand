@@ -44,10 +44,42 @@
     }
 
 
+    function formatGuardianStar(value) {
+        if (value === 10) {
+            return starNames[9];
+        }
+
+        return starNames[value] || starNames[0];
+    }
+
+
     function formatBoldCardLabel(card) {
         return "<strong>" +
             escapeHTML(formatCardId(card.Id) + " " + card.Name) +
             "</strong>";
+    }
+
+
+    function formatStandardCard(card) {
+        var html =
+            formatBoldCardLabel(card) +
+            "<br>Type: " +
+            escapeHTML(getTypeName(card.Type));
+
+        if (card.Type < 20) {
+            html +=
+                "<br>Guardian Stars: " +
+                escapeHTML(formatGuardianStar(card.GuardianStarA)) +
+                " / " +
+                escapeHTML(formatGuardianStar(card.GuardianStarB)) +
+                "<br>" +
+                escapeHTML(card.Attack) +
+                "A / " +
+                escapeHTML(card.Defense) +
+                "D";
+        }
+
+        return html;
     }
 
 
@@ -712,7 +744,7 @@
             var row = document.createElement("tr");
 
             var nameCell = document.createElement("td");
-            nameCell.innerHTML = formatBoldCardLabel(monsterCard);
+            nameCell.innerHTML = formatStandardCard(monsterCard);
             nameCell.style.verticalAlign = "middle";
 
             var typeCell = document.createElement("td");
@@ -725,7 +757,7 @@
                 ? beneficialFields
                     .map(function (fieldCard) {
                         return '<span class="field-positive">' +
-                            formatBoldCardLabel(fieldCard) +
+                            formatStandardCard(fieldCard) +
                             '</span>';
                     })
                     .join("<br>")
@@ -737,7 +769,7 @@
                 ? harmfulFields
                     .map(function (fieldCard) {
                         return '<span class="field-negative">' +
-                            formatBoldCardLabel(fieldCard) +
+                            formatStandardCard(fieldCard) +
                             '</span>';
                     })
                     .join("<br>")
