@@ -603,6 +603,12 @@ function formatFusionStep(step, index) {
 function fusionChainsToHTML(chains) {
 
     return chains
+        .slice()
+        .sort(function (a, b) {
+            var aResult = a[a.length - 1].result;
+            var bResult = b[b.length - 1].result;
+            return aResult.Id - bResult.Id;
+        })
         .map(function (chain) {
 
             return (
@@ -622,12 +628,18 @@ function fusionChainsToHTML(chains) {
 function equipsToHTML(equipEntries) {
 
     return equipEntries
+        .slice()
+        .sort(function (a, b) {
+            return a.equip.Id - b.equip.Id;
+        })
         .map(function (entry) {
 
             return (
                 "<div class='result-div equip-result'>" +
                 formatBoldInputCard(entry.equip) +
-                entry.targets.map(function (target) {
+                entry.targets.slice().sort(function (a, b) {
+                    return a.Id - b.Id;
+                }).map(function (target) {
                     return (
                         "<br>Equips: " +
                         formatBoldInputCard(target)
@@ -686,27 +698,130 @@ function getFieldsForCard(card) {
 }
 
 
-function fieldsToHTML(cards) {
+function fieldsToHTML(cards, chains) {
 
     var fields = {};
+    var handCardIds = {};
+    var fusionDepths = {};
 
 
     cards.forEach(function (card) {
 
-        getFieldsForCard(card).forEach(function (entry) {
+        handCardIds[card.Id] = true;
 
-            if (!fields[entry.card.Id]) {
-                fields[entry.card.Id] = {
-                    card: entry.card,
-                    entries: []
-                };
+    });
+
+
+    chains.forEach(function (chain) {
+
+        chain.forEach(function (step, index) {
+
+            if (!step.result || handCardIds[step.result.Id]) {
+                return;
             }
 
 
-            fields[entry.card.Id].entries.push({
-                card: card,
-                positive: entry.positive
+            var depth = index + 1;
+
+
+            if (
+                fusionDepths[step.result.Id] === undefined ||
+                depth < fusionDepths[step.result.Id]
+            ) {
+                fusionDepths[step.result.Id] = depth;
+            }
+
+        });
+
+    });
+
+
+    fieldList.forEach(function (definition) {
+
+        var fieldCard = getCardById(definition.CardId);
+
+
+        if (!fieldCard) {
+            return;
+        }
+
+
+        [true, false].forEach(function (positive) {
+
+            var affected = [];
+            var seen = {};
+
+
+            cards.forEach(function (card) {
+
+                if (!isMonster(card) || seen[card.Id]) {
+                    return;
+                }
+
+
+                var applies = positive
+                    ? definition.PositiveTypes.indexOf(card.Type) !== -1
+                    : definition.NegativeTypes.indexOf(card.Type) !== -1;
+
+
+                if (!applies) {
+                    return;
+                }
+
+
+                seen[card.Id] = true;
+                affected.push({
+                    card: card,
+                    depth: 0
+                });
+
             });
+
+
+            Object.keys(fusionDepths).forEach(function (cardId) {
+
+                var card = getCardById(Number(cardId));
+
+
+                if (!card || !isMonster(card) || seen[card.Id]) {
+                    return;
+                }
+
+
+                var applies = positive
+                    ? definition.PositiveTypes.indexOf(card.Type) !== -1
+                    : definition.NegativeTypes.indexOf(card.Type) !== -1;
+
+
+                if (!applies) {
+                    return;
+                }
+
+
+                seen[card.Id] = true;
+                affected.push({
+                    card: card,
+                    depth: fusionDepths[card.Id]
+                });
+
+            });
+
+
+            if (affected.length === 0) {
+                return;
+            }
+
+
+            affected.sort(function (a, b) {
+                return a.card.Id - b.card.Id;
+            });
+
+
+            fields[fieldCard.Id + ":" + (positive ? "positive" : "negative")] = {
+                card: fieldCard,
+                affected: affected,
+                positive: positive
+            };
 
         });
 
@@ -714,30 +829,45 @@ function fieldsToHTML(cards) {
 
 
     return Object.keys(fields)
-        .map(function (fieldId) {
+        .map(function (fieldKey) {
 
-            var field = fields[fieldId];
+            return fields[fieldKey];
+
+        })
+        .sort(function (a, b) {
+
+            if (a.card.Id !== b.card.Id) {
+                return a.card.Id - b.card.Id;
+            }
+
+            return a.positive === b.positive
+                ? 0
+                : a.positive ? -1 : 1;
+
+        })
+        .map(function (field) {
 
             var html =
                 "<div class='result-div field-result'>" +
-                "<strong class='" +
-                (field.entries[0].positive ? "field-positive" : "field-negative") +
+                "<div class='field-header " +
+                (field.positive ? "field-positive" : "field-negative") +
                 "'>" +
-                (field.entries[0].positive ? "+" : "-") +
-                " " +
+                "<strong>" +
+                (field.positive ? "+" : "-") +
+                "</strong> " +
                 formatBoldInputCard(field.card) +
-                "</strong>";
+                "</div>";
 
 
-            field.entries.forEach(function (entry) {
+            field.affected.forEach(function (entry) {
+
                 html +=
-                    "<br>" +
-                    "<span class='" +
-                    (entry.positive ? "field-positive" : "field-negative") +
-                    "'>" +
-                    (entry.positive ? "+" : "-") +
-                    "</span> " +
-                    formatBoldInputCard(entry.card);
+                    "<div class='field-fusion-card' style='margin-left: " +
+                    (entry.depth * 2) +
+                    "rem;'>" +
+                    formatBoldInputCard(entry.card) +
+                    "</div>";
+
             });
 
 
@@ -761,9 +891,12 @@ function findFusions() {
 
 
     var rituals = findRituals(cards);
-    var fields = fieldsToHTML(cards.filter(function (card) {
-        return isMonster(card);
-    }));
+    var fields = fieldsToHTML(
+        cards.filter(function (card) {
+            return isMonster(card);
+        }),
+        chains
+    );
 
 
     outputLeft.innerHTML =
@@ -854,6 +987,10 @@ function findRituals(cards) {
 function ritualsToHTML(ritualList) {
 
     return ritualList
+        .slice()
+        .sort(function (a, b) {
+            return a.result.Id - b.result.Id;
+        })
         .map(function (ritual) {
 
             return (
