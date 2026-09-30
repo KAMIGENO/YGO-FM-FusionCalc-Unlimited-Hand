@@ -211,6 +211,14 @@ main.container {
     font-weight: 600;
 }
 
+.field-header {
+    text-align: left;
+}
+
+.field-fusion-card {
+    text-align: left;
+}
+
 @media (max-width: 767px) {
     .hand-input-group {
         grid-template-columns: 1fr;
