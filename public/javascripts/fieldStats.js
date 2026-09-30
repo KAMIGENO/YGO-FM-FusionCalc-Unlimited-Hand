@@ -758,7 +758,7 @@
                             formatBoldCardLabel(fieldCard) +
                             '</span>';
                     })
-                    .join(", ")
+                    .join("<br>")
                 : '<span style="display: block; text-align: center;">—</span>';
 
             var harmfulCell = document.createElement("td");
@@ -769,7 +769,7 @@
                             formatBoldCardLabel(fieldCard) +
                             '</span>';
                     })
-                    .join(", ")
+                    .join("<br>")
                 : '<span style="display: block; text-align: center;">—</span>';
 
             row.appendChild(nameCell);
