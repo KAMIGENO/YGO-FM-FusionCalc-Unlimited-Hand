@@ -193,6 +193,11 @@ main.container {
     white-space: pre-line;
 }
 
+.field-stats-table th,
+.field-stats-table td {
+    vertical-align: middle;
+}
+
 .field-positive {
     color: #198754;
     font-weight: 600;
