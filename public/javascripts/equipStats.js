@@ -160,11 +160,11 @@
             formatBoldCardLabel(card) +
             "<br>Type: " +
             escapeHTML(cardTypes[card.Type] || "Unknown") +
-            "<br>Guardian Stars: " +
+            " — Guardian Stars: " +
             escapeHTML(formatGuardianStar(card.GuardianStarA)) +
             " / " +
             escapeHTML(formatGuardianStar(card.GuardianStarB)) +
-            "<br>" +
+            " — " +
             escapeHTML(card.Attack) +
             "A / " +
             escapeHTML(card.Defense) +
@@ -258,7 +258,7 @@ function calculateGlobalRanks() {
                     return b.count - a.count;
                 }
 
-                return a.card.Name.localeCompare(b.card.Name);
+                return a.card.Id - b.card.Id;
             }
 
 
@@ -268,16 +268,39 @@ function calculateGlobalRanks() {
                     return a.count - b.count;
                 }
 
-                return a.card.Name.localeCompare(b.card.Name);
+                return a.card.Id - b.card.Id;
+            }
+
+
+            if (sortMode === "id-asc") {
+                return a.card.Id - b.card.Id;
+            }
+
+
+            if (sortMode === "id-desc") {
+                return b.card.Id - a.card.Id;
             }
 
 
             if (sortMode === "name-desc") {
-                return b.card.Name.localeCompare(a.card.Name);
+
+                var nameComparison = b.card.Name.localeCompare(a.card.Name);
+
+                if (nameComparison !== 0) {
+                    return nameComparison;
+                }
+
+                return b.card.Id - a.card.Id;
             }
 
 
-            return a.card.Name.localeCompare(b.card.Name);
+            var nameComparison = a.card.Name.localeCompare(b.card.Name);
+
+            if (nameComparison !== 0) {
+                return nameComparison;
+            }
+
+            return a.card.Id - b.card.Id;
 
         });
 
@@ -345,9 +368,7 @@ function calculateGlobalRanks() {
 
 
             var nameCell = document.createElement("td");
-            nameCell.innerHTML =
-                formatBoldCardLabel(entry.card) +
-                "<br>Type: Equip";
+            nameCell.innerHTML = formatBoldCardLabel(entry.card);
 
 
             var countCell = document.createElement("td");
@@ -406,7 +427,7 @@ function calculateGlobalRanks() {
 
         detailsTitle.innerHTML =
             formatBoldCardLabel(entry.card) +
-            "<br>Type: Equip<br>" +
+            " — " +
             entry.count +
             " Compatible Monsters";
 
