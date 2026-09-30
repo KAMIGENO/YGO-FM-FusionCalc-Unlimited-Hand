@@ -308,11 +308,12 @@
                 return b.positiveCount - a.positiveCount;
             }
 
-            return a.card.Name.localeCompare(b.card.Name);
+            return a.card.Id - b.card.Id;
 
         });
 
     }
+
 
     /*
      * ------------------------------------------------------------
@@ -754,13 +755,6 @@
     }
 
 
-    function centerTableTextVertically() {
-        document.querySelectorAll("table th, table td").forEach(function (cell) {
-            cell.style.verticalAlign = "middle";
-        });
-    }
-
-
     /*
      * ------------------------------------------------------------
      * 8. EVENTS
@@ -772,7 +766,6 @@
 
     renderFields();
     renderMonsterSearch();
-    centerTableTextVertically();
 
 })();
 
