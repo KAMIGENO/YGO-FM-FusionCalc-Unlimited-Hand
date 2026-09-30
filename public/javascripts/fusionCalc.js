@@ -338,8 +338,10 @@ function fusesToHTML(fuselist) {
 
             if (fusion.result) {
                 res +=
-                    "<br>Result: " +
-                    formatBoldResultCard(fusion.result);
+                    "<br><strong>RESULT: " +
+                    escapeHTML(formatCardId(fusion.result.Id) + " " + fusion.result.Name) +
+                    "</strong><br>" +
+                    escapeHTML(formatCardDetails(fusion.result));
             }
 
             return res + "</div>";
@@ -868,8 +870,19 @@ function ritualsToHTML(ritualList) {
                 "<div><strong>Material:</strong> " +
                 formatBoldInputCard(ritual.card3) +
                 "</div>" +
-                "<div><strong>RESULT:</strong><br>" +
-                formatStandardResultCard(ritual.result) +
+                "<div><strong>RESULT: " +
+                escapeHTML(formatCardId(ritual.result.Id) + " " + ritual.result.Name) +
+                "</strong><br>" +
+                escapeHTML("Type: " + getCardTypeName(ritual.result)) +
+                (isMonster(ritual.result)
+                    ? "<br>Guardian Stars: " +
+                      escapeHTML(formatGuardianStars(ritual.result)) +
+                      "<br>" +
+                      escapeHTML(ritual.result.Attack) +
+                      "A / " +
+                      escapeHTML(ritual.result.Defense) +
+                      "D"
+                    : "") +
                 "</div>" +
                 "</div>"
             );
