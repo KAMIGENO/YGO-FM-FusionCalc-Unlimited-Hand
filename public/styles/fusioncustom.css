@@ -193,6 +193,38 @@ main.container {
     white-space: pre-line;
 }
 
+
+/* Field Statistics table formatting */
+#field-list .table th,
+#field-list .table td,
+#monster-field-search-section .table th,
+#monster-field-search-section .table td {
+    vertical-align: middle;
+}
+
+.field-type-group-table th,
+.field-type-group-table td {
+    vertical-align: top;
+}
+
+.field-type-group-table th {
+    white-space: nowrap;
+}
+
+.field-group-summary-cell,
+.field-group-effect-cell {
+    white-space: nowrap;
+}
+
+.field-group-card {
+    white-space: nowrap;
+    margin-bottom: 0.35rem;
+}
+
+.field-group-card:last-child {
+    margin-bottom: 0;
+}
+
 .field-positive {
     color: #198754;
     font-weight: 600;
@@ -363,23 +395,4 @@ main.container {
         flex: 0 0 100%;
         max-width: 100%;
     }
-}
-
-.field-type-group-table th:nth-child(1),
-.field-type-group-table td:nth-child(1),
-.field-type-group-table th:nth-child(2),
-.field-type-group-table td:nth-child(2),
-.field-type-group-table th:nth-child(3),
-.field-type-group-table td:nth-child(3) {
-    white-space: nowrap;
-    vertical-align: top;
-}
-
-.field-type-group-table th:nth-child(4),
-.field-type-group-table td:nth-child(4) {
-    vertical-align: top;
-}
-
-.field-type-group-card + .field-type-group-card {
-    margin-top: 0.5rem;
 }
