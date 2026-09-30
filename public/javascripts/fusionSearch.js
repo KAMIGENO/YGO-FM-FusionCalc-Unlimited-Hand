@@ -321,7 +321,7 @@ function fusesToHTML(fuselist) {
             if (fusion.result) {
                 res +=
                     "<p class=\"card-text fusion-search-result\">" +
-                    "<strong>Result: " +
+                    "<strong>RESULT: " +
                     escapeHTML(formatCardId(fusion.result.Id) + " " + fusion.result.Name) +
                     (fusion.glitch ? " (Glitch Fusion)" : "") +
                     "</strong><br>" +
