@@ -687,10 +687,10 @@
 
         detailEntries.sort(function (a, b) {
 
-            var nameA = a.partnerCard ? a.partnerCard.Name : "";
-            var nameB = b.partnerCard ? b.partnerCard.Name : "";
+            var idA = a.partnerCard ? a.partnerCard.Id : Infinity;
+            var idB = b.partnerCard ? b.partnerCard.Id : Infinity;
 
-            return nameA.localeCompare(nameB);
+            return idA - idB;
 
         });
 
