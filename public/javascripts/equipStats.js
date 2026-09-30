@@ -160,11 +160,11 @@
             formatBoldCardLabel(card) +
             "<br>Type: " +
             escapeHTML(cardTypes[card.Type] || "Unknown") +
-            " — Guardian Stars: " +
+            "<br>Guardian Stars: " +
             escapeHTML(formatGuardianStar(card.GuardianStarA)) +
             " / " +
             escapeHTML(formatGuardianStar(card.GuardianStarB)) +
-            " — " +
+            "<br>" +
             escapeHTML(card.Attack) +
             "A / " +
             escapeHTML(card.Defense) +
@@ -345,7 +345,9 @@ function calculateGlobalRanks() {
 
 
             var nameCell = document.createElement("td");
-            nameCell.innerHTML = formatBoldCardLabel(entry.card);
+            nameCell.innerHTML =
+                formatBoldCardLabel(entry.card) +
+                "<br>Type: Equip";
 
 
             var countCell = document.createElement("td");
@@ -404,7 +406,7 @@ function calculateGlobalRanks() {
 
         detailsTitle.innerHTML =
             formatBoldCardLabel(entry.card) +
-            " — " +
+            "<br>Type: Equip<br>" +
             entry.count +
             " Compatible Monsters";
 
