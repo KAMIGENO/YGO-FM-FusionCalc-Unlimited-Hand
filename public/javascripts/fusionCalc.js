@@ -567,12 +567,12 @@ function buildEquipTargets(cards, chains) {
 }
 
 
-function formatFusionStep(step, isFirstStep) {
+function formatFusionStep(step, index) {
 
     var html =
         "<div class='fusion-chain-step" +
-        (isFirstStep ? "" : " fusion-chain-followup") +
-        "'>";
+        (index === 0 ? "" : " fusion-chain-followup") +
+        "' style='margin-left: " + (index * 2) + "rem;'>";
 
 
     if (step.glitch) {
@@ -606,7 +606,7 @@ function fusionChainsToHTML(chains) {
             return (
                 "<div class='result-div fusion-chain-result'>" +
                 chain.map(function (step, index) {
-                    return formatFusionStep(step, index === 0);
+                    return formatFusionStep(step, index);
                 }).join("") +
                 "</div>"
             );
