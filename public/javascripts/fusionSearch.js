@@ -242,6 +242,18 @@ function formatInputCard(card) {
 }
 
 
+function formatSearchCard(card) {
+
+    return (
+        "<strong>" +
+        escapeHTML(formatInputCard(card)) +
+        "</strong><br>" +
+        escapeHTML(formatCardDetails(card))
+    );
+
+}
+
+
 function createSideCard(card) {
 
     var modelCard =
@@ -300,10 +312,10 @@ function fusesToHTML(fuselist) {
 
             res +=
                 "<p class=\"card-text\">" +
-                escapeHTML(formatInputCard(fusion.card1)) +
+                formatSearchCard(fusion.card1) +
                 "</p>" +
                 "<p class=\"card-text\">" +
-                escapeHTML(formatInputCard(fusion.card2)) +
+                formatSearchCard(fusion.card2) +
                 "</p>";
 
             if (fusion.result) {
@@ -333,9 +345,9 @@ function equipsToHTML(equipList) {
             return (
                 "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
                 "<div class=\"card-body text-dark\">" +
-                "<p class=\"card-text\"><strong>" +
-                escapeHTML(formatInputCard(equip.card2)) +
-                "</strong></p>" +
+                "<p class=\"card-text\">" +
+                formatSearchCard(equip.card2) +
+                "</p>" +
                 "</div></div>"
             );
 
@@ -398,7 +410,8 @@ function fieldsToHTML(fields) {
                 (entry.positive ? "+" : "-") +
                 " " +
                 escapeHTML(formatInputCard(entry.card)) +
-                "</strong>" +
+                "</strong><br>" +
+                escapeHTML(formatCardDetails(entry.card)) +
                 "</p>" +
                 "</div></div>"
             );
@@ -440,20 +453,22 @@ function ritualsToHTML(ritualList) {
             return (
                 "<div class=\"card border-dark mb-3\" style=\"max-width: 18rem;\">" +
                 "<div class=\"card-body text-dark\">" +
-                "<p class=\"card-text\"><strong>Ritual:</strong> " +
-                formatInputCard(ritualCard) +
-                "</p>" +
-                "<p class=\"card-text\"><strong>Material:</strong> " +
-                formatInputCard(materials[0]) +
-                "</p>" +
-                "<p class=\"card-text\"><strong>Material:</strong> " +
-                formatInputCard(materials[1]) +
-                "</p>" +
-                "<p class=\"card-text\"><strong>Material:</strong> " +
-                formatInputCard(materials[2]) +
-                "</p>" +
-                "<p class=\"card-text\"><strong>Result:</strong> " +
-                formatCardSummary(result) +
+                "<p class=\"card-text\"><strong>Ritual:</strong> <strong>" +
+                escapeHTML(formatInputCard(ritualCard)) +
+                "</strong></p>" +
+                "<p class=\"card-text\"><strong>Material:</strong> <strong>" +
+                escapeHTML(formatInputCard(materials[0])) +
+                "</strong></p>" +
+                "<p class=\"card-text\"><strong>Material:</strong> <strong>" +
+                escapeHTML(formatInputCard(materials[1])) +
+                "</strong></p>" +
+                "<p class=\"card-text\"><strong>Material:</strong> <strong>" +
+                escapeHTML(formatInputCard(materials[2])) +
+                "</strong></p>" +
+                "<p class=\"card-text\"><strong>Result:</strong> <strong>" +
+                escapeHTML(formatInputCard(result)) +
+                "</strong><br>" +
+                escapeHTML(formatCardDetails(result)) +
                 "</p>" +
                 "</div></div>"
             );
