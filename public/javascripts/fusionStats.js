@@ -256,7 +256,7 @@
                     return b.count - a.count;
                 }
 
-                return a.card.Name.localeCompare(b.card.Name);
+                return a.card.Id - b.card.Id;
 
             }
 
@@ -267,14 +267,34 @@
                     return a.count - b.count;
                 }
 
-                return a.card.Name.localeCompare(b.card.Name);
+                return a.card.Id - b.card.Id;
+
+            }
+
+
+            if (sortType === "id-asc") {
+
+                return a.card.Id - b.card.Id;
+
+            }
+
+
+            if (sortType === "id-desc") {
+
+                return b.card.Id - a.card.Id;
 
             }
 
 
             if (sortType === "name-desc") {
 
-                return b.card.Name.localeCompare(a.card.Name);
+                var nameDescResult = b.card.Name.localeCompare(a.card.Name);
+
+                if (nameDescResult !== 0) {
+                    return nameDescResult;
+                }
+
+                return a.card.Id - b.card.Id;
 
             }
 
@@ -284,7 +304,13 @@
              * name-asc
              */
 
-            return a.card.Name.localeCompare(b.card.Name);
+            var nameAscResult = a.card.Name.localeCompare(b.card.Name);
+
+            if (nameAscResult !== 0) {
+                return nameAscResult;
+            }
+
+            return a.card.Id - b.card.Id;
 
         });
 
