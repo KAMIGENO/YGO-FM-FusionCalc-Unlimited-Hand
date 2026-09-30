@@ -408,6 +408,78 @@ function getFusion(card1, card2) {
 }
 
 
+function normalizeFusionStep(card1, card2, result, glitch) {
+
+    if (card1.Id > card2.Id) {
+        var temp = card1;
+        card1 = card2;
+        card2 = temp;
+    }
+
+    return {
+        card1: card1,
+        card2: card2,
+        result: result,
+        glitch: !!glitch
+    };
+
+}
+
+
+function getFusionChainSignature(chain) {
+
+    return chain
+        .map(function (step) {
+            return [
+                step.card1.Id,
+                step.card2.Id,
+                step.result.Id,
+                step.glitch ? 1 : 0
+            ].join(":");
+        })
+        .join("|");
+
+}
+
+
+function compareFusionSteps(a, b) {
+
+    if (a.card1.Id !== b.card1.Id) {
+        return a.card1.Id - b.card1.Id;
+    }
+
+    if (a.card2.Id !== b.card2.Id) {
+        return a.card2.Id - b.card2.Id;
+    }
+
+    if (a.result.Id !== b.result.Id) {
+        return a.result.Id - b.result.Id;
+    }
+
+    return Number(a.glitch) - Number(b.glitch);
+
+}
+
+
+function compareFusionChains(a, b) {
+
+    var length = Math.min(a.length, b.length);
+
+    for (var i = 0; i < length; i++) {
+
+        var stepComparison = compareFusionSteps(a[i], b[i]);
+
+        if (stepComparison !== 0) {
+            return stepComparison;
+        }
+
+    }
+
+    return a.length - b.length;
+
+}
+
+
 function extendFusionChain(resultCard, cards, usedIndexes, steps, chains) {
 
     var extended = false;
@@ -432,12 +504,14 @@ function extendFusionChain(resultCard, cards, usedIndexes, steps, chains) {
 
 
         var nextUsedIndexes = usedIndexes.concat(i);
-        var nextSteps = steps.concat({
-            card1: resultCard,
-            card2: cards[i],
-            result: nextFusion.result,
-            glitch: nextFusion.glitch
-        });
+        var nextSteps = steps.concat(
+            normalizeFusionStep(
+                resultCard,
+                cards[i],
+                nextFusion.result,
+                nextFusion.glitch
+            )
+        );
 
 
         extendFusionChain(
@@ -460,14 +534,19 @@ function extendFusionChain(resultCard, cards, usedIndexes, steps, chains) {
 
 function buildFusionChains(cards) {
 
+    var sortedCards = cards.slice().sort(function (a, b) {
+        return a.Id - b.Id;
+    });
+
     var chains = [];
+    var seenChains = {};
 
 
-    for (var i = 0; i < cards.length - 1; i++) {
+    for (var i = 0; i < sortedCards.length - 1; i++) {
 
-        for (var j = i + 1; j < cards.length; j++) {
+        for (var j = i + 1; j < sortedCards.length; j++) {
 
-            var fusion = getFusion(cards[i], cards[j]);
+            var fusion = getFusion(sortedCards[i], sortedCards[j]);
 
 
             if (!fusion || !fusion.result) {
@@ -477,14 +556,16 @@ function buildFusionChains(cards) {
 
             extendFusionChain(
                 fusion.result,
-                cards,
+                sortedCards,
                 [i, j],
-                [{
-                    card1: cards[i],
-                    card2: cards[j],
-                    result: fusion.result,
-                    glitch: fusion.glitch
-                }],
+                [
+                    normalizeFusionStep(
+                        sortedCards[i],
+                        sortedCards[j],
+                        fusion.result,
+                        fusion.glitch
+                    )
+                ],
                 chains
             );
 
@@ -493,7 +574,18 @@ function buildFusionChains(cards) {
     }
 
 
-    return chains;
+    return chains
+        .filter(function (chain) {
+            var signature = getFusionChainSignature(chain);
+
+            if (seenChains[signature]) {
+                return false;
+            }
+
+            seenChains[signature] = true;
+            return true;
+        })
+        .sort(compareFusionChains);
 
 }
 
@@ -512,9 +604,25 @@ function canEquip(equipCard, targetCard) {
 
 function buildEquipTargets(cards, chains) {
 
-    var equipCards = cards.filter(function (card) {
-        return !!equipLookup[card.Id];
+    var equipCardsById = {};
+
+
+    cards.forEach(function (card) {
+
+        if (equipLookup[card.Id]) {
+            equipCardsById[card.Id] = card;
+        }
+
     });
+
+
+    var equipCards = Object.keys(equipCardsById)
+        .map(function (cardId) {
+            return equipCardsById[cardId];
+        })
+        .sort(function (a, b) {
+            return a.Id - b.Id;
+        });
 
 
     if (equipCards.length === 0) {
@@ -698,30 +806,44 @@ function getFieldsForCard(card) {
 }
 
 
-function fieldsToHTML(cards, chains) {
+function buildFusionResultDepths(cards, chains) {
 
-    var fields = {};
     var handCardIds = {};
     var fusionDepths = {};
 
 
     cards.forEach(function (card) {
-
         handCardIds[card.Id] = true;
-
     });
 
 
     chains.forEach(function (chain) {
 
-        chain.forEach(function (step, index) {
+        chain.forEach(function (step) {
 
             if (!step.result || handCardIds[step.result.Id]) {
                 return;
             }
 
 
-            var depth = index + 1;
+            var parentDepths = [
+                handCardIds[step.card1.Id]
+                    ? 0
+                    : fusionDepths[step.card1.Id],
+                handCardIds[step.card2.Id]
+                    ? 0
+                    : fusionDepths[step.card2.Id]
+            ].filter(function (depth) {
+                return depth !== undefined;
+            });
+
+
+            if (parentDepths.length === 0) {
+                return;
+            }
+
+
+            var depth = Math.max.apply(null, parentDepths) + 1;
 
 
             if (
@@ -734,6 +856,22 @@ function fieldsToHTML(cards, chains) {
         });
 
     });
+
+
+    return {
+        handCardIds: handCardIds,
+        fusionDepths: fusionDepths
+    };
+
+}
+
+
+function fieldsToHTML(cards, chains) {
+
+    var fields = {};
+    var depthData = buildFusionResultDepths(cards, chains);
+    var handCardIds = depthData.handCardIds;
+    var fusionDepths = depthData.fusionDepths;
 
 
     fieldList.forEach(function (definition) {
@@ -752,7 +890,9 @@ function fieldsToHTML(cards, chains) {
             var seen = {};
 
 
-            cards.forEach(function (card) {
+            cards.slice().sort(function (a, b) {
+                return a.Id - b.Id;
+            }).forEach(function (card) {
 
                 if (!isMonster(card) || seen[card.Id]) {
                     return;
@@ -772,39 +912,36 @@ function fieldsToHTML(cards, chains) {
                 seen[card.Id] = true;
                 affected.push({
                     card: card,
-                    depth: 0
+                    depth: 1
                 });
 
             });
 
 
-            Object.keys(fusionDepths).forEach(function (cardId) {
+            Object.keys(fusionDepths)
+                .map(function (cardId) {
+                    return getCardById(Number(cardId));
+                })
+                .filter(function (card) {
+                    if (!card || !isMonster(card) || seen[card.Id]) {
+                        return false;
+                    }
 
-                var card = getCardById(Number(cardId));
+                    var applies = positive
+                        ? definition.PositiveTypes.indexOf(card.Type) !== -1
+                        : definition.NegativeTypes.indexOf(card.Type) !== -1;
 
+                    return applies;
+                })
+                .forEach(function (card) {
 
-                if (!card || !isMonster(card) || seen[card.Id]) {
-                    return;
-                }
+                    seen[card.Id] = true;
+                    affected.push({
+                        card: card,
+                        depth: fusionDepths[card.Id] + 1
+                    });
 
-
-                var applies = positive
-                    ? definition.PositiveTypes.indexOf(card.Type) !== -1
-                    : definition.NegativeTypes.indexOf(card.Type) !== -1;
-
-
-                if (!applies) {
-                    return;
-                }
-
-
-                seen[card.Id] = true;
-                affected.push({
-                    card: card,
-                    depth: fusionDepths[card.Id]
                 });
-
-            });
 
 
             if (affected.length === 0) {
@@ -813,7 +950,13 @@ function fieldsToHTML(cards, chains) {
 
 
             affected.sort(function (a, b) {
+
+                if (a.depth !== b.depth) {
+                    return a.depth - b.depth;
+                }
+
                 return a.card.Id - b.card.Id;
+
             });
 
 
@@ -830,9 +973,7 @@ function fieldsToHTML(cards, chains) {
 
     return Object.keys(fields)
         .map(function (fieldKey) {
-
             return fields[fieldKey];
-
         })
         .sort(function (a, b) {
 
@@ -851,8 +992,7 @@ function fieldsToHTML(cards, chains) {
                 "<div class='result-div field-result'>" +
                 "<div class='field-header " +
                 (field.positive ? "field-positive" : "field-negative") +
-                "'>" +
-                "<strong>" +
+                "'><strong>" +
                 (field.positive ? "+" : "-") +
                 "</strong> " +
                 formatBoldInputCard(field.card) +
@@ -968,7 +1108,12 @@ function findRituals(cards) {
                 card1: getCardById(ritual.card1),
                 card2: getCardById(ritual.card2),
                 card3: getCardById(ritual.card3),
-                result: getCardById(ritual.result)
+                result: getCardById(ritual.result),
+                materials: [
+                    getCardById(ritual.card1),
+                    getCardById(ritual.card2),
+                    getCardById(ritual.card3)
+                ]
             };
 
         })
@@ -979,6 +1124,48 @@ function findRituals(cards) {
                 ritual.card2 &&
                 ritual.card3 &&
                 ritual.result;
+        })
+        .filter(function (ritual, index, rituals) {
+
+            var materialIds = [
+                ritual.card1.Id,
+                ritual.card2.Id,
+                ritual.card3.Id
+            ].sort(function (a, b) {
+                return a - b;
+            });
+
+            var signature = [
+                ritual.ritualCard.Id,
+                materialIds[0],
+                materialIds[1],
+                materialIds[2],
+                ritual.result.Id
+            ].join(":");
+
+            return rituals.findIndex(function (other) {
+
+                if (!other || !other.ritualCard || !other.result) {
+                    return false;
+                }
+
+                var otherMaterialIds = [
+                    other.card1.Id,
+                    other.card2.Id,
+                    other.card3.Id
+                ].sort(function (a, b) {
+                    return a - b;
+                });
+
+                return [
+                    other.ritualCard.Id,
+                    otherMaterialIds[0],
+                    otherMaterialIds[1],
+                    otherMaterialIds[2],
+                    other.result.Id
+                ].join(":") === signature;
+
+            }) === index;
         });
 
 }
@@ -989,38 +1176,67 @@ function ritualsToHTML(ritualList) {
     return ritualList
         .slice()
         .sort(function (a, b) {
-            return a.result.Id - b.result.Id;
+
+            if (a.result.Id !== b.result.Id) {
+                return a.result.Id - b.result.Id;
+            }
+
+            if (a.ritualCard.Id !== b.ritualCard.Id) {
+                return a.ritualCard.Id - b.ritualCard.Id;
+            }
+
+            var aMaterials = [a.card1.Id, a.card2.Id, a.card3.Id].sort(function (x, y) {
+                return x - y;
+            });
+            var bMaterials = [b.card1.Id, b.card2.Id, b.card3.Id].sort(function (x, y) {
+                return x - y;
+            });
+
+            for (var i = 0; i < aMaterials.length; i++) {
+                if (aMaterials[i] !== bMaterials[i]) {
+                    return aMaterials[i] - bMaterials[i];
+                }
+            }
+
+            return 0;
         })
         .map(function (ritual) {
 
             return (
                 "<div class='result-div ritual-result'>" +
-                "<div><strong>Ritual:</strong> " +
+                "<div><strong>Ritual Card:</strong> " +
                 formatBoldInputCard(ritual.ritualCard) +
                 "</div>" +
-                "<div><strong>Material:</strong> " +
-                formatBoldInputCard(ritual.card1) +
-                "</div>" +
-                "<div><strong>Material:</strong> " +
-                formatBoldInputCard(ritual.card2) +
-                "</div>" +
-                "<div><strong>Material:</strong> " +
-                formatBoldInputCard(ritual.card3) +
-                "</div>" +
-                "<div><strong>RESULT: " +
+                ritual.materials
+                    .slice()
+                    .sort(function (a, b) {
+                        return a.Id - b.Id;
+                    })
+                    .map(function (material, index) {
+                        return (
+                            "<div class='ritual-material'>Material " +
+                            (index + 1) +
+                            ": " +
+                            formatBoldInputCard(material) +
+                            "</div>"
+                        );
+                    })
+                    .join("") +
+                "<div class='ritual-result-card'><strong>RESULT: " +
                 escapeHTML(formatCardId(ritual.result.Id) + " " + ritual.result.Name) +
-                "</strong><br>" +
-                escapeHTML("Type: " + getCardTypeName(ritual.result)) +
+                "</strong></div>" +
+                "<div>Type: " +
+                escapeHTML(getCardTypeName(ritual.result)) +
+                "</div>" +
                 (isMonster(ritual.result)
-                    ? "<br>Guardian Stars: " +
+                    ? "<div>Guardian Stars: " +
                       escapeHTML(formatGuardianStars(ritual.result)) +
-                      "<br>" +
+                      "</div><div>" +
                       escapeHTML(ritual.result.Attack) +
                       "A / " +
                       escapeHTML(ritual.result.Defense) +
-                      "D"
+                      "D</div>"
                     : "") +
-                "</div>" +
                 "</div>"
             );
 
