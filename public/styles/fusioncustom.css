@@ -202,8 +202,8 @@ main.container {
     vertical-align: middle;
 }
 
-.field-type-group-table th,
-.field-type-group-table td {
+#field-list .field-type-group-table th,
+#field-list .field-type-group-table td {
     vertical-align: top;
 }
 
