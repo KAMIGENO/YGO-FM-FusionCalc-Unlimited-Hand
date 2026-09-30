@@ -677,7 +677,7 @@
             })
             .sort(function (a, b) {
 
-                return a.Name.localeCompare(b.Name);
+                return a.Id - b.Id;
 
             });
 
@@ -751,18 +751,26 @@
             typeCell.textContent = getTypeName(monsterCard.Type);
 
             var beneficialCell = document.createElement("td");
-            beneficialCell.innerHTML = beneficialFields
-                .map(function (fieldCard) {
-                    return formatBoldCardLabel(fieldCard);
-                })
-                .join(", ");
+            beneficialCell.innerHTML = beneficialFields.length
+                ? beneficialFields
+                    .map(function (fieldCard) {
+                        return '<span class="field-positive">' +
+                            formatBoldCardLabel(fieldCard) +
+                            '</span>';
+                    })
+                    .join(", ")
+                : "—";
 
             var harmfulCell = document.createElement("td");
-            harmfulCell.innerHTML = harmfulFields
-                .map(function (fieldCard) {
-                    return formatBoldCardLabel(fieldCard);
-                })
-                .join(", ");
+            harmfulCell.innerHTML = harmfulFields.length
+                ? harmfulFields
+                    .map(function (fieldCard) {
+                        return '<span class="field-negative">' +
+                            formatBoldCardLabel(fieldCard) +
+                            '</span>';
+                    })
+                    .join(", ")
+                : "—";
 
             row.appendChild(nameCell);
             row.appendChild(typeCell);
