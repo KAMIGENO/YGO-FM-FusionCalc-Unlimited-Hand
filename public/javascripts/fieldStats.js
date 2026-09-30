@@ -44,15 +44,6 @@
     }
 
 
-    function formatGuardianStar(value) {
-        if (value === 10) {
-            return starNames[9];
-        }
-
-        return starNames[value] || starNames[0];
-    }
-
-
     function formatBoldCardLabel(card) {
         return "<strong>" +
             escapeHTML(formatCardId(card.Id) + " " + card.Name) +
@@ -60,26 +51,11 @@
     }
 
 
-    function formatStandardCard(card) {
-        var html =
+    function formatFieldCardSummary(card) {
+        return (
             formatBoldCardLabel(card) +
-            "<br>Type: " +
-            escapeHTML(getTypeName(card.Type));
-
-        if (card.Type < 20) {
-            html +=
-                "<br>Guardian Stars: " +
-                escapeHTML(formatGuardianStar(card.GuardianStarA)) +
-                " / " +
-                escapeHTML(formatGuardianStar(card.GuardianStarB)) +
-                "<br>" +
-                escapeHTML(card.Attack) +
-                "A / " +
-                escapeHTML(card.Defense) +
-                "D";
-        }
-
-        return html;
+            "<br>Type: Magic (Field)"
+        );
     }
 
 
@@ -744,7 +720,7 @@
             var row = document.createElement("tr");
 
             var nameCell = document.createElement("td");
-            nameCell.innerHTML = formatStandardCard(monsterCard);
+            nameCell.innerHTML = formatBoldCardLabel(monsterCard);
             nameCell.style.verticalAlign = "middle";
 
             var typeCell = document.createElement("td");
@@ -757,7 +733,7 @@
                 ? beneficialFields
                     .map(function (fieldCard) {
                         return '<span class="field-positive">' +
-                            formatStandardCard(fieldCard) +
+                            formatFieldCardSummary(fieldCard) +
                             '</span>';
                     })
                     .join("<br>")
@@ -769,7 +745,7 @@
                 ? harmfulFields
                     .map(function (fieldCard) {
                         return '<span class="field-negative">' +
-                            formatStandardCard(fieldCard) +
+                            formatFieldCardSummary(fieldCard) +
                             '</span>';
                     })
                     .join("<br>")
