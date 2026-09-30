@@ -158,6 +158,13 @@ main.container {
     margin: 0 auto;
 }
 
+.equip-stats-table th,
+.equip-stats-table td,
+#equip-details th,
+#equip-details td {
+    vertical-align: middle;
+}
+
 .equip-stats-table thead th {
     position: sticky;
     top: 0;
@@ -217,12 +224,6 @@ main.container {
 
 .field-fusion-card {
     text-align: left;
-    border-left: 2px solid #dddddd;
-    padding-left: 1rem;
-}
-
-.ritual-material {
-    margin-left: 2rem;
 }
 
 @media (max-width: 767px) {
