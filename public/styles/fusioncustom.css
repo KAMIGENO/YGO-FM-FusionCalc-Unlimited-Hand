@@ -234,58 +234,6 @@ main.container {
     margin-top: 2rem !important;
 }
 
-
-/* ------------------------------------------------------------
-   FIELD STATISTICS MONSTER TYPE GROUP TABLES
-   ------------------------------------------------------------ */
-
-.field-type-group-table th,
-.field-type-group-table td {
-    vertical-align: middle;
-}
-
-.field-type-group-table .field-type-group-type,
-.field-type-group-table .field-type-group-count,
-.field-type-group-table .field-type-group-effect {
-    white-space: nowrap;
-}
-
-.field-type-group-card + .field-type-group-card {
-    margin-top: 0.35rem;
-}
-
-@media (max-width: 767px) {
-    .field-type-group-table {
-        table-layout: fixed;
-        font-size: 0.8rem;
-    }
-
-    .field-type-group-table th,
-    .field-type-group-table td {
-        padding: 0.4rem;
-    }
-
-    .field-type-group-table th:nth-child(1),
-    .field-type-group-table td:nth-child(1) {
-        width: 22%;
-    }
-
-    .field-type-group-table th:nth-child(2),
-    .field-type-group-table td:nth-child(2) {
-        width: 18%;
-    }
-
-    .field-type-group-table th:nth-child(3),
-    .field-type-group-table td:nth-child(3) {
-        width: 22%;
-    }
-
-    .field-type-group-table th:nth-child(4),
-    .field-type-group-table td:nth-child(4) {
-        width: 38%;
-    }
-}
-
 /* ------------------------------------------------------------
    FUSION CALCULATOR CHAINS
    ------------------------------------------------------------ */
@@ -415,4 +363,23 @@ main.container {
         flex: 0 0 100%;
         max-width: 100%;
     }
+}
+
+.field-type-group-table th:nth-child(1),
+.field-type-group-table td:nth-child(1),
+.field-type-group-table th:nth-child(2),
+.field-type-group-table td:nth-child(2),
+.field-type-group-table th:nth-child(3),
+.field-type-group-table td:nth-child(3) {
+    white-space: nowrap;
+    vertical-align: top;
+}
+
+.field-type-group-table th:nth-child(4),
+.field-type-group-table td:nth-child(4) {
+    vertical-align: top;
+}
+
+.field-type-group-card + .field-type-group-card {
+    margin-top: 0.5rem;
 }
