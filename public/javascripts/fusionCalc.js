@@ -291,6 +291,34 @@ function formatBoldResultCard(card) {
 }
 
 
+
+
+function formatStandardResultCard(card) {
+    if (!card) {
+        return "";
+    }
+
+    var html =
+        "<strong>" +
+        escapeHTML(formatCardId(card.Id) + " " + card.Name) +
+        "</strong><br>" +
+        "Type: " +
+        escapeHTML(getCardTypeName(card));
+
+    if (isMonster(card)) {
+        html +=
+            "<br>Guardian Stars: " +
+            escapeHTML(formatGuardianStars(card)) +
+            "<br>" +
+            escapeHTML(card.Attack) +
+            "A / " +
+            escapeHTML(card.Defense) +
+            "D";
+    }
+
+    return html;
+}
+
 function fusesToHTML(fuselist) {
 
     return fuselist
@@ -840,8 +868,8 @@ function ritualsToHTML(ritualList) {
                 "<div><strong>Material:</strong> " +
                 formatBoldInputCard(ritual.card3) +
                 "</div>" +
-                "<div><strong>Result:</strong> " +
-                formatBoldResultCard(ritual.result) +
+                "<div><strong>RESULT:</strong><br>" +
+                formatStandardResultCard(ritual.result) +
                 "</div>" +
                 "</div>"
             );
