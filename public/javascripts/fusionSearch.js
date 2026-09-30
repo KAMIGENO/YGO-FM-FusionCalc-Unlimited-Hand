@@ -242,38 +242,6 @@ function formatInputCard(card) {
 }
 
 
-function formatStandardCard(card) {
-    if (!card) {
-        return "";
-    }
-
-    var html =
-        "<strong>" +
-        escapeHTML(formatInputCard(card)) +
-        "</strong><br>" +
-        "Type: " +
-        escapeHTML(getCardTypeName(card));
-
-    if (isMonster(card)) {
-        html +=
-            "<br>Guardian Stars: " +
-            escapeHTML(formatGuardianStars(card)) +
-            "<br>" +
-            escapeHTML(card.Attack) +
-            "A / " +
-            escapeHTML(card.Defense) +
-            "D";
-    }
-
-    return html;
-}
-
-
-function formatSearchCard(card) {
-    return formatStandardCard(card);
-}
-
-
 function createSideCard(card) {
 
     var modelCard =
@@ -281,13 +249,26 @@ function createSideCard(card) {
         "<div class=\"row no-gutters\">" +
         "<div class=\"col\">" +
         "<div class=\"card-body\">" +
-        "<h5 class=\"card-title\">" +
-        formatStandardCard(card) +
-        "</h5>" +
+        "<h5 class=\"card-title\"><strong>" +
+        formatCardId(card.Id) + " " + escapeHTML(card.Name) +
+        "</strong></h5>" +
         "<p class=\"card-text\">" +
         escapeHTML(card.Description) +
+        "</p>" +
+        "<p class=\"card-text\"><strong>Type:</strong> " +
+        escapeHTML(getCardTypeName(card)) +
         "</p>";
 
+
+    if (isMonster(card)) {
+        modelCard +=
+            "<p class=\"card-text\"><strong>Guardian Stars:</strong> " +
+            escapeHTML(formatGuardianStars(card)) +
+            "</p>" +
+            "<p class=\"card-text\"><strong>ATK / DEF:</strong> " +
+            card.Attack + "A / " + card.Defense + "D" +
+            "</p>";
+    }
 
     modelCard +=
         "<p class=\"card-text\"><strong>Stars:</strong> " +
@@ -317,36 +298,27 @@ function fusesToHTML(fuselist) {
                 "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
                 "<div class=\"card-body text-dark\">";
 
+            if (fusion.glitch) {
+                res +=
+                    "<p class=\"card-text\"><strong>Glitch Fusion</strong></p>";
+            }
+
             res +=
                 "<p class=\"card-text\">" +
-                formatSearchCard(fusion.card1) +
+                escapeHTML(formatInputCard(fusion.card1)) +
                 "</p>" +
                 "<p class=\"card-text\">" +
-                formatSearchCard(fusion.card2) +
+                escapeHTML(formatInputCard(fusion.card2)) +
                 "</p>";
 
             if (fusion.result) {
                 res +=
                     "<p class=\"card-text fusion-search-result\">" +
-                    "<strong>RESULT: " +
+                    "<strong>Result: " +
                     escapeHTML(formatCardId(fusion.result.Id) + " " + fusion.result.Name) +
-                    (fusion.glitch ? " (Glitch Fusion)" : "") +
                     "</strong><br>" +
-                    "Type: " +
-                    escapeHTML(getCardTypeName(fusion.result));
-
-                if (isMonster(fusion.result)) {
-                    res +=
-                        "<br>Guardian Stars: " +
-                        escapeHTML(formatGuardianStars(fusion.result)) +
-                        "<br>" +
-                        escapeHTML(fusion.result.Attack) +
-                        "A / " +
-                        escapeHTML(fusion.result.Defense) +
-                        "D";
-                }
-
-                res += "</p>";
+                    escapeHTML(formatCardDetails(fusion.result)) +
+                    "</p>";
             }
 
             return res + "</div></div>";
@@ -365,9 +337,9 @@ function equipsToHTML(equipList) {
             return (
                 "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
                 "<div class=\"card-body text-dark\">" +
-                "<p class=\"card-text\">" +
-                formatSearchCard(equip.card2) +
-                "</p>" +
+                "<p class=\"card-text\"><strong>" +
+                escapeHTML(formatInputCard(equip.card2)) +
+                "</strong></p>" +
                 "</div></div>"
             );
 
@@ -430,12 +402,7 @@ function fieldsToHTML(fields) {
                 (entry.positive ? "+" : "-") +
                 " " +
                 escapeHTML(formatInputCard(entry.card)) +
-                "</strong><br>" +
-                "Type: " + escapeHTML(getCardTypeName(entry.card)) +
-                (isMonster(entry.card)
-                    ? "<br>Guardian Stars: " + escapeHTML(formatGuardianStars(entry.card)) +
-                      "<br>" + escapeHTML(entry.card.Attack) + "A / " + escapeHTML(entry.card.Defense) + "D"
-                    : "") +
+                "</strong>" +
                 "</p>" +
                 "</div></div>"
             );
@@ -477,20 +444,20 @@ function ritualsToHTML(ritualList) {
             return (
                 "<div class=\"card border-dark mb-3\" style=\"max-width: 18rem;\">" +
                 "<div class=\"card-body text-dark\">" +
-                "<p class=\"card-text\"><strong>Ritual:</strong><br>" +
-                formatStandardCard(ritualCard) +
+                "<p class=\"card-text\"><strong>Ritual:</strong> " +
+                formatInputCard(ritualCard) +
                 "</p>" +
-                "<p class=\"card-text\"><strong>Material:</strong><br>" +
-                formatStandardCard(materials[0]) +
+                "<p class=\"card-text\"><strong>Material:</strong> " +
+                formatInputCard(materials[0]) +
                 "</p>" +
-                "<p class=\"card-text\"><strong>Material:</strong><br>" +
-                formatStandardCard(materials[1]) +
+                "<p class=\"card-text\"><strong>Material:</strong> " +
+                formatInputCard(materials[1]) +
                 "</p>" +
-                "<p class=\"card-text\"><strong>Material:</strong><br>" +
-                formatStandardCard(materials[2]) +
+                "<p class=\"card-text\"><strong>Material:</strong> " +
+                formatInputCard(materials[2]) +
                 "</p>" +
-                "<p class=\"card-text\"><strong>RESULT:</strong><br>" +
-                formatStandardCard(result) +
+                "<p class=\"card-text\"><strong>Result:</strong> " +
+                formatCardSummary(result) +
                 "</p>" +
                 "</div></div>"
             );
