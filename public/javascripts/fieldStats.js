@@ -784,6 +784,13 @@
     }
 
 
+    function centerTableTextVertically() {
+        document.querySelectorAll("table th, table td").forEach(function (cell) {
+            cell.style.verticalAlign = "middle";
+        });
+    }
+
+
     /*
      * ------------------------------------------------------------
      * 8. EVENTS
@@ -796,6 +803,7 @@
 
     renderFields();
     renderMonsterSearch();
+    centerTableTextVertically();
 
 })();
 
