@@ -24,7 +24,6 @@
     var statistics = [];
 
 
-    var sortSelect = document.getElementById("field-sort");
     var fieldListContainer = document.getElementById("field-list");
     var monsterFilterInput = document.getElementById("monster-filter");
     var monsterSearchBody = document.getElementById("monster-field-search-body");
@@ -303,55 +302,17 @@
 
     function sortStatistics(results) {
 
-        var sortType = sortSelect.value;
-
-
         results.sort(function (a, b) {
 
-            if (sortType === "positive-desc") {
-
-                if (b.positiveCount !== a.positiveCount) {
-                    return b.positiveCount - a.positiveCount;
-                }
-
-                return a.card.Name.localeCompare(b.card.Name);
-
+            if (b.positiveCount !== a.positiveCount) {
+                return b.positiveCount - a.positiveCount;
             }
-
-
-            if (sortType === "negative-desc") {
-
-                if (b.negativeCount !== a.negativeCount) {
-                    return b.negativeCount - a.negativeCount;
-                }
-
-                return a.card.Name.localeCompare(b.card.Name);
-
-            }
-
-
-            if (sortType === "non-neutral-desc") {
-
-                if (b.nonNeutralCount !== a.nonNeutralCount) {
-                    return b.nonNeutralCount - a.nonNeutralCount;
-                }
-
-                return a.card.Name.localeCompare(b.card.Name);
-
-            }
-
-
-            if (sortType === "name-desc") {
-                return b.card.Name.localeCompare(a.card.Name);
-            }
-
 
             return a.card.Name.localeCompare(b.card.Name);
 
         });
 
     }
-
 
     /*
      * ------------------------------------------------------------
@@ -806,7 +767,6 @@
      * ------------------------------------------------------------
      */
 
-    sortSelect.addEventListener("change", renderFields);
     monsterFilterInput.addEventListener("input", renderMonsterSearch);
 
 
