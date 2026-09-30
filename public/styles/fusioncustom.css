@@ -173,6 +173,13 @@ main.container {
     margin-bottom: 30px;
 }
 
+.equip-stats-table th,
+.equip-stats-table td,
+#equip-details table th,
+#equip-details table td {
+    vertical-align: middle;
+}
+
 @media (max-width: 767px) {
 
     .equip-stats-controls {
