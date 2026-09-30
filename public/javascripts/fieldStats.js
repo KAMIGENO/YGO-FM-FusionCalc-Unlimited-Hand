@@ -1,349 +1,825 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+/*
+ * ------------------------------------------------------------
+ * FILE: public/javascripts/fieldStats.js
+ * ------------------------------------------------------------
+ *
+ * Field Statistics
+ *
+ * Shows all Field cards as expandable sections and provides a
+ * reverse lookup that starts with a monster card and shows how
+ * every Field affects it.
+ *
+ * Field identity/effect definitions live in data/fields.js.
+ * The main card database still classifies these cards as Magic
+ * (Type 20); fieldList provides the additional Field designation.
+ * ------------------------------------------------------------
+ */
 
-        <meta
-            name="description"
-            content="Yu-Gi-Oh! Forbidden Memories Field Statistics"
-        />
+(function () {
 
-        <title>Field Statistics - Yu-Gi-Oh! Forbidden Memories</title>
+    "use strict";
 
-        <link
-            rel="icon"
-            type="image/x-icon"
-            href="public/images/yugioh.ico"
-        />
 
-        <link rel="preconnect" href="https://fonts.gstatic.com" />
+    var cardById = {};
+    var statistics = [];
 
-        <link
-            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&display=swap"
-            rel="stylesheet"
-        />
 
-        <link
-            href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap"
-            rel="stylesheet"
-        />
+    var sortSelect = document.getElementById("field-sort");
+    var fieldListContainer = document.getElementById("field-list");
+    var monsterFilterInput = document.getElementById("monster-filter");
+    var monsterSearchBody = document.getElementById("monster-field-search-body");
 
-        <link
-            href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
-            rel="stylesheet"
-        />
 
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="public/styles/normalize.css"
-        />
+    function escapeHTML(value) {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/\'/g, "&#039;");
+    }
 
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="public/styles/bootstrap.min.css"
-        />
 
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="public/styles/home.css"
-        />
+    function formatCardId(id) {
+        return "#" + String(id).padStart(3, "0");
+    }
 
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="public/styles/fusioncustom.css"
-        />
 
-        <style>
-            table th,
-            table td {
-                vertical-align: middle;
+    function formatBoldCardLabel(card) {
+        return "<strong>" +
+            escapeHTML(formatCardId(card.Id) + " " + card.Name) +
+            "</strong>";
+    }
+
+
+    /*
+     * ------------------------------------------------------------
+     * 1. CARD LOOKUP
+     * ------------------------------------------------------------
+     */
+
+    var allCards = card_db().get();
+
+
+    allCards.forEach(function (card) {
+
+        cardById[card.Id] = card;
+
+    });
+
+
+    function isMonster(card) {
+
+        return !!card && card.Type < 20;
+
+    }
+
+
+    var monsterCards = allCards.filter(function (card) {
+
+        return isMonster(card);
+
+    });
+
+    var monsterCardsByName = monsterCards.slice().sort(function (a, b) {
+
+        return a.Name.localeCompare(b.Name);
+
+    });
+
+
+    function getCardsForTypes(typeIds) {
+
+        return monsterCardsByName.filter(function (card) {
+
+            return typeIds.indexOf(card.Type) !== -1;
+
+        });
+
+    }
+
+
+    function getTypeName(typeId) {
+
+        if (cardTypes[typeId] === "Spellcaster") {
+            return "Magic-User (Spellcaster)";
+        }
+
+        return cardTypes[typeId] || "Unknown";
+
+    }
+
+
+    function buildTypeGroups(cards) {
+
+        var groups = {};
+
+
+        cards.forEach(function (card) {
+
+            if (!groups[card.Type]) {
+                groups[card.Type] = [];
             }
-        </style>
-    </head>
-
-    <body class="bg-dark d-flex flex-column min-vh-100 polymerization">
-
-        <header class="navbar navbar-expand-lg navbar-light bg-light flex-column flex-md-row">
-
-            <a class="navbar-brand text-truncate" href="index.html">
-                <img
-                    class="img-fluid ml-4"
-                    id="logo"
-                    src="public/images/logo.png"
-                    alt="Yu-Gi-Oh! Forbidden Memories Logo"
-                />
-            </a>
-
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-toggle="collapse"
-                data-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon d-md-none p-0 mx-2 collapsed"></span>
-            </button>
-
-            <div
-                class="collapse navbar-collapse"
-                id="navbarSupportedContent"
-            >
-                <ul class="navbar-nav ml-auto">
-
-                    <li class="nav-item">
-                        <a
-                            class="nav-link text-dark"
-                            href="fusion-search.html"
-                        >
-                            Fusion Search
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a
-                            class="nav-link text-dark"
-                            href="fusion-calculator.html"
-                        >
-                            Fusion Calculator
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a
-                            class="nav-link text-dark"
-                            href="fusion-stats.html"
-                        >
-                            Fusion Statistics
-                        </a>
-                    </li>
-<li class="nav-item">
-    <a
-        class="nav-link text-dark"
-        href="glitch-fusions.html"
-    >
-        Glitch Fusions
-    </a>
-</li>
-
-                    <li class="nav-item">
-                        <a
-                            class="nav-link text-dark"
-                            href="equip-stats.html"
-                        >
-                            Equip Statistics
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a
-                            class="nav-link text-dark"
-                            href="field-stats.html"
-                        >
-                            Field Statistics
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a
-                            class="nav-link text-dark"
-                            href="about.html"
-                        >
-                            About
-                        </a>
-                    </li>
-
-                </ul>
-            </div>
-        </header>
-
-
-        <main class="container">
 
-            <section class="row mt-3 rounded-lg bg-light">
+            groups[card.Type].push(card);
 
-                <div class="col">
+        });
 
-                    <h2 class="text-main my-5 text-center">
-                        FIELD STATISTICS
-                    </h2>
 
-                    <p class="text-center">
-                        Every Field card is listed below as an expandable section.
-                        Open a Field to see its positive, neutral, and negative effects
-                        by individual monster card and by monster type.
-                    </p>
+        return Object.keys(groups)
+            .map(function (typeId) {
 
-                    <div class="field-stats-controls mb-4">
+                return {
+                    typeId: Number(typeId),
+                    typeName: getTypeName(Number(typeId)),
+                    cards: groups[typeId]
+                };
 
-                        <div>
-                            <label for="field-sort">
-                                Sort fields by:
-                            </label>
+            })
+            .sort(function (a, b) {
+                return a.typeName.localeCompare(b.typeName);
+            });
 
-                            <select
-                                id="field-sort"
-                                class="form-control"
-                            >
-                                <option value="positive-desc">
-                                    Most positive effects
-                                </option>
+    }
 
-                                <option value="negative-desc">
-                                    Most negative effects
-                                </option>
 
-                                <option value="non-neutral-desc">
-                                    Most non-neutral effects
-                                </option>
+    /*
+     * ------------------------------------------------------------
+     * 2. BUILD FIELD STATISTICS FROM data/fields.js
+     * ------------------------------------------------------------
+     */
 
-                                <option value="name-asc">
-                                    Field name A-Z
-                                </option>
+    fieldList.forEach(function (definition) {
 
-                                <option value="name-desc">
-                                    Field name Z-A
-                                </option>
-                            </select>
-                        </div>
+        var fieldCard = cardById[definition.CardId];
 
-                    </div>
 
-                    <div id="field-list"></div>
+        if (!fieldCard) {
+            return;
+        }
 
-                </div>
 
-            </section>
+        /*
+         * A Field card must remain a Magic card in the main card
+         * database. fieldList is the additional designation that
+         * identifies it as a Field card.
+         */
 
+        if (fieldCard.Type !== 20) {
+            return;
+        }
 
-            <section
-                class="row rounded-lg mt-4 bg-light"
-                id="monster-field-search-section"
-            >
 
-                <div class="col">
+        var positiveCards = getCardsForTypes(definition.PositiveTypes);
+        var negativeCards = getCardsForTypes(definition.NegativeTypes);
+        var positiveIds = {};
+        var negativeIds = {};
 
-                    <h3 class="text-main my-4 text-center">
-                        MONSTER FIELD SEARCH
-                    </h3>
 
-                    <p class="text-center">
-                        Search for a monster to see how every Field affects it.
-                    </p>
+        positiveCards.forEach(function (card) {
+            positiveIds[card.Id] = true;
+        });
 
-                    <div class="field-stats-controls">
 
-                        <div>
-                            <label for="monster-filter">
-                                Search monster:
-                            </label>
+        negativeCards.forEach(function (card) {
+            negativeIds[card.Id] = true;
+        });
 
-                            <input
-                                type="text"
-                                id="monster-filter"
-                                class="form-control"
-                                placeholder="Search monster card..."
-                            />
-                        </div>
 
-                    </div>
+        var neutralCards = monsterCardsByName
+            .filter(function (card) {
 
-                    <div class="table-responsive">
+                return !positiveIds[card.Id] && !negativeIds[card.Id];
 
-                        <table class="table table-striped table-bordered field-stats-table mobile-card-table">
+            })
+            .sort(function (a, b) {
 
-                            <thead>
-                                <tr>
-                                    <th>Monster</th>
-                                    <th>Monster Type</th>
-                                    <th>Beneficial Fields</th>
-                                    <th>Harmful Fields</th>
-                                </tr>
-                            </thead>
+                return a.Name.localeCompare(b.Name);
 
-                            <tbody id="monster-field-search-body">
-                            </tbody>
+            });
 
-                        </table>
 
-                    </div>
+        var statistic = {
+            card: fieldCard,
+            positiveCards: positiveCards,
+            neutralCards: neutralCards,
+            negativeCards: negativeCards,
+            positiveCount: positiveCards.length,
+            neutralCount: neutralCards.length,
+            negativeCount: negativeCards.length,
+            nonNeutralCount: positiveCards.length + negativeCards.length,
+            positiveIdSet: positiveIds,
+            negativeIdSet: negativeIds,
+            positiveGroups: buildTypeGroups(positiveCards),
+            neutralGroups: buildTypeGroups(neutralCards),
+            negativeGroups: buildTypeGroups(negativeCards)
+        };
 
-                </div>
+        statistics.push(statistic);
 
-            </section>
+    });
 
-        </main>
 
+    /*
+     * ------------------------------------------------------------
+     * 3. RANK LABELS
+     * ------------------------------------------------------------
+     */
 
-        <footer class="container-fluid mt-auto">
+    var positiveRankLabels = {};
+    var neutralRankLabels = {};
+    var negativeRankLabels = {};
 
-            <div class="row footer-bottom">
 
-                <div class="col text-center my-3">
+    function calculateRankLabels(propertyName, destination) {
 
-                    <a
-                        class="d-inline m-0 p-0 text-decoration-none"
-                        href="index.html"
-                    >
-                        <img
-                            loading="lazy"
-                            class="millennium-pendant"
-                            src="public/images/item.png"
-                            alt="millennium-pendant"
-                        />
-                    </a>
+        var rankedResults = statistics.slice();
 
-                    <p class="my-3 text-white d-inline">
-                        Yu-Gi-Oh! Forbidden Memories Fusion Calculator © 2020
-                    </p>
 
-                </div>
+        rankedResults.sort(function (a, b) {
 
-            </div>
+            if (b[propertyName] !== a[propertyName]) {
+                return b[propertyName] - a[propertyName];
+            }
 
-        </footer>
+            return a.card.Name.localeCompare(b.card.Name);
 
+        });
 
-        <script
-            type="text/javascript"
-            src="public/javascripts/jquery-3.5.1.min.js"
-        ></script>
 
-        <script
-            type="text/javascript"
-            src="public/javascripts/bootstrap.bundle.min.js"
-        ></script>
+        var i = 0;
 
-        <script
-            type="text/javascript"
-            src="public/javascripts/taffy.js"
-        ></script>
 
-        <script
-            type="text/javascript"
-            src="data/cards.js"
-        ></script>
+        while (i < rankedResults.length) {
 
-        <script
-            type="text/javascript"
-            src="data/types_and_stars.js"
-        ></script>
+            var count = rankedResults[i][propertyName];
+            var startRank = i + 1;
+            var j = i + 1;
 
-        <script
-            type="text/javascript"
-            src="data/fields.js"
-        ></script>
 
-        <script
-            type="text/javascript"
-            src="public/javascripts/fieldStats.js"
-        ></script>
+            while (
+                j < rankedResults.length &&
+                rankedResults[j][propertyName] === count
+            ) {
 
-    </body>
-</html>
+                j++;
+
+            }
+
+
+            var endRank = j;
+            var label;
+
+
+            if (startRank === endRank) {
+                label = "Rank " + startRank;
+            } else {
+                label = "Rank " + startRank + "–" + endRank;
+            }
+
+
+            for (var k = i; k < j; k++) {
+                destination[rankedResults[k].card.Id] = label;
+            }
+
+
+            i = j;
+
+        }
+
+    }
+
+
+    calculateRankLabels("positiveCount", positiveRankLabels);
+    calculateRankLabels("neutralCount", neutralRankLabels);
+    calculateRankLabels("negativeCount", negativeRankLabels);
+
+
+    /*
+     * ------------------------------------------------------------
+     * 4. SORTING
+     * ------------------------------------------------------------
+     */
+
+    function sortStatistics(results) {
+
+        var sortType = sortSelect.value;
+
+
+        results.sort(function (a, b) {
+
+            if (sortType === "positive-desc") {
+
+                if (b.positiveCount !== a.positiveCount) {
+                    return b.positiveCount - a.positiveCount;
+                }
+
+                return a.card.Name.localeCompare(b.card.Name);
+
+            }
+
+
+            if (sortType === "negative-desc") {
+
+                if (b.negativeCount !== a.negativeCount) {
+                    return b.negativeCount - a.negativeCount;
+                }
+
+                return a.card.Name.localeCompare(b.card.Name);
+
+            }
+
+
+            if (sortType === "non-neutral-desc") {
+
+                if (b.nonNeutralCount !== a.nonNeutralCount) {
+                    return b.nonNeutralCount - a.nonNeutralCount;
+                }
+
+                return a.card.Name.localeCompare(b.card.Name);
+
+            }
+
+
+            if (sortType === "name-desc") {
+                return b.card.Name.localeCompare(a.card.Name);
+            }
+
+
+            return a.card.Name.localeCompare(b.card.Name);
+
+        });
+
+    }
+
+
+    /*
+     * ------------------------------------------------------------
+     * 5. EFFECT HELPERS
+     * ------------------------------------------------------------
+     */
+
+    function getEffect(entry, monsterCard) {
+
+        if (entry.positiveIdSet[monsterCard.Id]) {
+            return {
+                label: "Positive",
+                change: "+500 ATK/DEF"
+            };
+        }
+
+
+        if (entry.negativeIdSet[monsterCard.Id]) {
+            return {
+                label: "Negative",
+                change: "-500 ATK/DEF"
+            };
+        }
+
+
+        return {
+            label: "Neutral",
+            change: "No ATK/DEF change"
+        };
+
+    }
+
+
+    function createEffectTable(title, cards, effectText) {
+
+        var wrapper = document.createElement("div");
+        wrapper.className = "mb-5";
+
+
+        var heading = document.createElement("h4");
+        heading.className = "text-main my-4";
+        heading.textContent = title;
+        wrapper.appendChild(heading);
+
+
+        var table = document.createElement("table");
+        table.className = "table table-striped table-bordered";
+
+
+        var thead = document.createElement("thead");
+        var headerRow = document.createElement("tr");
+
+        ["Monster Card", "Monster Type", "Effect"].forEach(function (text) {
+
+            var th = document.createElement("th");
+            th.textContent = text;
+            headerRow.appendChild(th);
+
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+
+        var tbody = document.createElement("tbody");
+
+
+        cards.forEach(function (card) {
+
+            var row = document.createElement("tr");
+
+            var nameCell = document.createElement("td");
+            nameCell.innerHTML = formatBoldCardLabel(card);
+
+            var typeCell = document.createElement("td");
+            typeCell.textContent = getTypeName(card.Type);
+
+            var effectCell = document.createElement("td");
+            effectCell.textContent = effectText;
+
+            row.appendChild(nameCell);
+            row.appendChild(typeCell);
+            row.appendChild(effectCell);
+            tbody.appendChild(row);
+
+        });
+
+
+        table.appendChild(tbody);
+        wrapper.appendChild(table);
+
+
+        return wrapper;
+
+    }
+
+
+    function createTypeGroupTable(title, groups, effectText) {
+
+        var wrapper = document.createElement("div");
+        wrapper.className = "mb-5";
+
+
+        var heading = document.createElement("h4");
+        heading.className = "text-main my-4";
+        heading.textContent = title;
+        wrapper.appendChild(heading);
+
+
+        var table = document.createElement("table");
+        table.className = "table table-striped table-bordered";
+
+
+        var thead = document.createElement("thead");
+        var headerRow = document.createElement("tr");
+
+        ["Monster Type", "Cards Affected", "Effect", "Affected Cards"].forEach(function (text) {
+
+            var th = document.createElement("th");
+            th.textContent = text;
+            headerRow.appendChild(th);
+
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+
+        var tbody = document.createElement("tbody");
+
+
+        groups.forEach(function (group) {
+
+            var row = document.createElement("tr");
+
+            var typeCell = document.createElement("td");
+            typeCell.textContent = group.typeName;
+
+            var countCell = document.createElement("td");
+            countCell.textContent = group.cards.length;
+
+            var effectCell = document.createElement("td");
+            effectCell.textContent = effectText;
+
+            var cardsCell = document.createElement("td");
+            cardsCell.innerHTML = group.cards
+                .map(function (card) {
+                    return formatBoldCardLabel(card);
+                })
+                .join(", ");
+
+            row.appendChild(typeCell);
+            row.appendChild(countCell);
+            row.appendChild(effectCell);
+            row.appendChild(cardsCell);
+            tbody.appendChild(row);
+
+        });
+
+
+        table.appendChild(tbody);
+        wrapper.appendChild(table);
+
+
+        return wrapper;
+
+    }
+
+
+    function createFieldDetails(entry) {
+
+        var wrapper = document.createElement("div");
+        wrapper.className = "mt-3";
+
+
+        var description = document.createElement("p");
+        description.className = "text-center";
+        description.textContent =
+            "Positive: " + entry.positiveCount +
+            " | Neutral: " + entry.neutralCount +
+            " | Negative: " + entry.negativeCount;
+        wrapper.appendChild(description);
+
+
+        if (entry.positiveCards.length) {
+            wrapper.appendChild(
+                createEffectTable(
+                    "Positive Card Effects",
+                    entry.positiveCards,
+                    "+500 ATK/DEF"
+                )
+            );
+
+            wrapper.appendChild(
+                createTypeGroupTable(
+                    "Positive Monster Type Groups",
+                    entry.positiveGroups,
+                    "+500 ATK/DEF"
+                )
+            );
+        }
+
+
+        wrapper.appendChild(
+            createEffectTable(
+                "Neutral Card Effects",
+                entry.neutralCards,
+                "No ATK/DEF change"
+            )
+        );
+
+        wrapper.appendChild(
+            createTypeGroupTable(
+                "Neutral Monster Type Groups",
+                entry.neutralGroups,
+                "No ATK/DEF change"
+            )
+        );
+
+
+        if (entry.negativeCards.length) {
+            wrapper.appendChild(
+                createEffectTable(
+                    "Negative Card Effects",
+                    entry.negativeCards,
+                    "-500 ATK/DEF"
+                )
+            );
+
+            wrapper.appendChild(
+                createTypeGroupTable(
+                    "Negative Monster Type Groups",
+                    entry.negativeGroups,
+                    "-500 ATK/DEF"
+                )
+            );
+        }
+
+
+        return wrapper;
+
+    }
+
+
+    /*
+     * ------------------------------------------------------------
+     * 6. RENDER EXPANDABLE FIELD LIST
+     * ------------------------------------------------------------
+     */
+
+    function renderFields() {
+
+        var results = statistics.slice();
+
+        sortStatistics(results);
+
+        fieldListContainer.innerHTML = "";
+
+
+        results.forEach(function (entry) {
+
+            var details = document.createElement("details");
+            details.className = "mb-3 border rounded bg-white p-2";
+
+
+            var summary = document.createElement("summary");
+            summary.className = "font-weight-bold p-2";
+            summary.style.cursor = "pointer";
+
+            var positiveRank = positiveRankLabels[entry.card.Id] || "Rank -";
+            var neutralRank = neutralRankLabels[entry.card.Id] || "Rank -";
+            var negativeRank = negativeRankLabels[entry.card.Id] || "Rank -";
+
+            summary.innerHTML =
+                formatBoldCardLabel(entry.card) +
+                " — + " + entry.positiveCount +
+                " / ± " + entry.neutralCount +
+                " / - " + entry.negativeCount +
+                " | POSITIVE " + positiveRank.replace("Rank ", "Rank: ") +
+                " / NEUTRAL " + neutralRank.replace("Rank ", "Rank: ") +
+                " / NEGATIVE " + negativeRank.replace("Rank ", "Rank: ");
+
+            details.appendChild(summary);
+            details.appendChild(createFieldDetails(entry));
+
+            fieldListContainer.appendChild(details);
+
+        });
+
+
+        var blankRow = document.createElement("div");
+        blankRow.style.height = "20px";
+        fieldListContainer.appendChild(blankRow);
+
+    }
+
+
+    /*
+     * ------------------------------------------------------------
+     * 7. MONSTER SEARCH
+     * ------------------------------------------------------------
+     */
+
+    function getFilteredMonsters() {
+
+        var searchText = monsterFilterInput.value
+            .trim()
+            .toLowerCase();
+
+
+        if (!searchText) {
+            return [];
+        }
+
+
+        return monsterCardsByName
+            .filter(function (card) {
+
+                return card.Name
+                    .toLowerCase()
+                    .indexOf(searchText) !== -1;
+
+            })
+            .sort(function (a, b) {
+
+                return a.Id - b.Id;
+
+            });
+
+    }
+
+
+    function renderMonsterSearch() {
+
+        var monsters = getFilteredMonsters();
+
+        monsterSearchBody.innerHTML = "";
+
+
+        if (!monsterFilterInput.value.trim()) {
+
+            var emptySearchRow = document.createElement("tr");
+            var emptySearchCell = document.createElement("td");
+
+            emptySearchCell.colSpan = 4;
+            emptySearchCell.className = "text-center";
+            emptySearchCell.textContent = "Type a monster name to search.";
+
+            emptySearchRow.appendChild(emptySearchCell);
+            monsterSearchBody.appendChild(emptySearchRow);
+
+            return;
+
+        }
+
+
+        if (!monsters.length) {
+
+            var noResultsRow = document.createElement("tr");
+            var noResultsCell = document.createElement("td");
+
+            noResultsCell.colSpan = 4;
+            noResultsCell.className = "text-center";
+            noResultsCell.textContent = "No monster cards found.";
+
+            noResultsRow.appendChild(noResultsCell);
+            monsterSearchBody.appendChild(noResultsRow);
+
+            return;
+
+        }
+
+
+        monsters.forEach(function (monsterCard) {
+
+            var beneficialFields = [];
+            var harmfulFields = [];
+
+            statistics.forEach(function (entry) {
+
+                if (entry.positiveIdSet[monsterCard.Id]) {
+                    beneficialFields.push(entry.card);
+                }
+
+                if (entry.negativeIdSet[monsterCard.Id]) {
+                    harmfulFields.push(entry.card);
+                }
+
+            });
+
+            var row = document.createElement("tr");
+
+            var nameCell = document.createElement("td");
+            nameCell.innerHTML = formatBoldCardLabel(monsterCard);
+
+            var typeCell = document.createElement("td");
+            typeCell.textContent = getTypeName(monsterCard.Type);
+
+            var beneficialCell = document.createElement("td");
+            beneficialCell.innerHTML = beneficialFields.length
+                ? beneficialFields
+                    .map(function (fieldCard) {
+                        return '<span class="field-positive">' +
+                            formatBoldCardLabel(fieldCard) +
+                            '</span>';
+                    })
+                    .join("<br>")
+                : '<span style="display: block; text-align: center;">—</span>';
+
+            var harmfulCell = document.createElement("td");
+            harmfulCell.innerHTML = harmfulFields.length
+                ? harmfulFields
+                    .map(function (fieldCard) {
+                        return '<span class="field-negative">' +
+                            formatBoldCardLabel(fieldCard) +
+                            '</span>';
+                    })
+                    .join("<br>")
+                : '<span style="display: block; text-align: center;">—</span>';
+
+            row.appendChild(nameCell);
+            row.appendChild(typeCell);
+            row.appendChild(beneficialCell);
+            row.appendChild(harmfulCell);
+
+            monsterSearchBody.appendChild(row);
+
+        });
+
+    }
+
+
+    function centerTableTextVertically() {
+        document.querySelectorAll("table th, table td").forEach(function (cell) {
+            cell.style.verticalAlign = "middle";
+        });
+    }
+
+
+    /*
+     * ------------------------------------------------------------
+     * 8. EVENTS
+     * ------------------------------------------------------------
+     */
+
+    sortSelect.addEventListener("change", renderFields);
+    monsterFilterInput.addEventListener("input", renderMonsterSearch);
+
+
+    renderFields();
+    renderMonsterSearch();
+    centerTableTextVertically();
+
+})();
+
+/*
+ * ------------------------------------------------------------
+ * FILE: public/javascripts/fieldStats.js
+ * ------------------------------------------------------------
+ *
+ * Field Statistics
+ *
+ * Shows all Field cards as expandable sections and provides a
+ * reverse lookup that starts with a monster card and shows how
+ * every Field affects it.
+ *
+ * Field identity/effect definitions live in data/fields.js.
+ * The main card database still classifies these cards as Magic
+ * (Type 20); fieldList provides the additional Field designation.
+ * ------------------------------------------------------------
+ */
