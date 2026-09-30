@@ -7,12 +7,16 @@
  * Ranking uses competition ranking:
  *
  * Rank 1
- * Rank 2
- * Rank 3--6
- * Rank 3--6
- * Rank 3--6
- * Rank 3--6
- * Rank 7
+ * Rank 2--3
+ * Rank 2--3
+ * Rank 4
+ * Rank 5--7
+ * Rank 5--7
+ * Rank 5--7
+ * Rank 8--9
+ * Rank 8--9
+ * Rank 10
+ * Rank 11
  *
  * Ties therefore occupy all of the positions in the tie,
  * and the next rank skips those positions.
