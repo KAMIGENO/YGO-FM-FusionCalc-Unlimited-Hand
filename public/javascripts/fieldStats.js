@@ -759,7 +759,7 @@
                             '</span>';
                     })
                     .join(", ")
-                : "—";
+                : '<span style="display: block; text-align: center;">—</span>';
 
             var harmfulCell = document.createElement("td");
             harmfulCell.innerHTML = harmfulFields.length
@@ -770,7 +770,7 @@
                             '</span>';
                     })
                     .join(", ")
-                : "—";
+                : '<span style="display: block; text-align: center;">—</span>';
 
             row.appendChild(nameCell);
             row.appendChild(typeCell);
