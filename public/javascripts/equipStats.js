@@ -440,7 +440,7 @@ function calculateGlobalRanks() {
 
 
         monsterCards.sort(function (a, b) {
-            return a.Name.localeCompare(b.Name);
+            return a.Id - b.Id;
         });
 
 
