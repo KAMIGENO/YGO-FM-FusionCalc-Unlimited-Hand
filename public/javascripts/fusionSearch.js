@@ -184,17 +184,42 @@ function formatCardId(id) {
 }
 
 
-function formatGuardianStar(value) {
-    if (value === 10) {
-        return starNames[9];
-    }
+var guardianStarSymbols = {
+    "Sun": "☉",
+    "Mercury": "☿",
+    "Venus": "♀",
+    "Moon": "☾",
+    "Mars": "♂",
+    "Jupiter": "♃",
+    "Saturn": "♄",
+    "Uranus": "⛢",
+    "Neptune": "♆",
+    "Pluto": "♇"
+};
 
-    return starNames[value] || starNames[0];
+
+function formatGuardianStar(value) {
+    return starNames[value - 1] || starNames[0];
+}
+
+
+function formatGuardianStarWithSymbol(value) {
+    var name = formatGuardianStar(value);
+    return (guardianStarSymbols[name] || "") + " " + name;
 }
 
 
 function formatGuardianStars(card) {
     return formatGuardianStar(card.GuardianStarA) + " / " + formatGuardianStar(card.GuardianStarB);
+}
+
+
+function formatGuardianStarsWithSymbols(card) {
+    return (
+        formatGuardianStarWithSymbol(card.GuardianStarA) +
+        " / " +
+        formatGuardianStarWithSymbol(card.GuardianStarB)
+    );
 }
 
 
@@ -266,9 +291,6 @@ function createSideCard(card) {
         "<h5 class=\"card-title\"><strong>" +
         formatCardId(card.Id) + " " + escapeHTML(card.Name) +
         "</strong></h5>" +
-        "<p class=\"card-text\">" +
-        escapeHTML(card.Description) +
-        "</p>" +
         "<p class=\"card-text\"><strong>Type:</strong> " +
         escapeHTML(getCardTypeName(card)) +
         "</p>";
@@ -277,19 +299,26 @@ function createSideCard(card) {
     if (isMonster(card)) {
         modelCard +=
             "<p class=\"card-text\"><strong>Guardian Stars:</strong> " +
-            escapeHTML(formatGuardianStars(card)) +
+            escapeHTML(formatGuardianStarsWithSymbols(card)) +
             "</p>" +
             "<p class=\"card-text\"><strong>ATK / DEF:</strong> " +
             card.Attack + "A / " + card.Defense + "D" +
+            "</p>" +
+            "<p class=\"card-text\"><strong>Level:</strong> " +
+            card.Level + " " +
+            "★".repeat(card.Level) +
             "</p>";
     }
 
     modelCard +=
-        "<p class=\"card-text\"><strong>Stars:</strong> " +
-        card.Stars +
+        "<p class=\"card-text\">" +
+        escapeHTML(card.Description).replace(/\r?\n/g, " ") +
         "</p>" +
         "<p class=\"card-text\"><strong>Password:</strong> " +
         escapeHTML(card.CardCode) +
+        "</p>" +
+        "<p class=\"card-text\"><strong>Star Chip Cost:</strong> " +
+        card.Stars +
         "</p>" +
         "</div></div></div></div>";
 
