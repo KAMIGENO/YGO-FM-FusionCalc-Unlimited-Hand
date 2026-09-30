@@ -369,8 +369,7 @@ function calculateGlobalRanks() {
 
             var nameCell = document.createElement("td");
             nameCell.innerHTML =
-                formatBoldCardLabel(entry.card) +
-                "<br>Type: Equip";
+                formatBoldCardLabel(entry.card);
 
 
             var countCell = document.createElement("td");
