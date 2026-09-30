@@ -242,6 +242,20 @@ function formatInputCard(card) {
 }
 
 
+function formatFusionCard(card) {
+    if (!card) {
+        return "";
+    }
+
+    return (
+        "<strong>" +
+        escapeHTML(formatCardId(card.Id) + " " + card.Name) +
+        "</strong><br>" +
+        escapeHTML(formatCardDetails(card))
+    );
+}
+
+
 function createSideCard(card) {
 
     var modelCard =
@@ -300,24 +314,21 @@ function fusesToHTML(fuselist) {
 
             if (fusion.glitch) {
                 res +=
-                    "<p class=\"card-text\"><strong>Glitch Fusion</strong></p>";
+                    "<p class=\"card-text fusion-glitch-label\"><strong>GLITCH FUSION</strong></p>";
             }
 
             res +=
                 "<p class=\"card-text\">" +
-                escapeHTML(formatInputCard(fusion.card1)) +
+                formatFusionCard(fusion.card1) +
                 "</p>" +
                 "<p class=\"card-text\">" +
-                escapeHTML(formatInputCard(fusion.card2)) +
+                formatFusionCard(fusion.card2) +
                 "</p>";
 
             if (fusion.result) {
                 res +=
-                    "<p class=\"card-text fusion-search-result\">" +
-                    "<strong>Result: " +
-                    escapeHTML(formatCardId(fusion.result.Id) + " " + fusion.result.Name) +
-                    "</strong><br>" +
-                    escapeHTML(formatCardDetails(fusion.result)) +
+                    "<p class=\"card-text fusion-search-result\"><strong>RESULT:</strong><br>" +
+                    formatFusionCard(fusion.result) +
                     "</p>";
             }
 
@@ -456,7 +467,7 @@ function ritualsToHTML(ritualList) {
                 "<p class=\"card-text\"><strong>Material:</strong> " +
                 formatInputCard(materials[2]) +
                 "</p>" +
-                "<p class=\"card-text\"><strong>Result:</strong> " +
+                "<p class=\"card-text\"><strong>RESULT:</strong> " +
                 formatCardSummary(result) +
                 "</p>" +
                 "</div></div>"
