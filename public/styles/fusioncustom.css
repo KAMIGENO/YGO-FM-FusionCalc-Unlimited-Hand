@@ -217,6 +217,12 @@ main.container {
 
 .field-fusion-card {
     text-align: left;
+    border-left: 2px solid #dddddd;
+    padding-left: 1rem;
+}
+
+.ritual-material {
+    margin-left: 2rem;
 }
 
 @media (max-width: 767px) {
