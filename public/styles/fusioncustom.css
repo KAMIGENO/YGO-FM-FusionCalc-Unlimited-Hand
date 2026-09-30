@@ -193,11 +193,6 @@ main.container {
     white-space: pre-line;
 }
 
-.field-stats-table th,
-.field-stats-table td {
-    vertical-align: middle;
-}
-
 .field-positive {
     color: #198754;
     font-weight: 600;
@@ -237,6 +232,58 @@ main.container {
 
 .fusion-source-credit {
     margin-top: 2rem !important;
+}
+
+
+/* ------------------------------------------------------------
+   FIELD STATISTICS MONSTER TYPE GROUP TABLES
+   ------------------------------------------------------------ */
+
+.field-type-group-table th,
+.field-type-group-table td {
+    vertical-align: middle;
+}
+
+.field-type-group-table .field-type-group-type,
+.field-type-group-table .field-type-group-count,
+.field-type-group-table .field-type-group-effect {
+    white-space: nowrap;
+}
+
+.field-type-group-card + .field-type-group-card {
+    margin-top: 0.35rem;
+}
+
+@media (max-width: 767px) {
+    .field-type-group-table {
+        table-layout: fixed;
+        font-size: 0.8rem;
+    }
+
+    .field-type-group-table th,
+    .field-type-group-table td {
+        padding: 0.4rem;
+    }
+
+    .field-type-group-table th:nth-child(1),
+    .field-type-group-table td:nth-child(1) {
+        width: 22%;
+    }
+
+    .field-type-group-table th:nth-child(2),
+    .field-type-group-table td:nth-child(2) {
+        width: 18%;
+    }
+
+    .field-type-group-table th:nth-child(3),
+    .field-type-group-table td:nth-child(3) {
+        width: 22%;
+    }
+
+    .field-type-group-table th:nth-child(4),
+    .field-type-group-table td:nth-child(4) {
+        width: 38%;
+    }
 }
 
 /* ------------------------------------------------------------
