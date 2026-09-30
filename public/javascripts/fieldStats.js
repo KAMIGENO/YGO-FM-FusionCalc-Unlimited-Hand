@@ -398,7 +398,7 @@
 
 
         var table = document.createElement("table");
-        table.className = "table table-striped table-bordered";
+        table.className = "table table-striped table-bordered field-type-group-table";
 
 
         var thead = document.createElement("thead");
@@ -488,20 +488,25 @@
             var row = document.createElement("tr");
 
             var typeCell = document.createElement("td");
+            typeCell.className = "field-type-group-type";
             typeCell.textContent = group.typeName;
 
             var countCell = document.createElement("td");
+            countCell.className = "field-type-group-count";
             countCell.textContent = group.cards.length;
 
             var effectCell = document.createElement("td");
+            effectCell.className = "field-type-group-effect";
             effectCell.textContent = effectText;
 
             var cardsCell = document.createElement("td");
             cardsCell.innerHTML = group.cards
                 .map(function (card) {
-                    return formatBoldCardLabel(card);
+                    return "<div class=\"field-type-group-card\">" +
+                        formatBoldCardLabel(card) +
+                        "</div>";
                 })
-                .join(", ");
+                .join("");
 
             row.appendChild(typeCell);
             row.appendChild(countCell);
