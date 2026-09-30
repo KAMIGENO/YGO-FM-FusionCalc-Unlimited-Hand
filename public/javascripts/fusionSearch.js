@@ -327,8 +327,10 @@ function fusesToHTML(fuselist) {
 
             if (fusion.result) {
                 res +=
-                    "<p class=\"card-text fusion-search-result\"><strong>RESULT:</strong><br>" +
-                    formatFusionCard(fusion.result) +
+                    "<p class=\"card-text fusion-search-result\"><strong>RESULT: " +
+                    escapeHTML(formatCardId(fusion.result.Id) + " " + fusion.result.Name) +
+                    "</strong><br>" +
+                    escapeHTML(formatCardDetails(fusion.result)) +
                     "</p>";
             }
 
