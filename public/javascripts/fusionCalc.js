@@ -1122,7 +1122,7 @@ function createInput(slotNumber) {
     input.id = "hand" + slotNumber;
     input.className = "hand-card-input";
     input.autocomplete = "off";
-    input.placeholder = " Search card name";
+    input.placeholder = " Search card name...";
 
 
     var info = document.createElement("span");
