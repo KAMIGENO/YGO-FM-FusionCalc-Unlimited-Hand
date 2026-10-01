@@ -299,7 +299,7 @@ function getFieldNote(card) {
 function createSideCard(card) {
 
     var modelCard =
-        "<div class=\"card ml-1\" style=\"max-width: 540px\">" +
+        "<div class=\"card border-dark ml-1\" style=\"width:100%;\">" +
         "<div class=\"row no-gutters\">" +
         "<div class=\"col\">" +
         "<div class=\"card-body\">" +
@@ -343,17 +343,17 @@ function createSideCard(card) {
 
     if (fieldNote) {
         return (
-            "<div style=\"display:flex; flex-wrap:wrap; align-items:flex-start; gap:24px; width:100%; padding:2px 2px 8px 2px; box-sizing:border-box;\">" +
-                "<div style=\"flex:0 0 540px; width:540px; max-width:100%; box-sizing:border-box;\">" + modelCard + "</div>" +
-                "<div style=\"flex:1 1 480px; min-width:0; max-width:620px; box-sizing:border-box;\">" +
-                    "<div class=\"card border-dark\">" +
-                        "<div class=\"card-body\" style=\"padding:24px 28px;\">" +
-                            "<div style=\"font-weight:bold; text-align:center; margin-bottom:20px;\">IMPORTANT NOTE</div>" +
-                            "<div style=\"text-align:left; line-height:1.65;\">" +
-                                fieldNote.split("\n").map(function(note) {
-                                    return "<div style=\"margin-bottom:12px; white-space:normal; overflow-wrap:break-word; word-break:normal; text-align:left;\">" + note + "</div>";
-                                }).join("") +
-                            "</div>" +
+            "<div style=\"width:760px; max-width:100%; box-sizing:border-box; padding:2px 2px 8px 2px;\">" +
+                "<div style=\"width:100%; box-sizing:border-box; margin-bottom:20px;\">" +
+                    modelCard +
+                "</div>" +
+                "<div class=\"card border-dark\" style=\"width:100%; box-sizing:border-box;\">" +
+                    "<div class=\"card-body\" style=\"padding:24px 32px;\">" +
+                        "<div style=\"font-weight:bold; text-align:center; margin-bottom:20px; white-space:nowrap;\">IMPORTANT NOTE</div>" +
+                        "<div style=\"text-align:left; line-height:1.65; white-space:nowrap;\">" +
+                            fieldNote.split("\n").map(function(note) {
+                                return "<div style=\"margin-bottom:12px; white-space:nowrap;\">" + note + "</div>";
+                            }).join("") +
                         "</div>" +
                     "</div>" +
                 "</div>" +
