@@ -383,23 +383,23 @@
             })
             .join(", ");
 
-        var note = "Correct effect: ";
+        var notes = [];
 
         if (positiveNames) {
-            note += "All " + positiveNames + " Monsters gain " +
-                entry.bonus + " ATK/DEF.";
+            notes.push(
+                "<strong>All " + escapeHTML(positiveNames) +
+                " Monsters gain " + entry.bonus + " ATK/DEF.</strong>"
+            );
         }
 
         if (negativeNames) {
-            if (positiveNames) {
-                note += " ";
-            }
-
-            note += "All " + negativeNames + " Monsters lose " +
-                entry.bonus + " ATK/DEF.";
+            notes.push(
+                "<strong>All " + escapeHTML(negativeNames) +
+                " Monsters lose " + entry.bonus + " ATK/DEF.</strong>"
+            );
         }
 
-        return note;
+        return notes.join("<br>");
 
     }
 
@@ -562,7 +562,7 @@
 
         var note = document.createElement("p");
         note.className = "field-effect-note";
-        note.textContent = buildFieldNote(entry);
+        note.innerHTML = buildFieldNote(entry);
         wrapper.appendChild(note);
 
 
@@ -685,11 +685,18 @@
      * ------------------------------------------------------------
      */
 
+    function escapeRegExp(value) {
+
+        return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    }
+
+
     function getFilteredMonsters() {
 
-        var searchText = monsterFilterInput.value
-            .trim()
-            .toLowerCase();
+        var rawSearchText = monsterFilterInput.value.toLowerCase();
+        var hasTrailingSpace = /\s$/.test(rawSearchText);
+        var searchText = rawSearchText.trim();
 
 
         if (!searchText) {
@@ -700,9 +707,17 @@
         return monsterCardsByName
             .filter(function (card) {
 
-                return card.Name
-                    .toLowerCase()
-                    .indexOf(searchText) !== -1;
+                var cardName = card.Name.toLowerCase();
+
+                if (hasTrailingSpace) {
+                    return new RegExp("(^|\\W)" + escapeRegExp(searchText) + "\\s", "i").test(cardName);
+                }
+
+                if (searchText.length <= 2) {
+                    return cardName.indexOf(searchText) === 0;
+                }
+
+                return new RegExp("(^|\\W)" + escapeRegExp(searchText) + "(?=\\W|$)", "i").test(cardName);
 
             })
             .sort(function (a, b) {
