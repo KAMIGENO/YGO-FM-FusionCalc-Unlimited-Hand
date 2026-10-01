@@ -147,11 +147,18 @@
 
 
     function formatGuardianStar(value) {
-        if (value === 10) {
-            return starNames[9];
-        }
+        return starNames[value - 1] || starNames[0];
+    }
 
-        return starNames[value] || starNames[0];
+    var guardianStarSymbols = {
+        Sun: "☉", Mercury: "☿", Venus: "♀", Moon: "☾",
+        Mars: "♂", Jupiter: "♃", Saturn: "♄", Uranus: "⛢",
+        Neptune: "♆", Pluto: "♇"
+    };
+
+    function formatGuardianStarWithSymbol(value) {
+        var name = formatGuardianStar(value);
+        return (guardianStarSymbols[name] || "") + " " + name;
     }
 
 
@@ -161,9 +168,9 @@
             "<br>Type: " +
             escapeHTML(cardTypes[card.Type] || "Unknown") +
             " — Guardian Stars: " +
-            escapeHTML(formatGuardianStar(card.GuardianStarA)) +
+            escapeHTML(formatGuardianStarWithSymbol(card.GuardianStarA)) +
             " / " +
-            escapeHTML(formatGuardianStar(card.GuardianStarB)) +
+            escapeHTML(formatGuardianStarWithSymbol(card.GuardianStarB)) +
             " — " +
             escapeHTML(card.Attack) +
             "A / " +
