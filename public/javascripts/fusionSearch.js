@@ -214,7 +214,7 @@ function formatGuardianStars(card) {
 }
 
 
-function formatGuardianStarsWithSymbols(card) {
+function formatGuardianStars(card) {
     return (
         formatGuardianStarWithSymbol(card.GuardianStarA) +
         " / " +
@@ -235,7 +235,7 @@ function formatCardDetails(card) {
     if (isMonster(card)) {
         details +=
             " — Guardian Stars: " +
-            formatGuardianStars(card) +
+            formatGuardianStarsWithSymbols(card) +
             " — " +
             card.Attack +
             "A / " +
