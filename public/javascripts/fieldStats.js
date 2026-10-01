@@ -487,7 +487,7 @@
         var thead = document.createElement("thead");
         var headerRow = document.createElement("tr");
 
-        ["Monster Type", "Cards Affected", "Effect", "Affected Cards"].forEach(function (text) {
+        ["Monster Type", "# of Cards Affected", "Effect", "Affected Cards"].forEach(function (text) {
 
             var th = document.createElement("th");
             th.textContent = text;
