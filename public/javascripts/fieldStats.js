@@ -1,812 +1,781 @@
 /*
  * ------------------------------------------------------------
- * FILE: public/javascripts/fieldStats.js
+ * FILE: public/javascripts/fusionSearch.js
  * ------------------------------------------------------------
  *
- * Field Statistics
- *
- * Shows all Field cards as expandable sections and provides a
- * reverse lookup that starts with a monster card and shows how
- * every Field affects it.
- *
- * Field identity/effect definitions live in data/fields.js.
- * The main card database still classifies these cards as Magic
- * (Type 20); fieldList provides the additional Field designation.
+ * Searches cards by name and shows their fusion, equip, and
+ * result relationships.
+ */
+
+
+/*
+ * ------------------------------------------------------------
+ * 1. INITIALIZATION
  * ------------------------------------------------------------
  */
 
-(function () {
-
-    "use strict";
-
-
-    var cardById = {};
-    var statistics = [];
-
-
-    var fieldListContainer = document.getElementById("field-list");
-    var monsterFilterInput = document.getElementById("monster-filter");
-    var monsterSearchBody = document.getElementById("monster-field-search-body");
+var nameInput = document.getElementById("cardname");
+var outputLeft = document.getElementById("output-area-left");
+var outputRight = document.getElementById("output-area-right");
+var outputCard = document.getElementById("outputcard");
+var searchMessage = document.getElementById("search-msg");
+var resetBtn = document.getElementById("reset-btn");
+var searchResultsBtn = document.getElementById("search-results-btn");
+var searchNameBtn = document.getElementById("search-name-btn");
 
 
-    function escapeHTML(value) {
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/\"/g, "&quot;")
-            .replace(/\'/g, "&#039;");
-    }
+/*
+ * ------------------------------------------------------------
+ * 2. CARD LOOKUPS AND DISPLAY HELPERS
+ * ------------------------------------------------------------
+ */
+
+var cardByName = {};
+var cardById = {};
 
 
-    function formatCardId(id) {
-        return "#" + String(id).padStart(3, "0");
-    }
+card_db()
+    .get()
+    .forEach(function (card) {
 
-
-    function formatBoldCardLabel(card) {
-        return "<strong>" +
-            escapeHTML(formatCardId(card.Id) + " " + card.Name) +
-            "</strong>";
-    }
-
-
-    function formatFieldCardSummary(card) {
-        return (
-            formatBoldCardLabel(card) +
-            "<br><span style=\"font-weight: normal;\">Type: Magic (Field)</span>"
-        );
-    }
-
-
-    /*
-     * ------------------------------------------------------------
-     * 1. CARD LOOKUP
-     * ------------------------------------------------------------
-     */
-
-    var allCards = card_db().get();
-
-
-    allCards.forEach(function (card) {
-
+        cardByName[card.Name.toLowerCase()] = card;
         cardById[card.Id] = card;
 
     });
 
 
-    function isMonster(card) {
+var ritualDefinitions = [];
 
-        return !!card && card.Type < 20;
 
+ritualsList.forEach(function (ritualList) {
+
+    if (!ritualList) {
+        return;
     }
 
+    ritualList.forEach(function (ritual) {
 
-    var monsterCards = allCards.filter(function (card) {
+        if (!ritual) {
+            return;
+        }
 
-        return isMonster(card);
+        ritualDefinitions.push(ritual);
 
     });
 
-    var monsterCardsByName = monsterCards.slice().sort(function (a, b) {
-
-        return a.Name.localeCompare(b.Name);
-
-    });
+});
 
 
-    function getCardsForTypes(typeIds) {
+function getCardById(id) {
+    return cardById[id] || null;
+}
 
-        return monsterCardsByName.filter(function (card) {
 
-            return typeIds.indexOf(card.Type) !== -1;
+function getCardByName(name) {
 
-        });
-
+    if (!name) {
+        return null;
     }
 
+    return cardByName[name.toLowerCase()] || null;
 
-    function getTypeName(typeId) {
+}
 
-        if (cardTypes[typeId] === "Spellcaster") {
-            return "Magic-User (Spellcaster)";
-        }
 
-        return cardTypes[typeId] || "Unknown";
+var glitchFusionDefinitions = glitchFusions.map(function (fusion) {
 
+    return {
+        card1: getCardByName(fusion.card1),
+        card2: getCardByName(fusion.card2),
+        result: getCardByName(fusion.result),
+        glitch: true
+    };
+
+}).filter(function (fusion) {
+
+    return fusion.card1 && fusion.card2 && fusion.result;
+
+});
+
+
+var glitchFusionsByCardId = {};
+var glitchFusionsByResultId = {};
+
+
+glitchFusionDefinitions.forEach(function (fusion) {
+
+    if (!glitchFusionsByCardId[fusion.card1.Id]) {
+        glitchFusionsByCardId[fusion.card1.Id] = [];
     }
 
-
-    function buildTypeGroups(cards) {
-
-        var groups = {};
-
-
-        cards.forEach(function (card) {
-
-            if (!groups[card.Type]) {
-                groups[card.Type] = [];
-            }
-
-            groups[card.Type].push(card);
-
-        });
-
-
-        return Object.keys(groups)
-            .map(function (typeId) {
-
-                return {
-                    typeId: Number(typeId),
-                    typeName: getTypeName(Number(typeId)),
-                    cards: groups[typeId]
-                };
-
-            })
-            .sort(function (a, b) {
-                return a.typeName.localeCompare(b.typeName);
-            });
-
+    if (!glitchFusionsByCardId[fusion.card2.Id]) {
+        glitchFusionsByCardId[fusion.card2.Id] = [];
     }
 
+    glitchFusionsByCardId[fusion.card1.Id].push(fusion);
+    glitchFusionsByCardId[fusion.card2.Id].push(fusion);
 
-    /*
-     * ------------------------------------------------------------
-     * 2. BUILD FIELD STATISTICS FROM data/fields.js
-     * ------------------------------------------------------------
-     */
-
-    fieldList.forEach(function (definition) {
-
-        var fieldCard = cardById[definition.CardId];
-
-
-        if (!fieldCard) {
-            return;
-        }
-
-
-        /*
-         * A Field card must remain a Magic card in the main card
-         * database. fieldList is the additional designation that
-         * identifies it as a Field card.
-         */
-
-        if (fieldCard.Type !== 20) {
-            return;
-        }
-
-
-        var positiveCards = getCardsForTypes(definition.PositiveTypes);
-        var negativeCards = getCardsForTypes(definition.NegativeTypes);
-        var positiveIds = {};
-        var negativeIds = {};
-
-
-        positiveCards.forEach(function (card) {
-            positiveIds[card.Id] = true;
-        });
-
-
-        negativeCards.forEach(function (card) {
-            negativeIds[card.Id] = true;
-        });
-
-
-        var neutralCards = monsterCardsByName
-            .filter(function (card) {
-
-                return !positiveIds[card.Id] && !negativeIds[card.Id];
-
-            })
-            .sort(function (a, b) {
-
-                return a.Name.localeCompare(b.Name);
-
-            });
-
-
-        var statistic = {
-            card: fieldCard,
-            positiveCards: positiveCards,
-            neutralCards: neutralCards,
-            negativeCards: negativeCards,
-            positiveCount: positiveCards.length,
-            neutralCount: neutralCards.length,
-            negativeCount: negativeCards.length,
-            nonNeutralCount: positiveCards.length + negativeCards.length,
-            positiveIdSet: positiveIds,
-            negativeIdSet: negativeIds,
-            positiveGroups: buildTypeGroups(positiveCards),
-            neutralGroups: buildTypeGroups(neutralCards),
-            negativeGroups: buildTypeGroups(negativeCards)
-        };
-
-        statistics.push(statistic);
-
-    });
-
-
-    /*
-     * ------------------------------------------------------------
-     * 3. RANK LABELS
-     * ------------------------------------------------------------
-     */
-
-    var positiveRankLabels = {};
-    var neutralRankLabels = {};
-    var negativeRankLabels = {};
-
-
-    function calculateRankLabels(propertyName, destination) {
-
-        var rankedResults = statistics.slice();
-
-
-        rankedResults.sort(function (a, b) {
-
-            if (b[propertyName] !== a[propertyName]) {
-                return b[propertyName] - a[propertyName];
-            }
-
-            return a.card.Name.localeCompare(b.card.Name);
-
-        });
-
-
-        var i = 0;
-
-
-        while (i < rankedResults.length) {
-
-            var count = rankedResults[i][propertyName];
-            var startRank = i + 1;
-            var j = i + 1;
-
-
-            while (
-                j < rankedResults.length &&
-                rankedResults[j][propertyName] === count
-            ) {
-
-                j++;
-
-            }
-
-
-            var endRank = j;
-            var label;
-
-
-            if (startRank === endRank) {
-                label = "Rank " + startRank;
-            } else {
-                label = "Rank " + startRank + "–" + endRank;
-            }
-
-
-            for (var k = i; k < j; k++) {
-                destination[rankedResults[k].card.Id] = label;
-            }
-
-
-            i = j;
-
-        }
-
+    if (!glitchFusionsByResultId[fusion.result.Id]) {
+        glitchFusionsByResultId[fusion.result.Id] = [];
     }
 
+    glitchFusionsByResultId[fusion.result.Id].push(fusion);
 
-    calculateRankLabels("positiveCount", positiveRankLabels);
-    calculateRankLabels("neutralCount", neutralRankLabels);
-    calculateRankLabels("negativeCount", negativeRankLabels);
+});
 
+function escapeHTML(value) {
 
-    /*
-     * ------------------------------------------------------------
-     * 4. SORTING
-     * ------------------------------------------------------------
-     */
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 
-    function sortStatistics(results) {
+}
 
-        results.sort(function (a, b) {
-
-            if (b.positiveCount !== a.positiveCount) {
-                return b.positiveCount - a.positiveCount;
-            }
-
-            return a.card.Id - b.card.Id;
-
-        });
-
-    }
-
-
-    /*
-     * ------------------------------------------------------------
-     * 5. EFFECT HELPERS
-     * ------------------------------------------------------------
-     */
-
-    function getEffect(entry, monsterCard) {
-
-        if (entry.positiveIdSet[monsterCard.Id]) {
-            return {
-                label: "Positive",
-                change: "+500 ATK/DEF"
-            };
-        }
-
-
-        if (entry.negativeIdSet[monsterCard.Id]) {
-            return {
-                label: "Negative",
-                change: "-500 ATK/DEF"
-            };
-        }
-
-
-        return {
-            label: "Neutral",
-            change: "No effect."
-        };
-
-    }
-
-
-    function createEffectTable(title, cards, effectText) {
-
-        var wrapper = document.createElement("div");
-        wrapper.className = "mb-5";
-
-
-        var heading = document.createElement("h4");
-        heading.className = "text-main my-4";
-        heading.textContent = title;
-        wrapper.appendChild(heading);
-
-
-        var table = document.createElement("table");
-        table.className = "table table-striped table-bordered field-effect-table";
-
-
-        var thead = document.createElement("thead");
-        var headerRow = document.createElement("tr");
-
-        ["Monster Card", "Monster Type", "Effect"].forEach(function (text) {
-
-            var th = document.createElement("th");
-            th.textContent = text;
-            headerRow.appendChild(th);
-
-        });
-
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-
-        var tbody = document.createElement("tbody");
-
-
-        cards.forEach(function (card) {
-
-            var row = document.createElement("tr");
-
-            var nameCell = document.createElement("td");
-            nameCell.innerHTML = formatBoldCardLabel(card);
-
-            var typeCell = document.createElement("td");
-            typeCell.textContent = getTypeName(card.Type);
-
-            var effectCell = document.createElement("td");
-            effectCell.textContent = effectText;
-
-            row.appendChild(nameCell);
-            row.appendChild(typeCell);
-            row.appendChild(effectCell);
-            tbody.appendChild(row);
-
-        });
-
-
-        table.appendChild(tbody);
-        wrapper.appendChild(table);
-
-
-        return wrapper;
-
-    }
-
-
-    function createTypeGroupTable(title, groups, effectText) {
-
-        var wrapper = document.createElement("div");
-        wrapper.className = "mb-5";
-
-
-        var heading = document.createElement("h4");
-        heading.className = "text-main my-4";
-        heading.textContent = title;
-        wrapper.appendChild(heading);
-
-
-        var table = document.createElement("table");
-        table.className = "table table-striped table-bordered field-type-group-table";
-
-
-        var thead = document.createElement("thead");
-        var headerRow = document.createElement("tr");
-
-        ["Monster Type", "Cards Affected", "Effect", "Affected Cards"].forEach(function (text) {
-
-            var th = document.createElement("th");
-            th.textContent = text;
-            headerRow.appendChild(th);
-
-        });
-
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-
-        var tbody = document.createElement("tbody");
-
-
-        groups.forEach(function (group) {
-
-            var row = document.createElement("tr");
-
-            var typeCell = document.createElement("td");
-            typeCell.textContent = group.typeName;
-            typeCell.className = "field-group-summary-cell";
-
-            var countCell = document.createElement("td");
-            countCell.textContent = group.cards.length;
-            countCell.className = "field-group-summary-cell";
-
-            var effectCell = document.createElement("td");
-            effectCell.textContent = effectText;
-            effectCell.className = "field-group-summary-cell field-group-effect-cell";
-
-            var cardsCell = document.createElement("td");
-            cardsCell.innerHTML = group.cards
-                .map(function (card) {
-                    return '<div class="field-group-card">' +
-                        formatBoldCardLabel(card) +
-                        '</div>';
-                })
-                .join("");
-
-            row.appendChild(typeCell);
-            row.appendChild(countCell);
-            row.appendChild(effectCell);
-            row.appendChild(cardsCell);
-            tbody.appendChild(row);
-
-        });
-
-
-        table.appendChild(tbody);
-        wrapper.appendChild(table);
-
-
-        return wrapper;
-
-    }
-
-
-    function createFieldDetails(entry) {
-
-        var wrapper = document.createElement("div");
-        wrapper.className = "mt-3";
-
-
-        var description = document.createElement("p");
-        description.className = "text-center";
-        description.textContent =
-            "Positive: " + entry.positiveCount +
-            " | Neutral: " + entry.neutralCount +
-            " | Negative: " + entry.negativeCount;
-        wrapper.appendChild(description);
-
-
-        var notes = {
-            330: "**NOTE** — All Insect, Beast, Plant, and Beast-Warrior Monsters gain 500 ATK/DEF.",
-            331: "**NOTE** — All Dinosaur, Zombie, and Rock Monsters gain 500 ATK/DEF.",
-            332: "**NOTE** — All Dragon, Winged Beast, and Thunder Monsters gain 500 ATK/DEF.",
-            333: "**NOTE** — All Warrior and Beast-Warrior Monsters gain 500 ATK/DEF.",
-            334: "**NOTE** — All Fish, Sea Serpent, Thunder, and Aqua Monsters gain 500 ATK/DEF. All Machine and Pyro Monsters lose 500 ATK/DEF.",
-            335: "**NOTE** — All Dinosaur, Zombie, and Rock Monsters gain 500 ATK/DEF.",
-            336: "**NOTE** — All Fiend and Magic-User (Spellcaster) Monsters gain 500 ATK/DEF. All Fairy Monsters lose 500 ATK/DEF."
-        };
-
-        if (notes[entry.card.Id]) {
-            var note = document.createElement("p");
-            note.innerHTML = notes[entry.card.Id].replace("—", "—");
-            wrapper.appendChild(note);
-        }
-
-
-        if (entry.positiveCards.length) {
-            wrapper.appendChild(
-                createEffectTable(
-                    "Positive Card Effects",
-                    entry.positiveCards,
-                    "+500 ATK/DEF"
-                )
-            );
-
-            wrapper.appendChild(
-                createTypeGroupTable(
-                    "Positive Monster Type Groups",
-                    entry.positiveGroups,
-                    "+500 ATK/DEF"
-                )
-            );
-        }
-
-
-        wrapper.appendChild(
-            createEffectTable(
-                "Neutral Card Effects",
-                entry.neutralCards,
-                "No effect."
-            )
-        );
-
-        wrapper.appendChild(
-            createTypeGroupTable(
-                "Neutral Monster Type Groups",
-                entry.neutralGroups,
-                "No effect."
-            )
-        );
-
-
-        if (entry.negativeCards.length) {
-            wrapper.appendChild(
-                createEffectTable(
-                    "Negative Card Effects",
-                    entry.negativeCards,
-                    "-500 ATK/DEF"
-                )
-            );
-
-            wrapper.appendChild(
-                createTypeGroupTable(
-                    "Negative Monster Type Groups",
-                    entry.negativeGroups,
-                    "-500 ATK/DEF"
-                )
-            );
-        }
-
-
-        return wrapper;
-
-    }
-
-
-    /*
-     * ------------------------------------------------------------
-     * 6. RENDER EXPANDABLE FIELD LIST
-     * ------------------------------------------------------------
-     */
-
-    function renderFields() {
-
-        var results = statistics.slice();
-
-        sortStatistics(results);
-
-        fieldListContainer.innerHTML = "";
-
-
-        results.forEach(function (entry) {
-
-            var details = document.createElement("details");
-            details.className = "mb-3 border rounded bg-white p-2";
-
-
-            var summary = document.createElement("summary");
-            summary.className = "font-weight-bold p-2";
-            summary.style.cursor = "pointer";
-
-            var positiveRank = positiveRankLabels[entry.card.Id] || "Rank -";
-            var neutralRank = neutralRankLabels[entry.card.Id] || "Rank -";
-            var negativeRank = negativeRankLabels[entry.card.Id] || "Rank -";
-
-            summary.innerHTML =
-                formatBoldCardLabel(entry.card) +
-                " — + " + entry.positiveCount +
-                " / ± " + entry.neutralCount +
-                " / - " + entry.negativeCount +
-                " | POSITIVE " + positiveRank.replace("Rank ", "Rank: ") +
-                " / NEUTRAL " + neutralRank.replace("Rank ", "Rank: ") +
-                " / NEGATIVE " + negativeRank.replace("Rank ", "Rank: ");
-
-            details.appendChild(summary);
-            details.appendChild(createFieldDetails(entry));
-
-            fieldListContainer.appendChild(details);
-
-        });
-
-
-        var blankRow = document.createElement("div");
-        blankRow.style.height = "20px";
-        fieldListContainer.appendChild(blankRow);
-
-    }
-
-
-    /*
-     * ------------------------------------------------------------
-     * 7. MONSTER SEARCH
-     * ------------------------------------------------------------
-     */
-
-    function getFilteredMonsters() {
-
-        var searchText = monsterFilterInput.value
-            .trim()
-            .toLowerCase();
-
-
-        if (!searchText) {
-            return [];
-        }
-
-
-        return monsterCardsByName
-            .filter(function (card) {
-
-                return card.Name
-                    .toLowerCase()
-                    .indexOf(searchText) !== -1;
-
-            })
-            .sort(function (a, b) {
-
-                return a.Id - b.Id;
-
-            });
-
-    }
-
-
-    function renderMonsterSearch() {
-
-        var monsters = getFilteredMonsters();
-
-        monsterSearchBody.innerHTML = "";
-
-
-        if (!monsterFilterInput.value.trim()) {
-
-            var emptySearchRow = document.createElement("tr");
-            var emptySearchCell = document.createElement("td");
-
-            emptySearchCell.colSpan = 4;
-            emptySearchCell.className = "text-center";
-            emptySearchCell.textContent = "Type a monster name to search.";
-
-            emptySearchRow.appendChild(emptySearchCell);
-            monsterSearchBody.appendChild(emptySearchRow);
-
-            return;
-
-        }
-
-
-        if (!monsters.length) {
-
-            var noResultsRow = document.createElement("tr");
-            var noResultsCell = document.createElement("td");
-
-            noResultsCell.colSpan = 4;
-            noResultsCell.className = "text-center";
-            noResultsCell.textContent = "No monster cards found.";
-
-            noResultsRow.appendChild(noResultsCell);
-            monsterSearchBody.appendChild(noResultsRow);
-
-            return;
-
-        }
-
-
-        monsters.forEach(function (monsterCard) {
-
-            var beneficialFields = [];
-            var harmfulFields = [];
-
-            statistics.forEach(function (entry) {
-
-                if (entry.positiveIdSet[monsterCard.Id]) {
-                    beneficialFields.push(entry.card);
-                }
-
-                if (entry.negativeIdSet[monsterCard.Id]) {
-                    harmfulFields.push(entry.card);
-                }
-
-            });
-
-            var row = document.createElement("tr");
-
-            var nameCell = document.createElement("td");
-            nameCell.innerHTML = formatBoldCardLabel(monsterCard);
-            nameCell.style.verticalAlign = "middle";
-
-            var typeCell = document.createElement("td");
-            typeCell.textContent = getTypeName(monsterCard.Type);
-            typeCell.style.verticalAlign = "middle";
-
-            var beneficialCell = document.createElement("td");
-            beneficialCell.style.verticalAlign = "middle";
-            beneficialCell.innerHTML = beneficialFields.length
-                ? beneficialFields
-                    .map(function (fieldCard) {
-                        return '<span class="field-positive">' +
-                            formatFieldCardSummary(fieldCard) +
-                            '</span>';
-                    })
-                    .join("<br>")
-                : '<span style="display: block; text-align: center;">—</span>';
-
-            var harmfulCell = document.createElement("td");
-            harmfulCell.style.verticalAlign = "middle";
-            harmfulCell.innerHTML = harmfulFields.length
-                ? harmfulFields
-                    .map(function (fieldCard) {
-                        return '<span class="field-negative">' +
-                            formatFieldCardSummary(fieldCard) +
-                            '</span>';
-                    })
-                    .join("<br>")
-                : '<span style="display: block; text-align: center;">—</span>';
-
-            row.appendChild(nameCell);
-            row.appendChild(typeCell);
-            row.appendChild(beneficialCell);
-            row.appendChild(harmfulCell);
-
-            monsterSearchBody.appendChild(row);
-
-        });
-
-    }
-
-
-    /*
-     * ------------------------------------------------------------
-     * 8. EVENTS
-     * ------------------------------------------------------------
-     */
-
-    monsterFilterInput.addEventListener("input", renderMonsterSearch);
-
-
-    renderFields();
-    renderMonsterSearch();
-
-})();
 
 /*
  * ------------------------------------------------------------
- * FILE: public/javascripts/fieldStats.js
+ * 3. CLEAR AND ERROR MESSAGES
  * ------------------------------------------------------------
- *
- * Field Statistics
- *
- * Shows all Field cards as expandable sections and provides a
- * reverse lookup that starts with a monster card and shows how
- * every Field affects it.
- *
- * Field identity/effect definitions live in data/fields.js.
- * The main card database still classifies these cards as Magic
- * (Type 20); fieldList provides the additional Field designation.
+ */
+
+function resultsClear() {
+
+    outputLeft.innerHTML = "";
+    outputRight.innerHTML = "";
+    outputCard.innerHTML = "";
+    searchMessage.innerHTML = "";
+
+}
+
+
+function createDangerMessage(input) {
+
+    if (!input) {
+        return "<div class=\"alert alert-danger\" role=\"alert\">Please enter a search term</div>";
+    }
+
+
+    return (
+        "<div class=\"alert alert-danger\" role=\"alert\">" +
+        "No card for " +
+        escapeHTML(input) +
+        " found</div>"
+    );
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * 4. CARD DISPLAY
+ * ------------------------------------------------------------
+ */
+
+function isMonster(card) {
+    return !!card && card.Type < 20;
+}
+
+
+function formatCardId(id) {
+    return "#" + String(id).padStart(3, "0");
+}
+
+
+var guardianStarSymbols = {
+    "Sun": "☉",
+    "Mercury": "☿",
+    "Venus": "♀",
+    "Moon": "☾",
+    "Mars": "♂",
+    "Jupiter": "♃",
+    "Saturn": "♄",
+    "Uranus": "⛢",
+    "Neptune": "♆",
+    "Pluto": "♇"
+};
+
+
+function formatGuardianStar(value) {
+    return starNames[value - 1] || starNames[0];
+}
+
+
+function formatGuardianStarWithSymbol(value) {
+    var name = formatGuardianStar(value);
+    return (guardianStarSymbols[name] || "") + " " + name;
+}
+
+
+function formatGuardianStars(card) {
+    return formatGuardianStar(card.GuardianStarA) + " / " + formatGuardianStar(card.GuardianStarB);
+}
+
+
+function formatGuardianStars(card) {
+    return (
+        formatGuardianStarWithSymbol(card.GuardianStarA) +
+        " / " +
+        formatGuardianStarWithSymbol(card.GuardianStarB)
+    );
+}
+
+
+function formatCardDetails(card) {
+    if (!card) {
+        return "";
+    }
+
+    var details =
+        "Type: " +
+        getCardTypeName(card);
+
+    if (isMonster(card)) {
+        details +=
+            " — Guardian Stars: " +
+            formatGuardianStars(card) +
+            " — " +
+            card.Attack +
+            "A / " +
+            card.Defense +
+            "D";
+    }
+
+    return details;
+}
+
+
+function formatCardSummary(card) {
+    if (!card) {
+        return "";
+    }
+
+    return (
+        formatCardId(card.Id) +
+        " " +
+        card.Name +
+        "\n" +
+        formatCardDetails(card)
+    );
+}
+
+
+function formatInputCard(card) {
+    return formatCardId(card.Id) + " " + card.Name;
+}
+
+
+function formatFusionCard(card) {
+    if (!card) {
+        return "";
+    }
+
+    return (
+        "<strong>" +
+        escapeHTML(formatCardId(card.Id) + " " + card.Name) +
+        "</strong><br>" +
+        escapeHTML(formatCardDetails(card))
+    );
+}
+
+
+function getFieldNote(card) {
+
+    var notes = {
+        330: "All Insect, Beast, Plant, and Beast-Warrior Monsters gain 500 ATK/DEF.",
+        331: "All Dinosaur, Zombie, and Rock Monsters gain 500 ATK/DEF.",
+        332: "All Dragon, Winged Beast, and Thunder Monsters gain 500 ATK/DEF.",
+        333: "All Warrior and Beast-Warrior Monsters gain 500 ATK/DEF.",
+        334: "All Fish, Sea Serpent, Thunder, and Aqua Monsters gain 500 ATK/DEF. All Machine and Pyro Monsters lose 500 ATK/DEF.",
+        335: "All Dinosaur, Zombie, and Rock Monsters gain 500 ATK/DEF.",
+        336: "All Fiend and Magic-User (Spellcaster) Monsters gain 500 ATK/DEF. All Fairy Monsters lose 500 ATK/DEF."
+    };
+
+    return notes[card.Id] || "";
+}
+
+
+function createSideCard(card) {
+
+    var modelCard =
+        "<div class=\"card ml-1\" style=\"max-width: 540px\">" +
+        "<div class=\"row no-gutters\">" +
+        "<div class=\"col\">" +
+        "<div class=\"card-body\">" +
+        "<h5 class=\"card-title\"><strong>" +
+        formatCardId(card.Id) + " " + escapeHTML(card.Name) +
+        "</strong></h5>" +
+        "<p class=\"card-text\"><strong>Type:</strong> " +
+        escapeHTML(getCardTypeName(card)) +
+        "</p>";
+
+
+    if (isMonster(card)) {
+        modelCard +=
+            "<p class=\"card-text\"><strong>Guardian Stars:</strong> " +
+            escapeHTML(formatGuardianStars(card)) +
+            "</p>" +
+            "<p class=\"card-text\"><strong>ATK / DEF:</strong> " +
+            card.Attack + "A / " + card.Defense + "D" +
+            "</p>" +
+            "<p class=\"card-text\"><strong>Level:</strong> " +
+            card.Level + " " +
+            "★".repeat(card.Level) +
+            "</p>";
+    }
+
+    modelCard +=
+        "<p class=\"card-text\">" +
+        escapeHTML(card.Description).replace(/\r?\n/g, " ") +
+        "</p>";
+
+    var fieldNote = getFieldNote(card);
+    if (fieldNote) {
+        modelCard +=
+            "<div class=\"card border-dark mt-2\"><div class=\"card-body text-center\">" +
+            "<div style=\"font-weight:bold;\">IMPORTANT NOTE</div>" +
+            "<p class=\"card-text mt-2\">" + escapeHTML(fieldNote) + "</p></div></div>";
+    }
+
+    modelCard +=
+        "<p class=\"card-text\"><strong>Password:</strong> " +
+        escapeHTML(card.CardCode) +
+        "</p>" +
+        "<p class=\"card-text\"><strong>Star Chip Cost:</strong> " +
+        card.Stars +
+        "</p>" +
+        "</div></div></div></div>";
+
+    return modelCard;
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * 5. FUSION RESULT DISPLAY
+ * ------------------------------------------------------------
+ */
+
+function fusesToHTML(fuselist) {
+
+    return fuselist
+        .map(function (fusion) {
+
+            var res =
+                "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
+                "<div class=\"card-body text-dark\">";
+
+            if (fusion.glitch) {
+                res +=
+                    "<p class=\"card-text fusion-glitch-label\"><strong>GLITCH FUSION</strong></p>";
+            }
+
+            res +=
+                "<p class=\"card-text\">" +
+                formatFusionCard(fusion.card1) +
+                "</p>" +
+                "<p class=\"card-text\">" +
+                formatFusionCard(fusion.card2) +
+                "</p>";
+
+            if (fusion.result) {
+                res +=
+                    "<p class=\"card-text fusion-search-result\"><strong>RESULT: " +
+                    escapeHTML(formatCardId(fusion.result.Id) + " " + fusion.result.Name) +
+                    "</strong><br>" +
+                    escapeHTML(formatCardDetails(fusion.result)) +
+                    "</p>";
+            }
+
+            return res + "</div></div>";
+
+        })
+        .join("");
+
+}
+
+
+function equipsToHTML(equipList) {
+
+    return equipList
+        .map(function (equip) {
+
+            return (
+                "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
+                "<div class=\"card-body text-dark\">" +
+                "<p class=\"card-text\"><strong>" +
+                escapeHTML(formatInputCard(equip.card2)) +
+                "</strong></p>" +
+                "</div></div>"
+            );
+
+        })
+        .join("");
+
+}
+
+
+function getFieldsForCard(card) {
+
+    if (!card || !isMonster(card) || typeof fieldList === "undefined") {
+        return [];
+    }
+
+    return fieldList.reduce(function (results, field) {
+
+        var positive = field.PositiveTypes.indexOf(card.Type) !== -1;
+        var negative = field.NegativeTypes.indexOf(card.Type) !== -1;
+
+        if (positive || negative) {
+            var fieldCard = getCardById(field.CardId);
+
+            if (fieldCard) {
+                if (positive) {
+                    results.push({
+                        card: fieldCard,
+                        positive: true
+                    });
+                }
+
+                if (negative) {
+                    results.push({
+                        card: fieldCard,
+                        positive: false
+                    });
+                }
+            }
+        }
+
+        return results;
+
+    }, []);
+
+}
+
+
+function fieldsToHTML(fields) {
+
+    return fields
+        .map(function (entry) {
+
+            return (
+                "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
+                "<div class=\"card-body text-dark\">" +
+                "<p class=\"card-text mb-0\">" +
+                "<strong class=\"" +
+                (entry.positive ? "field-positive" : "field-negative") +
+                "\">" +
+                (entry.positive ? "+" : "-") +
+                " " +
+                escapeHTML(formatInputCard(entry.card)) +
+                "</strong>" +
+                "</p>" +
+                "</div></div>"
+            );
+
+        })
+        .join("");
+
+}
+
+
+function ritualCardNames(ritual) {
+
+    return [
+        getCardById(ritual.card1),
+        getCardById(ritual.card2),
+        getCardById(ritual.card3)
+    ].filter(function (card) {
+        return !!card;
+    });
+
+}
+
+
+function ritualsToHTML(ritualList) {
+
+    return ritualList
+        .map(function (ritual) {
+
+            var ritualCard = getCardById(ritual.ritual_card);
+            var materials = ritualCardNames(ritual);
+            var result = getCardById(ritual.result);
+
+
+            if (!ritualCard || materials.length !== 3 || !result) {
+                return "";
+            }
+
+
+            return (
+                "<div class=\"card border-dark mb-3\" style=\"max-width: 18rem;\">" +
+                "<div class=\"card-body text-dark\">" +
+                "<p class=\"card-text\"><strong>Ritual:</strong> " +
+                formatInputCard(ritualCard) +
+                "</p>" +
+                "<p class=\"card-text\"><strong>Material:</strong> " +
+                formatInputCard(materials[0]) +
+                "</p>" +
+                "<p class=\"card-text\"><strong>Material:</strong> " +
+                formatInputCard(materials[1]) +
+                "</p>" +
+                "<p class=\"card-text\"><strong>Material:</strong> " +
+                formatInputCard(materials[2]) +
+                "</p>" +
+                "<p class=\"card-text\"><strong>RESULT:</strong> " +
+                formatCardSummary(result) +
+                "</p>" +
+                "</div></div>"
+            );
+
+        })
+        .join("");
+
+}
+
+
+function getRitualsForCard(cardId) {
+
+    return ritualDefinitions.filter(function (ritual) {
+
+        return ritual.ritual_card === cardId ||
+            ritual.card1 === cardId ||
+            ritual.card2 === cardId ||
+            ritual.card3 === cardId;
+
+    });
+
+}
+
+
+function getRitualsForResult(cardId) {
+
+    return ritualDefinitions.filter(function (ritual) {
+        return ritual.result === cardId;
+    });
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * 6. SEARCH BY NAME
+ * ------------------------------------------------------------
+ */
+
+function searchByName() {
+
+    if (nameInput.value === "") {
+        searchMessage.innerHTML = createDangerMessage();
+        return;
+    }
+
+
+    var card = getCardByName(nameInput.value);
+
+
+    if (!card) {
+        searchMessage.innerHTML = createDangerMessage(nameInput.value);
+        return;
+    }
+
+
+    outputCard.innerHTML = createSideCard(card);
+
+
+    var fuses = (fusionsList[card.Id] || []).map(function (fusion) {
+
+        return {
+            card1: card,
+            card2: getCardById(fusion.card),
+            result: getCardById(fusion.result)
+        };
+
+    }).filter(function (fusion) {
+
+        return fusion.card2 && fusion.result;
+
+    });
+
+
+    (glitchFusionsByCardId[card.Id] || []).forEach(function (fusion) {
+
+        fuses.push({
+            card1: fusion.card1,
+            card2: fusion.card2,
+            result: fusion.result,
+            glitch: true
+        });
+
+    });
+
+
+    var equips = (equipsList[card.Id] || [])
+        .map(function (targetId) {
+
+            return {
+                card1: card,
+                card2: getCardById(targetId)
+            };
+
+        })
+        .filter(function (equip) {
+            return !!equip.card2 && equip.card2.Id !== card.Id;
+        });
+
+
+    var rituals = getRitualsForCard(card.Id);
+    var fields = getFieldsForCard(card);
+
+
+    outputRight.innerHTML =
+        "<h2 class='text-center my-4'>Equips</h2>" +
+        equipsToHTML(equips) +
+        (fields.length > 0
+            ? "<h2 class='text-center my-4'>Fields</h2>" + fieldsToHTML(fields)
+            : "");
+
+    outputLeft.innerHTML =
+        (fuses.length > 0
+            ? "<h2 class='text-center my-4'>Fusions</h2>" + fusesToHTML(fuses)
+            : "") +
+        (rituals.length > 0
+            ? "<h2 class='text-center my-4'>Rituals</h2>" + ritualsToHTML(rituals)
+            : "");
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * 7. SEARCH FOR RESULT
+ * ------------------------------------------------------------
+ */
+
+function searchForResult() {
+
+    if (nameInput.value === "") {
+        searchMessage.innerHTML = createDangerMessage();
+        return;
+    }
+
+
+    var card = getCardByName(nameInput.value);
+
+
+    if (!card) {
+        searchMessage.innerHTML = createDangerMessage(nameInput.value);
+        return;
+    }
+
+
+    outputCard.innerHTML = createSideCard(card);
+
+
+    var resultEntries = resultsList[card.Id] || [];
+    var rituals = getRitualsForResult(card.Id);
+
+
+    var results = resultEntries
+        .map(function (fusion) {
+
+            return {
+                card1: getCardById(fusion.card1),
+                card2: getCardById(fusion.card2)
+            };
+
+        })
+        .filter(function (fusion) {
+            return fusion.card1 && fusion.card2;
+        });
+
+
+    (glitchFusionsByResultId[card.Id] || []).forEach(function (fusion) {
+
+        results.push({
+            card1: fusion.card1,
+            card2: fusion.card2,
+            glitch: true
+        });
+
+    });
+
+
+    outputLeft.innerHTML =
+        (results.length > 0
+            ? "<h2 class='text-center my-4'>Fusions</h2>" + fusesToHTML(results)
+            : "") +
+        (rituals.length > 0
+            ? "<h2 class='text-center my-4'>Rituals</h2>" + ritualsToHTML(rituals)
+            : "");
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * 8. AUTOCOMPLETE AND BUTTON HANDLERS
+ * ------------------------------------------------------------
+ */
+
+var cardNameCompletion = new Awesomplete(nameInput, {
+    list: card_db()
+        .get()
+        .map(function (card) {
+            return card.Name;
+        }),
+    autoFirst: true,
+    filter: Awesomplete.FILTER_STARTSWITH
+});
+
+
+$("#cardname").on("change", function () {
+
+    cardNameCompletion.select();
+    resultsClear();
+    searchByName();
+
+});
+
+
+$("#cardname").on("awesomplete-selectcomplete", function () {
+
+    resultsClear();
+    searchByName();
+
+});
+
+
+searchNameBtn.onclick = function () {
+
+    cardNameCompletion.select();
+    resultsClear();
+    searchByName();
+
+};
+
+
+searchResultsBtn.onclick = function () {
+
+    cardNameCompletion.select();
+    resultsClear();
+    searchForResult();
+
+};
+
+
+resetBtn.onclick = function () {
+
+    resultsClear();
+    nameInput.value = "";
+
+};
+
+
+/*
+ * ------------------------------------------------------------
+ * END OF FILE
  * ------------------------------------------------------------
  */
