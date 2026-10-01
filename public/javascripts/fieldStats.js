@@ -774,8 +774,8 @@
                 return true;
             }
 
-            if (searchTerm === ".") {
-                return cardName.indexOf(".") !== -1;
+            if (searchTerm === "." || searchTerm === "-") {
+                return cardName.indexOf(searchTerm) !== -1;
             }
 
             var punctuationDelimitedPattern = new RegExp(
