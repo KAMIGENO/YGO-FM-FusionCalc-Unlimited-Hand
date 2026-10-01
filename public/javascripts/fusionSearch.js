@@ -343,7 +343,7 @@ function createSideCard(card) {
 
     if (fieldNote) {
         return (
-            "<div style=\"width:760px; max-width:100%; box-sizing:border-box; padding:2px 2px 8px 2px;\">" +
+            "<div style=\"width:700px; max-width:100%; box-sizing:border-box; padding:2px 2px 8px 2px;\">" +
                 "<div style=\"width:100%; box-sizing:border-box; margin-bottom:20px;\">" +
                     modelCard +
                 "</div>" +
