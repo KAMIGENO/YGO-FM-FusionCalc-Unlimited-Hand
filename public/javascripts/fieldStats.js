@@ -725,16 +725,45 @@
     }
 
 
-    function matchesNumericTerm(cardName, searchTerm) {
+    function matchesNumericTerm(card, cardName, searchTerm) {
 
         var normalizedSearchTerm = normalizeNumericTerm(searchTerm);
+
+
+        /*
+         * Card IDs are displayed as exactly three digits (for example,
+         * 007, 030, and 300). A numeric search may therefore use 1, 2,
+         * or 3 digits and still match the corresponding ID prefix. A
+         * four-or-more-digit query is not allowed to collapse leading
+         * zeroes, so 0007 does not become 7 and match card 007.
+         */
+        if (/^[0-9]+$/.test(searchTerm) && searchTerm.length <= 3) {
+
+            var formattedId = String(card.Id).padStart(3, "0");
+            var normalizedId = formattedId.replace(/^0+/, "") || "0";
+
+            if (normalizedId.indexOf(normalizedSearchTerm.replace(/^0+/, "") || "0") === 0) {
+                return true;
+            }
+
+        }
+
+
+        /*
+         * Numeric text in the actual card name is searched separately
+         * from the card ID. This includes numbers after a # in the name,
+         * such as "#1", and numbers containing grouping punctuation.
+         */
         var numericPattern = /[0-9][0-9,.]*/g;
         var match;
 
 
         while ((match = numericPattern.exec(cardName)) !== null) {
 
-            if (!isSearchBoundary(cardName, match.index)) {
+            if (
+                !isSearchBoundary(cardName, match.index) &&
+                cardName.charAt(match.index - 1) !== "#"
+            ) {
                 continue;
             }
 
@@ -755,7 +784,7 @@
     function matchesSearchTerm(cardName, searchTerm, isStandaloneTerm) {
 
         if (isNumericTerm(searchTerm)) {
-            return matchesNumericTerm(cardName, searchTerm);
+            return matchesNumericTerm(card, cardName, searchTerm);
         }
 
 
