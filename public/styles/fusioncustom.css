@@ -107,30 +107,8 @@ main.container {
 }
 
 .fusion-stats-table {
-    width: 100%;
     max-width: none;
     margin: 0 auto;
-    table-layout: fixed;
-}
-
-.fusion-stats-table th,
-.fusion-stats-table td {
-    white-space: nowrap;
-}
-
-.fusion-stats-table th:nth-child(1),
-.fusion-stats-table td:nth-child(1) {
-    width: 10%;
-}
-
-.fusion-stats-table th:nth-child(2),
-.fusion-stats-table td:nth-child(2) {
-    width: 30%;
-}
-
-.fusion-stats-table th:nth-child(3),
-.fusion-stats-table td:nth-child(3) {
-    width: 60%;
 }
 
 .fusion-stats-table thead th {
@@ -177,30 +155,8 @@ main.container {
 }
 
 .equip-stats-table {
-    width: 100%;
     max-width: none;
     margin: 0 auto;
-    table-layout: fixed;
-}
-
-.equip-stats-table th,
-.equip-stats-table td {
-    white-space: nowrap;
-}
-
-.equip-stats-table th:nth-child(1),
-.equip-stats-table td:nth-child(1) {
-    width: 10%;
-}
-
-.equip-stats-table th:nth-child(2),
-.equip-stats-table td:nth-child(2) {
-    width: 30%;
-}
-
-.equip-stats-table th:nth-child(3),
-.equip-stats-table td:nth-child(3) {
-    width: 60%;
 }
 
 .equip-stats-table th,
@@ -278,6 +234,120 @@ main.container {
     }
 }
 
+
+
+/* ------------------------------------------------------------
+   STATISTICS TABLE COLUMN SIZING
+   ------------------------------------------------------------ */
+
+/* Keep all statistics tables stable while filtering. Content stays on one line. */
+.fusion-stats-table,
+.equip-stats-table,
+.field-stats-table,
+.field-effect-table,
+.field-type-group-table,
+#fusion-details table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.fusion-stats-table th,
+.fusion-stats-table td,
+.equip-stats-table th,
+.equip-stats-table td,
+.field-stats-table th,
+.field-stats-table td,
+.field-effect-table th,
+.field-effect-table td,
+.field-type-group-table th,
+.field-type-group-table td,
+#fusion-details table th,
+#fusion-details table td {
+    white-space: nowrap;
+}
+
+/* Fusion Statistics: Rank = Fusion Partners; Card takes the remaining width. */
+.fusion-stats-table th:nth-child(1),
+.fusion-stats-table td:nth-child(1),
+.fusion-stats-table th:nth-child(3),
+.fusion-stats-table td:nth-child(3) {
+    width: 25%;
+}
+
+.fusion-stats-table th:nth-child(2),
+.fusion-stats-table td:nth-child(2) {
+    width: 50%;
+}
+
+/* Fusion Statistics details: Fusion Partner = Result. */
+#fusion-details table th:nth-child(1),
+#fusion-details table td:nth-child(1),
+#fusion-details table th:nth-child(2),
+#fusion-details table td:nth-child(2) {
+    width: 50%;
+}
+
+/* Equip Statistics: Rank = Compatible Monsters; Equip Card takes the remaining width. */
+.equip-stats-table th:nth-child(1),
+.equip-stats-table td:nth-child(1),
+.equip-stats-table th:nth-child(3),
+.equip-stats-table td:nth-child(3) {
+    width: 25%;
+}
+
+.equip-stats-table th:nth-child(2),
+.equip-stats-table td:nth-child(2) {
+    width: 50%;
+}
+
+/* Field Statistics main table: the three descriptive columns share a width; Monster takes the rest. */
+.field-stats-table th:nth-child(2),
+.field-stats-table td:nth-child(2),
+.field-stats-table th:nth-child(3),
+.field-stats-table td:nth-child(3),
+.field-stats-table th:nth-child(4),
+.field-stats-table td:nth-child(4) {
+    width: 20%;
+}
+
+.field-stats-table th:nth-child(1),
+.field-stats-table td:nth-child(1) {
+    width: 40%;
+}
+
+/* Field Statistics card-effect tables: Monster Type = Effect; Monster Card takes the rest. */
+.field-effect-table th:nth-child(2),
+.field-effect-table td:nth-child(2),
+.field-effect-table th:nth-child(3),
+.field-effect-table td:nth-child(3) {
+    width: 25%;
+}
+
+.field-effect-table th:nth-child(1),
+.field-effect-table td:nth-child(1) {
+    width: 50%;
+}
+
+/* Field Statistics type-group tables: Monster Type = # of Cards Affected = Effect; Affected Cards takes the rest. */
+.field-type-group-table th:nth-child(1),
+.field-type-group-table td:nth-child(1),
+.field-type-group-table th:nth-child(2),
+.field-type-group-table td:nth-child(2),
+.field-type-group-table th:nth-child(3),
+.field-type-group-table td:nth-child(3) {
+    width: 20%;
+}
+
+.field-type-group-table th:nth-child(4),
+.field-type-group-table td:nth-child(4) {
+    width: 40%;
+}
+
+/* Keep numeric field effects centered without changing their vertical alignment. */
+.field-effect-table td:nth-child(3),
+.field-type-group-table td:nth-child(3) {
+    text-align: center;
+}
 
 /* ------------------------------------------------------------
    SEARCH / SOURCE CREDIT / CARD DETAIL LAYOUT
@@ -379,39 +449,4 @@ main.container {
         flex: 0 0 100%;
         max-width: 100%;
     }
-}
-
-
-/* ------------------------------------------------------------
-   FIELD STATISTICS
-   ------------------------------------------------------------ */
-
-.field-stats-table {
-    width: 100%;
-    table-layout: fixed;
-}
-
-.field-stats-table th,
-.field-stats-table td {
-    white-space: nowrap;
-}
-
-.field-stats-table th:nth-child(1),
-.field-stats-table td:nth-child(1) {
-    width: 25%;
-}
-
-.field-stats-table th:nth-child(2),
-.field-stats-table td:nth-child(2) {
-    width: 15%;
-}
-
-.field-stats-table th:nth-child(3),
-.field-stats-table td:nth-child(3) {
-    width: 30%;
-}
-
-.field-stats-table th:nth-child(4),
-.field-stats-table td:nth-child(4) {
-    width: 30%;
 }
