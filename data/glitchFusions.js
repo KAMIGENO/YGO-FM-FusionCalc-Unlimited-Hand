@@ -1,96 +1,125 @@
 /*
  * ------------------------------------------------------------
- * FILE: data/glitchFusions.js
+ * FILE: public/javascripts/glitchFusions.js
  * ------------------------------------------------------------
  *
- * Glitch fusions documented by Yugipedia's "Glitch fusion"
- * page.
- *
- * These are intentionally kept separate from the generated
- * normal fusion database.
+ * Builds the Glitch Fusions table from the authoritative card
+ * database. The glitch-fusion relationships themselves remain
+ * defined in data/glitchFusions.js.
+ * ------------------------------------------------------------
  */
 
-var glitchFusions = [
+(function () {
 
-    {
-        result: "Baby Dragon",
-        card1: "The Wicked Worm Beast",
-        card2: "Monster Egg"
-    },
-    {
-        result: "Baby Dragon",
-        card1: "Battle Ox",
-        card2: "Dragon Statue"
-    },
-    {
-        result: "Baby Dragon",
-        card1: "Dragon Piper",
-        card2: "Orion the Battle King"
-    },
+    "use strict";
 
-    {
-        result: "Tiger Axe",
-        card1: "Ancient Jar",
-        card2: "Fiend Sword"
-    },
+    var tableBody = document.getElementById("glitch-fusions-body");
 
-    {
-        result: "Cocoon of Evolution",
-        card1: "Summoned Skull",
-        card2: "Koumori Dragon"
-    },
-    {
-        result: "Cocoon of Evolution",
-        card1: "Tiger Axe",
-        card2: "Darkfire Dragon"
-    },
-    {
-        result: "Cocoon of Evolution",
-        card1: "Giant Soldier of Stone",
-        card2: "Akihiron"
-    },
-    {
-        result: "Cocoon of Evolution",
-        card1: "Ansatsu",
-        card2: "LaMoon"
-    },
-
-    {
-        result: "Reaper of the Cards",
-        card1: "Koumori Dragon",
-        card2: "Saggi the Dark Clown"
-    },
-
-    {
-        result: "The 13th Grave",
-        card1: "Kojikocy",
-        card2: "Clown Zombie"
-    },
-    {
-        result: "The 13th Grave",
-        card1: "Dream Clown",
-        card2: "Mysterious Puppeteer"
-    },
-
-    {
-        result: "Witty Phantom",
-        card1: "Oscillo Hero #2",
-        card2: "Spirit of the Harp"
-    },
-    {
-        result: "Witty Phantom",
-        card1: "Wolf",
-        card2: "Djinn the Watcher of the Wind"
-    },
-    {
-        result: "Witty Phantom",
-        card1: "Gyakutenno Megami",
-        card2: "Weather Control"
-    },
-    {
-        result: "Witty Phantom",
-        card1: "Armored Zombie",
-        card2: "Wood Clown"
+    if (!tableBody) {
+        return;
     }
 
-];
+
+    var cards = card_db().get();
+    var cardsByName = {};
+
+    cards.forEach(function (card) {
+        cardsByName[card.Name.toLowerCase()] = card;
+    });
+
+
+    var guardianStarSymbols = {
+        "Sun": "☉",
+        "Mercury": "☿",
+        "Venus": "♀",
+        "Moon": "☾",
+        "Mars": "♂",
+        "Jupiter": "♃",
+        "Saturn": "♄",
+        "Uranus": "⛢",
+        "Neptune": "♆",
+        "Pluto": "♇"
+    };
+
+
+    function escapeHTML(value) {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    function formatCardId(id) {
+        return "#" + String(id).padStart(3, "0");
+    }
+
+
+    function formatGuardianStar(value) {
+        var name = starNames[value - 1] || "Unknown";
+        var symbol = guardianStarSymbols[name] || "";
+
+        return symbol ? symbol + " " + name : name;
+    }
+
+
+    function formatGuardianStars(card) {
+        return formatGuardianStar(card.GuardianStarA) +
+            " / " +
+            formatGuardianStar(card.GuardianStarB);
+    }
+
+
+    function getCardByName(name) {
+        if (!name) {
+            return null;
+        }
+
+        return cardsByName[String(name).toLowerCase()] || null;
+    }
+
+
+    function formatCardSummary(card) {
+        if (!card) {
+            return "<div><strong>Card data not found</strong></div>";
+        }
+
+        var typeName = cardTypes[card.Type] || "Unknown";
+
+        if (typeName === "Spellcaster") {
+            typeName = "Magic-User (Spellcaster)";
+        }
+
+        return (
+            "<div><strong>" +
+                escapeHTML(formatCardId(card.Id) + " " + card.Name) +
+            "</strong></div>" +
+            "<div>Type: " + escapeHTML(typeName) + "</div>" +
+            "<div>Guardian Stars: " + escapeHTML(formatGuardianStars(card)) + "</div>" +
+            "<div>" + escapeHTML(card.Attack) + "A / " + escapeHTML(card.Defense) + "D</div>"
+        );
+    }
+
+
+    function appendCardCell(row, cardName) {
+        var cell = document.createElement("td");
+        var card = getCardByName(cardName);
+
+        cell.innerHTML = formatCardSummary(card);
+        row.appendChild(cell);
+    }
+
+
+    glitchFusions.forEach(function (fusion) {
+        var row = document.createElement("tr");
+
+        appendCardCell(row, fusion.result);
+        appendCardCell(row, fusion.card1);
+        appendCardCell(row, fusion.card2);
+
+        tableBody.appendChild(row);
+    });
+
+})();
