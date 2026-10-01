@@ -184,16 +184,23 @@
 
 
     function formatGuardianStar(value) {
-        if (value === 10) {
-            return starNames[9];
-        }
+        return starNames[value - 1] || starNames[0];
+    }
 
-        return starNames[value] || starNames[0];
+    var guardianStarSymbols = {
+        Sun: "☉", Mercury: "☿", Venus: "♀", Moon: "☾",
+        Mars: "♂", Jupiter: "♃", Saturn: "♄", Uranus: "⛢",
+        Neptune: "♆", Pluto: "♇"
+    };
+
+    function formatGuardianStarWithSymbol(value) {
+        var name = formatGuardianStar(value);
+        return (guardianStarSymbols[name] || "") + " " + name;
     }
 
 
     function formatGuardianStars(card) {
-        return formatGuardianStar(card.GuardianStarA) + " / " + formatGuardianStar(card.GuardianStarB);
+        return formatGuardianStarWithSymbol(card.GuardianStarA) + " / " + formatGuardianStarWithSymbol(card.GuardianStarB);
     }
 
 
