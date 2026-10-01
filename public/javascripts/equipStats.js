@@ -314,6 +314,169 @@ function calculateGlobalRanks() {
     }
 
 
+    function escapeSearchRegExp(value) {
+
+        return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    }
+
+
+    function normalizeNumericTerm(value) {
+
+        if (/^[0-9,.]+$/.test(value) && /[0-9]/.test(value)) {
+            return value.replace(/[,.]/g, "");
+        }
+
+        return value;
+
+    }
+
+
+    function isNumericTerm(value) {
+
+        return /^[0-9,.]+$/.test(value) && /[0-9]/.test(value);
+
+    }
+
+
+    function isSearchBoundary(cardName, index) {
+
+        if (index === 0) {
+            return true;
+        }
+
+        var previousCharacter = cardName.charAt(index - 1);
+
+        return /\s/.test(previousCharacter) ||
+            previousCharacter === "-" ||
+            previousCharacter === ".";
+
+    }
+
+
+    function matchesNumericTerm(card, cardName, searchTerm) {
+
+        var normalizedSearchTerm = normalizeNumericTerm(searchTerm);
+
+
+        /*
+         * Card IDs are displayed as exactly three digits (for example,
+         * 007, 030, and 300). A numeric search may therefore use 1, 2,
+         * or 3 digits and still match the corresponding ID prefix. A
+         * four-or-more-digit query is not allowed to collapse leading
+         * zeroes, so 0007 does not become 7 and match card 007.
+         */
+        if (/^[0-9]+$/.test(searchTerm) && searchTerm.length <= 3) {
+
+            var formattedId = String(card.Id).padStart(3, "0");
+            var normalizedId = formattedId.replace(/^0+/, "") || "0";
+
+            /* Card ID searches are exact after ignoring leading zeroes.
+             * For example, 7, 07, and 007 all mean card ID 007, but 70
+             * and 700 are different IDs and must not match. */
+            var normalizedIdSearch = normalizedSearchTerm.replace(/^0+/, "") || "0";
+
+            if (normalizedId === normalizedIdSearch) {
+                return true;
+            }
+
+        }
+
+
+        /*
+         * Numeric text in the actual card name is searched separately
+         * from the card ID. This includes numbers after a # in the name,
+         * such as "#1", and numbers containing grouping punctuation.
+         */
+        var numericPattern = /[0-9][0-9,.]*/g;
+        var match;
+
+
+        while ((match = numericPattern.exec(cardName)) !== null) {
+
+            if (
+                !isSearchBoundary(cardName, match.index) &&
+                cardName.charAt(match.index - 1) !== "#"
+            ) {
+                continue;
+            }
+
+            var normalizedNumber = normalizeNumericTerm(match[0]);
+
+            if (normalizedNumber.indexOf(normalizedSearchTerm) === 0) {
+                return true;
+            }
+
+        }
+
+
+        return false;
+
+    }
+
+
+    function matchesSearchTerm(card, cardName, searchTerm, isStandaloneTerm) {
+
+        if (isNumericTerm(searchTerm)) {
+            return matchesNumericTerm(card, cardName, searchTerm);
+        }
+
+
+        /* A single-character search normally searches only the beginning
+         * of the entire card name. A punctuation-delimited token such as
+         * "D." is also searchable by its first character, but the character
+         * after that punctuation is not treated as a one-character boundary.
+         */
+        if (isStandaloneTerm && searchTerm.length === 1) {
+
+            if (cardName.indexOf(searchTerm) === 0) {
+                return true;
+            }
+
+            /* Every punctuation character is searchable by itself except
+             * apostrophe. Apostrophe is intentionally literal and therefore
+             * requires additional surrounding search text. */
+            if (searchTerm === "'") {
+                return false;
+            }
+
+            if (!/[a-z0-9]/.test(searchTerm)) {
+                return cardName.indexOf(searchTerm) !== -1;
+            }
+
+            var punctuationDelimitedPattern = new RegExp(
+                "(^|\\s|[-.])" + escapeSearchRegExp(searchTerm) + "\\."
+            );
+
+            return punctuationDelimitedPattern.test(cardName);
+
+        }
+
+
+        /* A period can be searched by itself, but not as one component
+         * of a multi-term query (for example, "the ."). */
+        if (!isStandaloneTerm && searchTerm === ".") {
+            return false;
+        }
+
+
+        for (var i = 0; i < cardName.length; i++) {
+
+            if (
+                cardName.indexOf(searchTerm, i) === i &&
+                isSearchBoundary(cardName, i)
+            ) {
+                return true;
+            }
+
+        }
+
+
+        return false;
+
+    }
+
+
     /*
      * ------------------------------------------------------------
      * 6. FILTERING
@@ -326,26 +489,44 @@ function calculateGlobalRanks() {
 
     function getFilteredStatistics() {
 
-        var searchText = filterInput.value
-            .trim()
-            .toLowerCase();
+        var rawSearchText = filterInput.value.toLowerCase();
+        var searchText = rawSearchText;
 
-
-        if (!searchText) {
+        if (searchText === "") {
             return statistics.slice();
         }
 
+        if (searchText.charAt(searchText.length - 1) === " ") {
+            searchText = searchText.slice(0, -1);
+        }
+
+        if (
+            searchText === "" ||
+            searchText.charAt(0) === " " ||
+            searchText.indexOf("  ") !== -1
+        ) {
+            return [];
+        }
+
+        var searchTerms = searchText.split(" ");
+        var isStandaloneTerm = searchTerms.length === 1;
 
         return statistics.filter(function (entry) {
 
-            return entry.card.Name
-                .toLowerCase()
-                .indexOf(searchText) !== -1;
+            var cardName = entry.card.Name.toLowerCase();
+
+            return searchTerms.every(function (searchTerm) {
+                return matchesSearchTerm(
+                    entry.card,
+                    cardName,
+                    searchTerm,
+                    isStandaloneTerm
+                );
+            });
 
         });
 
     }
-
 
     /*
      * ------------------------------------------------------------
