@@ -511,6 +511,23 @@
         wrapper.appendChild(description);
 
 
+        var notes = {
+            330: "**NOTE** — All Insect, Beast, Plant, and Beast-Warrior Monsters gain 500 ATK/DEF.",
+            331: "**NOTE** — All Dinosaur, Zombie, and Rock Monsters gain 500 ATK/DEF.",
+            332: "**NOTE** — All Dragon, Winged Beast, and Thunder Monsters gain 500 ATK/DEF.",
+            333: "**NOTE** — All Warrior and Beast-Warrior Monsters gain 500 ATK/DEF.",
+            334: "**NOTE** — All Fish, Sea Serpent, Thunder, and Aqua Monsters gain 500 ATK/DEF. All Machine and Pyro Monsters lose 500 ATK/DEF.",
+            335: "**NOTE** — All Dinosaur, Zombie, and Rock Monsters gain 500 ATK/DEF.",
+            336: "**NOTE** — All Fiend and Magic-User (Spellcaster) Monsters gain 500 ATK/DEF. All Fairy Monsters lose 500 ATK/DEF."
+        };
+
+        if (notes[entry.card.Id]) {
+            var note = document.createElement("p");
+            note.innerHTML = notes[entry.card.Id].replace("—", "—");
+            wrapper.appendChild(note);
+        }
+
+
         if (entry.positiveCards.length) {
             wrapper.appendChild(
                 createEffectTable(
