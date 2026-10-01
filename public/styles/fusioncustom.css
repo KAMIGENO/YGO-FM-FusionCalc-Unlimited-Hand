@@ -43,6 +43,7 @@ main.container {
 }
 
 .hand-card-input {
+    height: 38px;
     grid-column: 2;
     grid-row: 1;
     width: 100%;
@@ -237,6 +238,11 @@ main.container {
 /* ------------------------------------------------------------
    SEARCH / SOURCE CREDIT / CARD DETAIL LAYOUT
    ------------------------------------------------------------ */
+
+#cardname {
+    height: 38px;
+}
+
 
 #output-area-left,
 #output-area-right {
