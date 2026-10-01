@@ -235,7 +235,7 @@ function formatCardDetails(card) {
     if (isMonster(card)) {
         details +=
             " — Guardian Stars: " +
-            formatGuardianStarsWithSymbols(card) +
+            formatGuardianStars(card) +
             " — " +
             card.Attack +
             "A / " +
@@ -299,7 +299,7 @@ function createSideCard(card) {
     if (isMonster(card)) {
         modelCard +=
             "<p class=\"card-text\"><strong>Guardian Stars:</strong> " +
-            escapeHTML(formatGuardianStarsWithSymbols(card)) +
+            escapeHTML(formatGuardianStars(card)) +
             "</p>" +
             "<p class=\"card-text\"><strong>ATK / DEF:</strong> " +
             card.Attack + "A / " + card.Defense + "D" +
