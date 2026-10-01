@@ -219,7 +219,8 @@
             negativeIdSet: negativeIds,
             positiveGroups: buildTypeGroups(positiveCards),
             neutralGroups: buildTypeGroups(neutralCards),
-            negativeGroups: buildTypeGroups(negativeCards)
+            negativeGroups: buildTypeGroups(negativeCards),
+            bonus: definition.Bonus
         };
 
         statistics.push(statistic);
@@ -331,10 +332,12 @@
 
     function getEffect(entry, monsterCard) {
 
+        var bonus = entry.bonus;
+
         if (entry.positiveIdSet[monsterCard.Id]) {
             return {
                 label: "Positive",
-                change: "+500 ATK/DEF"
+                change: "+" + bonus + " ATK/DEF"
             };
         }
 
@@ -342,7 +345,7 @@
         if (entry.negativeIdSet[monsterCard.Id]) {
             return {
                 label: "Negative",
-                change: "-500 ATK/DEF"
+                change: "-" + bonus + " ATK/DEF"
             };
         }
 
@@ -351,6 +354,52 @@
             label: "Neutral",
             change: "No effect."
         };
+
+    }
+
+
+    function getEffectText(entry, isPositive) {
+
+        var amount = String(entry.bonus);
+
+        return isPositive
+            ? "+" + amount + " ATK/DEF"
+            : "-" + amount + " ATK/DEF";
+
+    }
+
+
+    function buildFieldNote(entry) {
+
+        var positiveNames = entry.positiveGroups
+            .map(function (group) {
+                return group.typeName;
+            })
+            .join(", ");
+
+        var negativeNames = entry.negativeGroups
+            .map(function (group) {
+                return group.typeName;
+            })
+            .join(", ");
+
+        var note = "Correct effect: ";
+
+        if (positiveNames) {
+            note += "All " + positiveNames + " Monsters gain " +
+                entry.bonus + " ATK/DEF.";
+        }
+
+        if (negativeNames) {
+            if (positiveNames) {
+                note += " ";
+            }
+
+            note += "All " + negativeNames + " Monsters lose " +
+                entry.bonus + " ATK/DEF.";
+        }
+
+        return note;
 
     }
 
@@ -511,21 +560,10 @@
         wrapper.appendChild(description);
 
 
-        var notes = {
-            330: "**NOTE** — All Insect, Beast, Plant, and Beast-Warrior Monsters gain 500 ATK/DEF.",
-            331: "**NOTE** — All Dinosaur, Zombie, and Rock Monsters gain 500 ATK/DEF.",
-            332: "**NOTE** — All Dragon, Winged Beast, and Thunder Monsters gain 500 ATK/DEF.",
-            333: "**NOTE** — All Warrior and Beast-Warrior Monsters gain 500 ATK/DEF.",
-            334: "**NOTE** — All Fish, Sea Serpent, Thunder, and Aqua Monsters gain 500 ATK/DEF. All Machine and Pyro Monsters lose 500 ATK/DEF.",
-            335: "**NOTE** — All Dinosaur, Zombie, and Rock Monsters gain 500 ATK/DEF.",
-            336: "**NOTE** — All Fiend and Magic-User (Spellcaster) Monsters gain 500 ATK/DEF. All Fairy Monsters lose 500 ATK/DEF."
-        };
-
-        if (notes[entry.card.Id]) {
-            var note = document.createElement("p");
-            note.innerHTML = notes[entry.card.Id].replace("—", "—");
-            wrapper.appendChild(note);
-        }
+        var note = document.createElement("p");
+        note.className = "field-effect-note";
+        note.textContent = buildFieldNote(entry);
+        wrapper.appendChild(note);
 
 
         if (entry.positiveCards.length) {
@@ -533,7 +571,7 @@
                 createEffectTable(
                     "Positive Card Effects",
                     entry.positiveCards,
-                    "+500 ATK/DEF"
+                    getEffectText(entry, true)
                 )
             );
 
@@ -541,7 +579,7 @@
                 createTypeGroupTable(
                     "Positive Monster Type Groups",
                     entry.positiveGroups,
-                    "+500 ATK/DEF"
+                    getEffectText(entry, true)
                 )
             );
         }
@@ -569,7 +607,7 @@
                 createEffectTable(
                     "Negative Card Effects",
                     entry.negativeCards,
-                    "-500 ATK/DEF"
+                    getEffectText(entry, false)
                 )
             );
 
@@ -577,7 +615,7 @@
                 createTypeGroupTable(
                     "Negative Monster Type Groups",
                     entry.negativeGroups,
-                    "-500 ATK/DEF"
+                    getEffectText(entry, false)
                 )
             );
         }
