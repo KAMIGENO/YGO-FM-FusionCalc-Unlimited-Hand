@@ -19,13 +19,13 @@ var fieldList = [
 
     {
         "CardId": 330,
-        "PositiveTypes": [4, 9, 19, 5],
+        "PositiveTypes": [9, 4, 19, 5],
         "NegativeTypes": []
     },
 
     {
         "CardId": 331,
-        "PositiveTypes": [2, 10, 18],
+        "PositiveTypes": [10, 2, 18],
         "NegativeTypes": []
     },
 
@@ -43,13 +43,19 @@ var fieldList = [
 
     {
         "CardId": 334,
-        "PositiveTypes": [16, 15],
+        "PositiveTypes": [12, 13, 15, 16],
         "NegativeTypes": [14, 17]
     },
 
     {
         "CardId": 335,
-        "PositiveTypes": [1, 7],
+        "PositiveTypes": [10, 2, 18],
+        "NegativeTypes": []
+    },
+
+    {
+        "CardId": 336,
+        "PositiveTypes": [7, 1],
         "NegativeTypes": [8]
     }
 
