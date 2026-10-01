@@ -781,21 +781,17 @@
     }
 
 
-    function matchesSearchTerm(cardName, searchTerm, isStandaloneTerm) {
+    function matchesSearchTerm(card, cardName, searchTerm, isStandaloneTerm) {
 
         if (isNumericTerm(searchTerm)) {
             return matchesNumericTerm(card, cardName, searchTerm);
         }
 
 
-        /*
-         * A single-character search has deliberately narrower behavior:
-         * it searches the beginning of the entire card name, or a
-         * punctuation-delimited single-letter token such as "D.".
-         *
-         * Once the query contains multiple terms, however, each term
-         * uses the normal word/punctuation boundary rules. This is why
-         * "k" alone does not find "D. Knight", while "d. k" does.
+        /* A single-character search normally searches only the beginning
+         * of the entire card name. A punctuation-delimited token such as
+         * "D." is also searchable by its first character, but the character
+         * after that punctuation is not treated as a one-character boundary.
          */
         if (isStandaloneTerm && searchTerm.length === 1) {
 
@@ -803,10 +799,13 @@
                 return true;
             }
 
-            /* Any standalone non-alphanumeric character is a literal
-             * punctuation search. It may return a card wherever that
-             * exact character occurs. This includes ! @ # $ % ^ & *
-             * ( ) + = , . / ? - and similar punctuation. */
+            /* Every punctuation character is searchable by itself except
+             * apostrophe. Apostrophe is intentionally literal and therefore
+             * requires additional surrounding search text. */
+            if (searchTerm === "'") {
+                return false;
+            }
+
             if (!/[a-z0-9]/.test(searchTerm)) {
                 return cardName.indexOf(searchTerm) !== -1;
             }
@@ -842,7 +841,6 @@
         return false;
 
     }
-
 
     function getFilteredMonsters() {
 
@@ -882,6 +880,7 @@
 
                 return searchTerms.every(function (searchTerm) {
                     return matchesSearchTerm(
+                        card,
                         cardName,
                         searchTerm,
                         isStandaloneTerm
