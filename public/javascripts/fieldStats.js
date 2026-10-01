@@ -692,16 +692,154 @@
     }
 
 
+    function normalizeNumericTerm(value) {
+
+        if (/^[0-9,.]+$/.test(value) && /[0-9]/.test(value)) {
+            return value.replace(/[,.]/g, "");
+        }
+
+        return value;
+
+    }
+
+
+    function isNumericTerm(value) {
+
+        return /^[0-9,.]+$/.test(value) && /[0-9]/.test(value);
+
+    }
+
+
+    function isSearchBoundary(cardName, index) {
+
+        if (index === 0) {
+            return true;
+        }
+
+        var previousCharacter = cardName.charAt(index - 1);
+
+        return /\s/.test(previousCharacter) ||
+            previousCharacter === "-" ||
+            previousCharacter === ".";
+
+    }
+
+
+    function matchesNumericTerm(cardName, searchTerm) {
+
+        var normalizedSearchTerm = normalizeNumericTerm(searchTerm);
+        var numericPattern = /[0-9][0-9,.]*/g;
+        var match;
+
+
+        while ((match = numericPattern.exec(cardName)) !== null) {
+
+            if (!isSearchBoundary(cardName, match.index)) {
+                continue;
+            }
+
+            var normalizedNumber = normalizeNumericTerm(match[0]);
+
+            if (normalizedNumber.indexOf(normalizedSearchTerm) === 0) {
+                return true;
+            }
+
+        }
+
+
+        return false;
+
+    }
+
+
+    function matchesSearchTerm(cardName, searchTerm, isStandaloneTerm) {
+
+        if (isNumericTerm(searchTerm)) {
+            return matchesNumericTerm(cardName, searchTerm);
+        }
+
+
+        /*
+         * A single-character search has deliberately narrower behavior:
+         * it searches the beginning of the entire card name, or a
+         * punctuation-delimited single-letter token such as "D.".
+         *
+         * Once the query contains multiple terms, however, each term
+         * uses the normal word/punctuation boundary rules. This is why
+         * "k" alone does not find "D. Knight", while "d. k" does.
+         */
+        if (isStandaloneTerm && searchTerm.length === 1) {
+
+            if (cardName.indexOf(searchTerm) === 0) {
+                return true;
+            }
+
+            if (searchTerm === ".") {
+                return cardName.indexOf(".") !== -1;
+            }
+
+            var punctuationDelimitedPattern = new RegExp(
+                "(^|\\s|[-.])" + escapeRegExp(searchTerm) + "\\."
+            );
+
+            return punctuationDelimitedPattern.test(cardName);
+
+        }
+
+
+        /* A period can be searched by itself, but not as one component
+         * of a multi-term query (for example, "the ."). */
+        if (!isStandaloneTerm && searchTerm === ".") {
+            return false;
+        }
+
+
+        for (var i = 0; i < cardName.length; i++) {
+
+            if (
+                cardName.indexOf(searchTerm, i) === i &&
+                isSearchBoundary(cardName, i)
+            ) {
+                return true;
+            }
+
+        }
+
+
+        return false;
+
+    }
+
+
     function getFilteredMonsters() {
 
         var rawSearchText = monsterFilterInput.value.toLowerCase();
-        var hasTrailingSpace = /\s$/.test(rawSearchText);
-        var searchText = rawSearchText.trim();
+        var searchText = rawSearchText;
 
 
-        if (!searchText) {
+        if (searchText === "") {
             return [];
         }
+
+
+        /* One trailing space is tolerated. Other spaces remain literal,
+         * so consecutive internal/trailing spaces do not collapse. */
+        if (searchText.charAt(searchText.length - 1) === " ") {
+            searchText = searchText.slice(0, -1);
+        }
+
+
+        if (
+            searchText === "" ||
+            searchText.charAt(0) === " " ||
+            searchText.indexOf("  ") !== -1
+        ) {
+            return [];
+        }
+
+
+        var searchTerms = searchText.split(" ");
+        var isStandaloneTerm = searchTerms.length === 1;
 
 
         return monsterCardsByName
@@ -709,15 +847,13 @@
 
                 var cardName = card.Name.toLowerCase();
 
-                if (hasTrailingSpace) {
-                    return new RegExp("(^|\\W)" + escapeRegExp(searchText) + "\\s", "i").test(cardName);
-                }
-
-                if (searchText.length === 1) {
-                    return cardName.indexOf(searchText) === 0;
-                }
-
-                return cardName.indexOf(searchText) !== -1;
+                return searchTerms.every(function (searchTerm) {
+                    return matchesSearchTerm(
+                        cardName,
+                        searchTerm,
+                        isStandaloneTerm
+                    );
+                });
 
             })
             .sort(function (a, b) {
