@@ -20,37 +20,43 @@ var fieldList = [
     {
         "CardId": 330,
         "PositiveTypes": [9, 4, 19, 5],
-        "NegativeTypes": []
+        "NegativeTypes": [],
+        "Bonus": 500
     },
 
     {
         "CardId": 331,
         "PositiveTypes": [10, 2, 18],
-        "NegativeTypes": []
+        "NegativeTypes": [],
+        "Bonus": 500
     },
 
     {
         "CardId": 332,
         "PositiveTypes": [0, 6, 15],
-        "NegativeTypes": []
+        "NegativeTypes": [],
+        "Bonus": 500
     },
 
     {
         "CardId": 333,
         "PositiveTypes": [3, 4],
-        "NegativeTypes": []
+        "NegativeTypes": [],
+        "Bonus": 500
     },
 
     {
         "CardId": 334,
         "PositiveTypes": [12, 13, 15, 16],
-        "NegativeTypes": [14, 17]
+        "NegativeTypes": [14, 17],
+        "Bonus": 500
     },
 
     {
         "CardId": 335,
         "PositiveTypes": [10, 2, 18],
-        "NegativeTypes": []
+        "NegativeTypes": [],
+        "Bonus": 500
     },
 
     {
