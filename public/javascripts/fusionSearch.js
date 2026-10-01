@@ -343,15 +343,15 @@ function createSideCard(card) {
 
     if (fieldNote) {
         return (
-            "<div class=\"row align-items-start flex-nowrap\" style=\"overflow-x:auto;\">" +
-                "<div class=\"col-md-7\" style=\"flex:1 1 auto; min-width:0;\">" + modelCard + "</div>" +
-                "<div class=\"col-md-5\" style=\"flex:0 0 620px; max-width:620px;\">" +
-                    "<div class=\"card border-dark h-100\">" +
-                        "<div class=\"card-body\" style=\"min-height:100%; display:flex; flex-direction:column;\">" +
-                            "<div style=\"font-weight:bold; text-align:center; white-space:nowrap;\">IMPORTANT NOTE</div>" +
-                            "<div style=\"flex:1; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; margin-top:1rem;\">" +
+            "<div style=\"display:flex; align-items:stretch; gap:24px; overflow-x:auto; padding:2px 2px 8px 2px;\">" +
+                "<div style=\"flex:0 0 540px; width:540px;\">" + modelCard + "</div>" +
+                "<div style=\"flex:0 1 620px; min-width:480px;\">" +
+                    "<div class=\"card border-dark h-100\" style=\"min-height:100%;\">" +
+                        "<div class=\"card-body\" style=\"padding:24px 28px; display:flex; flex-direction:column;\">" +
+                            "<div style=\"font-weight:bold; text-align:center; white-space:nowrap; margin-bottom:20px;\">IMPORTANT NOTE</div>" +
+                            "<div style=\"text-align:left; line-height:1.65;\">" +
                                 fieldNote.split("\n").map(function(note) {
-                                    return "<div style=\"white-space:normal; overflow-wrap:normal; word-break:normal; text-align:left;\">" + note + "</div>";
+                                    return "<div style=\"margin-bottom:12px; white-space:normal; overflow-wrap:break-word; word-break:normal; text-align:left;\">" + note + "</div>";
                                 }).join("") +
                             "</div>" +
                         "</div>" +
