@@ -299,7 +299,7 @@ function getFieldNote(card) {
 function createSideCard(card) {
 
     var modelCard =
-        "<div class=\"card border-dark ml-1\" style=\"width:100%;\">" +
+        "<div class=\"card border-dark\" style=\"width:100%;\">" +
         "<div class=\"row no-gutters\">" +
         "<div class=\"col\">" +
         "<div class=\"card-body\">" +
@@ -343,7 +343,7 @@ function createSideCard(card) {
 
     if (fieldNote) {
         return (
-            "<div style=\"width:700px; max-width:100%; box-sizing:border-box; padding:2px 2px 8px 2px;\">" +
+            "<div style=\"width:700px; max-width:100%; box-sizing:border-box; margin:0 auto; padding:2px 0 8px 0;\">" +
                 "<div style=\"width:100%; box-sizing:border-box; margin-bottom:20px;\">" +
                     modelCard +
                 "</div>" +
@@ -361,7 +361,11 @@ function createSideCard(card) {
         );
     }
 
-    return modelCard;
+    return (
+        "<div style=\"width:700px; max-width:100%; box-sizing:border-box; margin:0 auto;\">" +
+            modelCard +
+        "</div>"
+    );
 }
 
 
