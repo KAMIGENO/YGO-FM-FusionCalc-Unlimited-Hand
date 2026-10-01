@@ -281,6 +281,22 @@ function formatFusionCard(card) {
 }
 
 
+function getFieldNote(card) {
+
+    var notes = {
+        330: "All Insect, Beast, Plant, and Beast-Warrior Monsters gain 500 ATK/DEF.",
+        331: "All Dinosaur, Zombie, and Rock Monsters gain 500 ATK/DEF.",
+        332: "All Dragon, Winged Beast, and Thunder Monsters gain 500 ATK/DEF.",
+        333: "All Warrior and Beast-Warrior Monsters gain 500 ATK/DEF.",
+        334: "All Fish, Sea Serpent, Thunder, and Aqua Monsters gain 500 ATK/DEF. All Machine and Pyro Monsters lose 500 ATK/DEF.",
+        335: "All Dinosaur, Zombie, and Rock Monsters gain 500 ATK/DEF.",
+        336: "All Fiend and Magic-User (Spellcaster) Monsters gain 500 ATK/DEF. All Fairy Monsters lose 500 ATK/DEF."
+    };
+
+    return notes[card.Id] || "";
+}
+
+
 function createSideCard(card) {
 
     var modelCard =
@@ -313,7 +329,17 @@ function createSideCard(card) {
     modelCard +=
         "<p class=\"card-text\">" +
         escapeHTML(card.Description).replace(/\r?\n/g, " ") +
-        "</p>" +
+        "</p>";
+
+    var fieldNote = getFieldNote(card);
+    if (fieldNote) {
+        modelCard +=
+            "<div class=\"card border-dark mt-2\"><div class=\"card-body text-center\">" +
+            "<div style=\"font-weight:bold;\">IMPORTANT NOTE</div>" +
+            "<p class=\"card-text mt-2\">" + escapeHTML(fieldNote) + "</p></div></div>";
+    }
+
+    modelCard +=
         "<p class=\"card-text\"><strong>Password:</strong> " +
         escapeHTML(card.CardCode) +
         "</p>" +
