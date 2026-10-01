@@ -219,7 +219,7 @@ function formatGuardianStar(value) {
 
 
 function formatGuardianStars(card) {
-    return formatGuardianStar(card.GuardianStarA) + " / " + formatGuardianStar(card.GuardianStarB);
+    return formatGuardianStarWithSymbol(card.GuardianStarA) + " / " + formatGuardianStarWithSymbol(card.GuardianStarB);
 }
 
 
