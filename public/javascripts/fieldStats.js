@@ -742,7 +742,12 @@
             var formattedId = String(card.Id).padStart(3, "0");
             var normalizedId = formattedId.replace(/^0+/, "") || "0";
 
-            if (normalizedId.indexOf(normalizedSearchTerm.replace(/^0+/, "") || "0") === 0) {
+            /* Card ID searches are exact after ignoring leading zeroes.
+             * For example, 7, 07, and 007 all mean card ID 007, but 70
+             * and 700 are different IDs and must not match. */
+            var normalizedIdSearch = normalizedSearchTerm.replace(/^0+/, "") || "0";
+
+            if (normalizedId === normalizedIdSearch) {
                 return true;
             }
 
