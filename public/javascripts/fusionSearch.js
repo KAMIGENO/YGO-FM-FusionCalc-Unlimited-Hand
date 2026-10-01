@@ -351,7 +351,7 @@ function createSideCard(card) {
                             "<div style=\"font-weight:bold; text-align:center; white-space:nowrap;\">IMPORTANT NOTE</div>" +
                             "<div style=\"flex:1; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; margin-top:1rem;\">" +
                                 escapeHTML(fieldNote).split("\n").map(function(note) {
-                                    return "<div style=\"white-space:nowrap; text-align:left;\">" + note + "</div>";
+                                    return "<div style=\"white-space:normal; overflow-wrap:anywhere; word-break:normal; text-align:left;\">" + note + "</div>";
                                 }).join("") +
                             "</div>" +
                         "</div>" +
