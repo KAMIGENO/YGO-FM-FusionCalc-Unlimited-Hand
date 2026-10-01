@@ -54,15 +54,9 @@ var fieldList = [
 
     {
         "CardId": 335,
-        "PositiveTypes": [10, 2, 18],
-        "NegativeTypes": [],
-        "Bonus": 500
-    },
-
-    {
-        "CardId": 336,
         "PositiveTypes": [7, 1],
-        "NegativeTypes": [8]
+        "NegativeTypes": [8],
+        "Bonus": 500
     }
 
 ];
