@@ -713,11 +713,11 @@
                     return new RegExp("(^|\\W)" + escapeRegExp(searchText) + "\\s", "i").test(cardName);
                 }
 
-                if (searchText.length <= 2) {
+                if (searchText.length === 1) {
                     return cardName.indexOf(searchText) === 0;
                 }
 
-                return new RegExp("(^|\\W)" + escapeRegExp(searchText) + "(?=\\W|$)", "i").test(cardName);
+                return cardName.indexOf(searchText) !== -1;
 
             })
             .sort(function (a, b) {
