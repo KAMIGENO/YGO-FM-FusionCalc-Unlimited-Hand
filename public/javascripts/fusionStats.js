@@ -214,7 +214,7 @@
         if (isMonster(card)) {
             details +=
                 " — Guardian Stars: " +
-                formatGuardianStarsWithSymbols(card) +
+                formatGuardianStars(card) +
                 " — " +
                 card.Attack +
                 "A / " +
