@@ -289,8 +289,7 @@ function getFieldNote(card) {
         332: "All Dragon, Winged Beast, and Thunder Monsters gain 500 ATK/DEF.",
         333: "All Warrior and Beast-Warrior Monsters gain 500 ATK/DEF.",
         334: "All Fish, Sea Serpent, Thunder, and Aqua Monsters gain 500 ATK/DEF. All Machine and Pyro Monsters lose 500 ATK/DEF.",
-        335: "All Dinosaur, Zombie, and Rock Monsters gain 500 ATK/DEF.",
-        336: "All Fiend and Magic-User (Spellcaster) Monsters gain 500 ATK/DEF. All Fairy Monsters lose 500 ATK/DEF."
+        335: "All Fiend and Magic-User (Spellcaster) Monsters gain 500 ATK/DEF. All Fairy Monsters lose 500 ATK/DEF."
     };
 
     return notes[card.Id] || "";
@@ -343,7 +342,7 @@ function createSideCard(card) {
         "</div></div></div></div>";
 
     if (fieldNote) {
-        return
+        return (
             "<div class=\"row align-items-start\">" +
                 "<div class=\"col-md-7\">" + modelCard + "</div>" +
                 "<div class=\"col-md-5\">" +
@@ -354,7 +353,8 @@ function createSideCard(card) {
                         "</div>" +
                     "</div>" +
                 "</div>" +
-            "</div>";
+            "</div>"
+        );
     }
 
     return modelCard;
