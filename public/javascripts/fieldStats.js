@@ -774,7 +774,11 @@
                 return true;
             }
 
-            if (searchTerm === "." || searchTerm === "-") {
+            /* Any standalone non-alphanumeric character is a literal
+             * punctuation search. It may return a card wherever that
+             * exact character occurs. This includes ! @ # $ % ^ & *
+             * ( ) + = , . / ? - and similar punctuation. */
+            if (!/[a-z0-9]/.test(searchTerm)) {
                 return cardName.indexOf(searchTerm) !== -1;
             }
 
