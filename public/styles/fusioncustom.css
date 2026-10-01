@@ -107,8 +107,30 @@ main.container {
 }
 
 .fusion-stats-table {
+    width: 100%;
     max-width: none;
     margin: 0 auto;
+    table-layout: fixed;
+}
+
+.fusion-stats-table th,
+.fusion-stats-table td {
+    white-space: nowrap;
+}
+
+.fusion-stats-table th:nth-child(1),
+.fusion-stats-table td:nth-child(1) {
+    width: 10%;
+}
+
+.fusion-stats-table th:nth-child(2),
+.fusion-stats-table td:nth-child(2) {
+    width: 30%;
+}
+
+.fusion-stats-table th:nth-child(3),
+.fusion-stats-table td:nth-child(3) {
+    width: 60%;
 }
 
 .fusion-stats-table thead th {
@@ -155,8 +177,30 @@ main.container {
 }
 
 .equip-stats-table {
+    width: 100%;
     max-width: none;
     margin: 0 auto;
+    table-layout: fixed;
+}
+
+.equip-stats-table th,
+.equip-stats-table td {
+    white-space: nowrap;
+}
+
+.equip-stats-table th:nth-child(1),
+.equip-stats-table td:nth-child(1) {
+    width: 10%;
+}
+
+.equip-stats-table th:nth-child(2),
+.equip-stats-table td:nth-child(2) {
+    width: 30%;
+}
+
+.equip-stats-table th:nth-child(3),
+.equip-stats-table td:nth-child(3) {
+    width: 60%;
 }
 
 .equip-stats-table th,
@@ -335,4 +379,39 @@ main.container {
         flex: 0 0 100%;
         max-width: 100%;
     }
+}
+
+
+/* ------------------------------------------------------------
+   FIELD STATISTICS
+   ------------------------------------------------------------ */
+
+.field-stats-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.field-stats-table th,
+.field-stats-table td {
+    white-space: nowrap;
+}
+
+.field-stats-table th:nth-child(1),
+.field-stats-table td:nth-child(1) {
+    width: 25%;
+}
+
+.field-stats-table th:nth-child(2),
+.field-stats-table td:nth-child(2) {
+    width: 15%;
+}
+
+.field-stats-table th:nth-child(3),
+.field-stats-table td:nth-child(3) {
+    width: 30%;
+}
+
+.field-stats-table th:nth-child(4),
+.field-stats-table td:nth-child(4) {
+    width: 30%;
 }
