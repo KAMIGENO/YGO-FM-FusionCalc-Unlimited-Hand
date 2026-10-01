@@ -332,12 +332,6 @@ function createSideCard(card) {
         "</p>";
 
     var fieldNote = getFieldNote(card);
-    if (fieldNote) {
-        modelCard +=
-            "<div class=\"card border-dark mt-2\"><div class=\"card-body text-center\">" +
-            "<div style=\"font-weight:bold;\">IMPORTANT NOTE</div>" +
-            "<p class=\"card-text mt-2\">" + escapeHTML(fieldNote) + "</p></div></div>";
-    }
 
     modelCard +=
         "<p class=\"card-text\"><strong>Password:</strong> " +
@@ -347,6 +341,21 @@ function createSideCard(card) {
         card.Stars +
         "</p>" +
         "</div></div></div></div>";
+
+    if (fieldNote) {
+        return
+            "<div class=\"row align-items-start\">" +
+                "<div class=\"col-md-7\">" + modelCard + "</div>" +
+                "<div class=\"col-md-5\">" +
+                    "<div class=\"card border-dark\">" +
+                        "<div class=\"card-body text-center\">" +
+                            "<div style=\"font-weight:bold;\">IMPORTANT NOTE</div>" +
+                            "<p class=\"card-text mt-3\">" + escapeHTML(fieldNote) + "</p>" +
+                        "</div>" +
+                    "</div>" +
+                "</div>" +
+            "</div>";
+    }
 
     return modelCard;
 }
