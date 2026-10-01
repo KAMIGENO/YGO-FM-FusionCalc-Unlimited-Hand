@@ -284,12 +284,12 @@ function formatFusionCard(card) {
 function getFieldNote(card) {
 
     var notes = {
-        330: "All Insect, Beast, Plant, and Beast-Warrior Monsters gain 500 ATK/DEF.",
-        331: "All Dinosaur, Zombie, and Rock Monsters gain 500 ATK/DEF.",
-        332: "All Dragon, Winged Beast, and Thunder Monsters gain 500 ATK/DEF.",
-        333: "All Warrior and Beast-Warrior Monsters gain 500 ATK/DEF.",
-        334: "All Fish, Sea Serpent, Thunder, and Aqua Monsters gain 500 ATK/DEF.\nAll Machine and Pyro Monsters lose 500 ATK/DEF.",
-        335: "All Fiend and Magic-User (Spellcaster) Monsters gain 500 ATK/DEF.\nAll Fairy Monsters lose 500 ATK/DEF."
+        330: "All <strong>Insect</strong>, <strong>Beast</strong>, <strong>Plant</strong>, and <strong>Beast-Warrior</strong> Monsters gain 500 ATK/DEF.",
+        331: "All <strong>Dinosaur</strong>, <strong>Zombie</strong>, and <strong>Rock</strong> Monsters gain 500 ATK/DEF.",
+        332: "All <strong>Dragon</strong>, <strong>Winged Beast</strong>, and <strong>Thunder</strong> Monsters gain 500 ATK/DEF.",
+        333: "All <strong>Warrior</strong> and <strong>Beast-Warrior</strong> Monsters gain 500 ATK/DEF.",
+        334: "All <strong>Fish</strong>, <strong>Sea Serpent</strong>, <strong>Thunder</strong>, and <strong>Aqua</strong> Monsters gain 500 ATK/DEF.\nAll <strong>Machine</strong> and <strong>Pyro</strong> Monsters lose 500 ATK/DEF.",
+        335: "All <strong>Fiend</strong> and <strong>Magic-User (Spellcaster)</strong> Monsters gain 500 ATK/DEF.\nAll <strong>Fairy</strong> Monsters lose 500 ATK/DEF."
     };
 
     return notes[card.Id] || "";
@@ -343,15 +343,15 @@ function createSideCard(card) {
 
     if (fieldNote) {
         return (
-            "<div class=\"row align-items-start\">" +
-                "<div class=\"col-md-7\">" + modelCard + "</div>" +
-                "<div class=\"col-md-5\">" +
-                    "<div class=\"card border-dark\">" +
+            "<div class=\"row align-items-start flex-nowrap\" style=\"overflow-x:auto;\">" +
+                "<div class=\"col-md-7\" style=\"flex:1 1 auto; min-width:0;\">" + modelCard + "</div>" +
+                "<div class=\"col-md-5\" style=\"flex:0 0 620px; max-width:620px;\">" +
+                    "<div class=\"card border-dark h-100\">" +
                         "<div class=\"card-body\" style=\"min-height:100%; display:flex; flex-direction:column;\">" +
                             "<div style=\"font-weight:bold; text-align:center; white-space:nowrap;\">IMPORTANT NOTE</div>" +
                             "<div style=\"flex:1; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; margin-top:1rem;\">" +
-                                escapeHTML(fieldNote).split("\n").map(function(note) {
-                                    return "<div style=\"white-space:normal; overflow-wrap:anywhere; word-break:normal; text-align:left;\">" + note + "</div>";
+                                fieldNote.split("\n").map(function(note) {
+                                    return "<div style=\"white-space:normal; overflow-wrap:normal; word-break:normal; text-align:left;\">" + note + "</div>";
                                 }).join("") +
                             "</div>" +
                         "</div>" +
