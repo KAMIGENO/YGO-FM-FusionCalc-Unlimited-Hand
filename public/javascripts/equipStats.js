@@ -573,27 +573,7 @@ function calculateGlobalRanks() {
         });
 
 
-        /*
-         * Add the requested blank row at the bottom.
-         */
 
-        var blankRow = document.createElement("tr");
-
-        blankRow.className = "equip-stats-blank-row";
-        blankRow.style.backgroundColor = "#F8F9FA";
-
-
-        for (var blankCellIndex = 0; blankCellIndex < 3; blankCellIndex++) {
-
-            var blankCell = document.createElement("td");
-
-            blankCell.innerHTML = "&nbsp;";
-            blankRow.appendChild(blankCell);
-
-        }
-
-
-        tableBody.appendChild(blankRow);
 
     }
 
