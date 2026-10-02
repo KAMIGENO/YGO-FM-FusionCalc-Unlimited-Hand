@@ -435,8 +435,8 @@ main.container {
 
 #hand-prev,
 #hand-next {
-    width: 88px;
-    height: 38px;
+    width: 110px;
+    height: 42px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -450,7 +450,7 @@ main.container {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 38px;
+    min-height: 42px;
     font-weight: 700;
 }
 
