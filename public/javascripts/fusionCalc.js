@@ -1145,13 +1145,13 @@ function ritualsToHTML(ritualList) {
                 "<div><strong>Ritual:</strong> " +
                 formatBoldInputCard(ritual.ritualCard) +
                 "</div>" +
-                "<div><strong>Material:</strong> " +
+                "<div style='margin-left: 2rem;'><strong>Material:</strong> " +
                 formatBoldInputCard(ritual.card1) +
                 "</div>" +
-                "<div><strong>Material:</strong> " +
+                "<div style='margin-left: 2rem;'><strong>Material:</strong> " +
                 formatBoldInputCard(ritual.card2) +
                 "</div>" +
-                "<div><strong>Material:</strong> " +
+                "<div style='margin-left: 2rem;'><strong>Material:</strong> " +
                 formatBoldInputCard(ritual.card3) +
                 "</div>" +
                 "<div><strong>RESULT: " +
