@@ -128,6 +128,23 @@ input:not([type]) {
 
 #reset-btn { width: 10.71428571rem; }
 
+/* Keep the three index-page text columns structured as title / centered text / button.
+   The paragraph itself remains normal text; the parent controls the vertical alignment. */
+.container-fusion-search > div:first-child,
+.container-fusion-calculator > div:first-child,
+.container-about > div:first-child {
+    display: grid !important;
+    grid-template-rows: auto 1fr auto;
+}
+
+.container-fusion-search > div:first-child > p,
+.container-fusion-calculator > div:first-child > p,
+.container-about > div:first-child > p {
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+    align-self: center;
+}
+
 .container-fusion-search {
     border-top: 0.11904762rem solid black;
     background-color: rgb(244, 244, 245);
