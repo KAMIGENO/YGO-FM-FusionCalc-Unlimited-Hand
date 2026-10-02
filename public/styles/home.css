@@ -2,7 +2,7 @@
 :root {
     --black-color: #000000;
     --white-color: #FFFFFF;
-    --gray-color: #676767;
+    --gray-color: #4E4E4E;
     --primary-font-color: rgb(30, 35, 55);
 }
 
@@ -49,7 +49,7 @@ h6, .h6 { font-size: 16.8px; }
 }
 
 .text-secondary, .text-muted, .text-black-50 {
-    color: #676767 !important;
+    color: #4E4E4E !important;
 }
 
 /* Shift text inside text-entry boxes down by exactly 1px without moving the boxes. */
@@ -204,7 +204,7 @@ input:not([type]) {
 .navbar-nav .nav-item:not(:last-child)::after {
     content: "|";
     display: inline-block;
-    color: #676767;
+    color: #4E4E4E;
     font-weight: 700;
     margin: 0 0.35rem;
 }
