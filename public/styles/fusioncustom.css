@@ -81,7 +81,7 @@ main.container {
 }
 
 .hand-page-label {
-    flex: 0 0 auto;
+    min-width: 8.92857143rem;
     text-align: center;
     font-weight: bold;
     display: flex;
@@ -89,7 +89,7 @@ main.container {
     justify-content: center;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 45.6547619rem) {
     .hand-input-group {
         grid-template-columns: 1fr;
         gap: 0.71428571rem var(--card-input-spacing);
@@ -102,7 +102,7 @@ main.container {
 
 .fusion-stats-controls {
     display: grid;
-    grid-template-columns: minmax(200px, 300px) minmax(200px, 1fr);
+    grid-template-columns: minmax(11.9047619rem, 17.85714286rem) minmax(11.9047619rem, 1fr);
     gap: 1.19047619rem;
     margin: 1.78571429rem auto;
     max-width: 53.57142857rem;
@@ -136,7 +136,7 @@ main.container {
     margin-bottom: 1.78571429rem;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 45.6547619rem) {
 
     .fusion-stats-controls {
         grid-template-columns: 1fr;
@@ -150,7 +150,7 @@ main.container {
 
 .equip-stats-controls {
     display: grid;
-    grid-template-columns: minmax(200px, 300px) minmax(200px, 1fr);
+    grid-template-columns: minmax(11.9047619rem, 17.85714286rem) minmax(11.9047619rem, 1fr);
     gap: 1.19047619rem;
     margin: 1.78571429rem auto;
     max-width: 53.57142857rem;
@@ -191,7 +191,7 @@ main.container {
     margin-bottom: 1.78571429rem;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 45.6547619rem) {
 
     .equip-stats-controls {
         grid-template-columns: 1fr;
@@ -229,7 +229,7 @@ main.container {
     text-align: left;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 45.6547619rem) {
     .hand-input-group {
         grid-template-columns: 1fr;
         grid-template-rows: auto;
@@ -496,7 +496,7 @@ main.container {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 42px;
+    min-height: 2.5rem;
     font-weight: 700;
 }
 
@@ -538,7 +538,7 @@ main.container {
     width: calc(100% - var(--card-input-spacing));
 }
 
-@media (max-width: 575px) {
+@media (max-width: 34.22619048rem) {
     .fusion-calculator-results .row > .col-sm:first-child,
     .fusion-calculator-results .row > .col-sm:last-child {
         flex: 0 0 100%;
