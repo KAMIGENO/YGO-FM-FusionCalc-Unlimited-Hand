@@ -183,12 +183,7 @@ input:not([type]) {
     text-transform: uppercase !important;
 }
 
-/* Index media: the GIF and each static image share one explicit right-edge boundary. */
-.index-media-column {
-    display: flex;
-    justify-content: flex-end;
-}
-
+/* Keep the GIF in its existing layout. Static images use the viewport's right edge as their reference. */
 .index-media-column > .index-gif {
     display: block;
     width: 100%;
@@ -198,10 +193,18 @@ input:not([type]) {
     margin-right: 0;
 }
 
-.index-media-column > .index-static-image {
-    display: block;
-    margin-left: auto !important;
-    margin-right: 0 !important;
+@media (min-width: 768px) {
+    .index-media-column > .index-static-image {
+        position: absolute;
+        right: 138px;
+        display: block;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .index-media-column > .index-static-image[src*="kaiba.png"] {
+        right: 123px;
+    }
 }
 
 @media (max-width: 767px) {
