@@ -1047,17 +1047,25 @@ function findFusions() {
 
 
     outputLeft.innerHTML =
+        "<section class='fusion-calculator-output-section'>" +
         "<h2 class='text-left'>Fusions:</h2>" +
         fusionChainsToHTML(chains) +
+        "</section>" +
+        "<section class='fusion-calculator-output-section'>" +
         "<h2 class='text-left'>Rituals:</h2>" +
-        ritualsToHTML(rituals);
+        ritualsToHTML(rituals) +
+        "</section>";
 
 
     outputRight.innerHTML =
+        "<section class='fusion-calculator-output-section'>" +
         "<h2 class='text-left'>Equips:</h2>" +
         equipsToHTML(equipEntries) +
+        "</section>" +
+        "<section class='fusion-calculator-output-section'>" +
         "<h2 class='text-left'>Fields:</h2>" +
-        fields;
+        fields +
+        "</section>";
 
 }
 
