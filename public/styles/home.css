@@ -186,27 +186,15 @@ input:not([type]) {
     text-transform: uppercase !important;
 }
 
-/* Keep the GIF in its existing layout. Static images use the viewport's right edge as their reference. */
-.index-media-column > .index-gif {
-    display: block;
-    width: 100%;
-    max-width: 640px;
-    height: auto;
-    margin-left: auto;
-    margin-right: 0;
-}
-
-@media (min-width: 768px) {
-    .index-media-column > .index-static-image {
-        position: absolute;
-        right: 138px;
+/* Static index images: move them horizontally without removing them from normal layout flow. */
+@media (min-width: 992px) {
+    .index-static-image {
         display: block;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
+        transform: translateX(calc(50vw - 138px));
     }
 
-    .index-media-column > .index-static-image[src*="kaiba.png"] {
-        right: 123px;
+    .index-static-image[src*="kaiba.png"] {
+        transform: translateX(calc(50vw - 123px));
     }
 }
 
