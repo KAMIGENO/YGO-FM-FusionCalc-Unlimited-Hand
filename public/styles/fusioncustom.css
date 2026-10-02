@@ -65,7 +65,7 @@ main.container {
     overflow: hidden;
     text-overflow: ellipsis;
     position: relative;
-    top: 1px;
+    top: 0.05952381rem;
 }
 
 .hand-controls {
@@ -404,7 +404,7 @@ main.container {
     margin-top: 0.75rem;
     margin-left: 2rem;
     padding-left: 1rem;
-    border-left: 2px solid #dddddd;
+    border-left: 0.11904762rem solid #dddddd;
 }
 
 .equip-result {
@@ -462,7 +462,7 @@ main.container {
     margin-bottom: 1rem;
     padding: 0.75rem 1rem;
     background-color: #ffffff;
-    border: 1px solid #dee2e6;
+    border: 0.05952381rem solid #dee2e6;
     border-radius: 0.25rem;
     color: #000000;
 }
