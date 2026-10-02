@@ -1047,22 +1047,22 @@ function findFusions() {
 
 
     outputLeft.innerHTML =
-        "<section class='fusion-calculator-output-section'>" +
+        "<section class='fusion-calculator-output-section output-left-section'>" +
         "<h2 class='text-left'>Fusions:</h2>" +
         fusionChainsToHTML(chains) +
         "</section>" +
-        "<section class='fusion-calculator-output-section'>" +
+        "<section class='fusion-calculator-output-section output-left-section'>" +
         "<h2 class='text-left'>Rituals:</h2>" +
         ritualsToHTML(rituals) +
         "</section>";
 
 
     outputRight.innerHTML =
-        "<section class='fusion-calculator-output-section'>" +
+        "<section class='fusion-calculator-output-section output-right-section'>" +
         "<h2 class='text-left'>Equips:</h2>" +
         equipsToHTML(equipEntries) +
         "</section>" +
-        "<section class='fusion-calculator-output-section'>" +
+        "<section class='fusion-calculator-output-section output-right-section'>" +
         "<h2 class='text-left'>Fields:</h2>" +
         fields +
         "</section>";
