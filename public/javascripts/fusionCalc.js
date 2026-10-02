@@ -543,13 +543,11 @@ function buildEquipTargets(cards) {
 
 
     /*
-     * Use the same fusion-chain generation as the Fusion Calculator
-     * Fusions section.
+     * Equips are rooted from the Equip card.
      *
-     * Depth represents the minimum number of original hand cards needed:
-     *   1 = card already in hand
-     *   2 = two-card fusion
-     *   3 = three-card fusion, etc.
+     * The fusion tree is expanded first, then every reachable Monster is
+     * assigned its minimum original-hand-card depth.  A longer chain never
+     * replaces an earlier shorter chain.
      */
     var reachable = {};
 
@@ -697,7 +695,7 @@ function formatEquipDepth(depth, cardHTML) {
     return (
         "<span class=\"equip-chain-indent\" style=\"margin-left: " +
         (depth * 5) +
-        "ch;\">|</span> " +
+        "ch; color: #4E4E4E;\">|</span> " +
         cardHTML
     );
 
