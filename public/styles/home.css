@@ -1,6 +1,4 @@
 :root {
-    --varela: "Varela Round", sans-serif;
-    --jetbrains: "JetBrains Mono", monospace;
     --black-color: #000000;
     --white-color: #FFFFFF;
     --primary-font-color: rgb(30, 35, 55);
@@ -46,8 +44,9 @@ small, .small {
     color: #808080 !important;
 }
 
-body {
-    font-family: var(--varela), "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+/* Verdana is the only text family used site-wide. */
+*, *::before, *::after {
+    font-family: Verdana !important;
 }
 
 /* Keep the Bootstrap navbar horizontal on narrow screens so the logo and menu button share one row. */
@@ -69,15 +68,10 @@ body {
     height: 2em;
 }
 
-.nav-link {
-    font-family: var(--varela);
-}
-
 .btn-thread {
     color: var(--black-color);
     background-color: var(--white-color);
     border-color: var(--black-color);
-    font-family: var(--varela);
 }
 .btn-thread:hover {
     color: var(--white-color);
@@ -104,14 +98,6 @@ body {
     background-position: center;
     background-size: cover;
     text-shadow: 2px 2px 6px black;
-}
-
-.text-main {
-    font-family: var(--jetbrains);
-}
-
-.text-subtext {
-    font-family: var(--varela);
 }
 
 .hero-title {
@@ -184,7 +170,6 @@ body {
 .btn-about {
     color: rgb(30, 35, 55);
     background-color: rgb(243, 178, 166);
-    font-family: var(--varela);
     font-size: 1rem;
 }
 .btn-about:hover {
