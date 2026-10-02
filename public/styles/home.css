@@ -178,6 +178,9 @@ input:not([type]) {
 /* The three large content buttons on index.html only. */
 .index-page-button {
     height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 1.25rem !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
