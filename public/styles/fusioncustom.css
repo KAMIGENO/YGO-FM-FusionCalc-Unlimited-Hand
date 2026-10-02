@@ -76,7 +76,7 @@ main.container {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 15px;
+    gap: 1.07142857rem;
     margin-bottom: 1.07142857rem;
 }
 
