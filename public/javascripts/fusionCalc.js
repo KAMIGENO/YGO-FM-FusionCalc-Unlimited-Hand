@@ -591,6 +591,16 @@ function buildEquipTargets(cards, chains) {
 
 function formatFusionStep(step, index) {
 
+    var firstCard = step.card1;
+    var secondCard = step.card2;
+
+    // Fusion is commutative. Display each pair in ascending card-number order
+    // so the same combination always has one canonical presentation.
+    if (secondCard.Id < firstCard.Id) {
+        firstCard = step.card2;
+        secondCard = step.card1;
+    }
+
     var html =
         "<div class='fusion-chain-step" +
         (index === 0 ? "" : " fusion-chain-followup") +
@@ -603,9 +613,9 @@ function formatFusionStep(step, index) {
 
 
     html +=
-        formatBoldInputCard(step.card1) +
+        formatBoldInputCard(firstCard) +
         " + " +
-        formatBoldInputCard(step.card2) +
+        formatBoldInputCard(secondCard) +
         " = " +
         formatBoldInputCard(step.result);
 
@@ -622,7 +632,26 @@ function formatFusionStep(step, index) {
 
 function fusionChainsToHTML(chains) {
 
-    return chains
+    var uniqueChains = [];
+    var seenChains = {};
+
+    chains.forEach(function (chain) {
+
+        var key = chain.map(function (step) {
+            var firstId = Math.min(step.card1.Id, step.card2.Id);
+            var secondId = Math.max(step.card1.Id, step.card2.Id);
+
+            return firstId + ":" + secondId + ":" + step.result.Id + ":" + (step.glitch ? "1" : "0");
+        }).join("|");
+
+        if (!seenChains[key]) {
+            seenChains[key] = true;
+            uniqueChains.push(chain);
+        }
+
+    });
+
+    return uniqueChains
         .slice()
         .sort(function (a, b) {
             var aResult = a[a.length - 1].result;
