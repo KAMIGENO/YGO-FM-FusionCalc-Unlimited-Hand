@@ -411,7 +411,7 @@ main.container {
 
 .equip-chain-indent {
     color: #4E4E4E;
-    white-space: pre;
+    display: inline-block;
 }
 
 
