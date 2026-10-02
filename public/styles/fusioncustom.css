@@ -84,6 +84,9 @@ main.container {
     min-width: 150px;
     text-align: center;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 @media (max-width: 767px) {
@@ -477,6 +480,7 @@ main.container {
 #hand-next,
 #resetBtn {
     margin-top: var(--card-input-spacing) !important;
+    margin-bottom: var(--card-input-spacing) !important;
     width: 7.73809524rem;
     height: 2.85714286rem;
     display: inline-flex;
@@ -540,4 +544,14 @@ main.container {
         flex: 0 0 100%;
         max-width: 100%;
     }
+}
+
+
+/* Fusion Calculator output alignment */
+.fusion-calculator-output-section.output-left-section {
+    padding-left: var(--card-input-spacing);
+}
+
+.fusion-calculator-output-section.output-right-section {
+    width: calc(100% - var(--card-input-spacing));
 }
