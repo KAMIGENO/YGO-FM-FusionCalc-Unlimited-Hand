@@ -57,6 +57,10 @@ function getCardTypeName(card) {
         return fieldCardIds[card.Id] ? "Magic (Field)" : "Magic (Effect)";
     }
 
+    if (cardTypes[card.Type] === "Spellcaster") {
+        return "Magic-User (Spellcaster)";
+    }
+
     return cardTypes[card.Type] || "Unknown";
 
 }
