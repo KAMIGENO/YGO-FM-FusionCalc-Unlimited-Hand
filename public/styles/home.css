@@ -88,7 +88,7 @@ input:not([type]) {
 }
 
 #logo {
-    height: 3em;
+    height: 5rem;
 }
 
 .background-vrains {
@@ -217,4 +217,21 @@ input:not([type]) {
     color: #4E4E4E;
     font-weight: 700;
     margin: 0 0.35rem;
+}
+
+
+/* Keep index section descriptions vertically balanced between their titles and buttons. */
+.container-fusion-search > .col,
+.container-fusion-calculator > .col,
+.container-about > .col {
+    display: flex;
+    flex-direction: column;
+}
+
+.container-fusion-search .text-subtext,
+.container-fusion-calculator .text-subtext,
+.container-about .text-subtext {
+    flex: 1;
+    display: flex;
+    align-items: center;
 }
