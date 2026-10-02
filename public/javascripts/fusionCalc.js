@@ -518,29 +518,13 @@ function buildFusionChains(cards) {
 }
 
 
-function isEquipCard(card) {
-
-    if (!card) {
-        return false;
-    }
-
-
-    return equipsList.some(function (equipList) {
-
-        return !!equipList && equipList.indexOf(card.Id) !== -1;
-
-    });
-
-}
-
-
 function canEquip(equipCard, targetCard) {
 
     return !!(
         equipCard &&
         targetCard &&
-        equipLookup[targetCard.Id] &&
-        equipLookup[targetCard.Id][equipCard.Id]
+        equipLookup[equipCard.Id] &&
+        equipLookup[equipCard.Id][targetCard.Id]
     );
 
 }
@@ -549,7 +533,7 @@ function canEquip(equipCard, targetCard) {
 function buildEquipTargets(cards) {
 
     var equipCards = cards.filter(function (card) {
-        return isEquipCard(card);
+        return !!equipLookup[card.Id];
     });
 
 
@@ -619,7 +603,6 @@ function buildEquipTargets(cards) {
 
                 return (
                     entry.card.Id !== equipCard.Id &&
-                    isMonster(entry.card) &&
                     canEquip(equipCard, entry.card)
                 );
 
@@ -704,18 +687,14 @@ function fusionChainsToHTML(chains) {
 }
 
 
-function formatEquipDepth(depth, cardHTML) {
-
-    if (depth <= 0) {
-        return cardHTML;
-    }
-
+function formatEquipStep(depth, cardHTML) {
 
     return (
-        "<span class=\"equip-chain-indent\" aria-hidden=\"true\">" +
-        new Array((depth * 5) + 1).join("&nbsp;") +
-        "|</span> " +
-        cardHTML
+        "<div class='fusion-chain-step" +
+        (depth === 0 ? "" : " fusion-chain-followup") +
+        "' style='margin-left: " + (depth * 2) + "rem;'>" +
+        cardHTML +
+        "</div>"
     );
 
 }
@@ -731,18 +710,16 @@ function equipsToHTML(equipEntries) {
         .map(function (entry) {
 
             var html =
-                "<div class='result-div equip-result'>" +
-                formatEquipDepth(0, formatBoldInputCard(entry.equip));
+                "<div class='result-div fusion-chain-result'>" +
+                formatEquipStep(0, formatBoldInputCard(entry.equip));
 
 
             entry.targets.forEach(function (target) {
 
-                html +=
-                    "<br>" +
-                    formatEquipDepth(
-                        target.depth,
-                        formatBoldInputCard(target.card)
-                    );
+                html += formatEquipStep(
+                    target.depth,
+                    formatBoldInputCard(target.card)
+                );
 
             });
 
