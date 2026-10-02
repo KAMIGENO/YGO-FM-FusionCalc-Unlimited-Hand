@@ -1145,13 +1145,13 @@ function ritualsToHTML(ritualList) {
                 "<div><strong>Ritual:</strong> " +
                 formatBoldInputCard(ritual.ritualCard) +
                 "</div>" +
-                "<div style='margin-left: 2rem;'><strong>Material:</strong> " +
+                "<div class='fusion-chain-step fusion-chain-followup' style='margin-left: 2rem;'><strong>Material:</strong> " +
                 formatBoldInputCard(ritual.card1) +
                 "</div>" +
-                "<div style='margin-left: 2rem;'><strong>Material:</strong> " +
+                "<div class='fusion-chain-step fusion-chain-followup' style='margin-left: 2rem;'><strong>Material:</strong> " +
                 formatBoldInputCard(ritual.card2) +
                 "</div>" +
-                "<div style='margin-left: 2rem;'><strong>Material:</strong> " +
+                "<div class='fusion-chain-step fusion-chain-followup' style='margin-left: 2rem;'><strong>Material:</strong> " +
                 formatBoldInputCard(ritual.card3) +
                 "</div>" +
                 "<div><strong>RESULT: " +
@@ -1382,7 +1382,7 @@ function updatePagination() {
     pageLabel.textContent =
         "Slots " +
         ((currentPage - 1) * PAGE_SIZE + 1) +
-        "-" +
+        "–" +
         Math.min(currentPage * PAGE_SIZE, HAND_SIZE) +
         " of " +
         HAND_SIZE;
