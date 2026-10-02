@@ -745,46 +745,6 @@
         });
 
 
-        /*
-         * --------------------------------------------------------
-         * BLANK ROW
-         * --------------------------------------------------------
-         *
-         * Add a blank row at the bottom of the table.
-         *
-         * This row is intentionally not clickable and uses the
-         * requested #F8F9FA background color.
-         */
-
-        var blankRow = document.createElement("tr");
-
-        blankRow.className = "fusion-stats-blank-row";
-
-        blankRow.style.backgroundColor = "#F8F9FA";
-
-
-        /*
-         * The main Fusion Statistics table has 3 columns:
-         *
-         * Rank | Card | Fusion Partners
-         */
-
-        for (
-            var blankCellIndex = 0;
-            blankCellIndex < 3;
-            blankCellIndex++
-        ) {
-
-            var blankCell = document.createElement("td");
-
-            blankCell.innerHTML = "&nbsp;";
-
-            blankRow.appendChild(blankCell);
-
-        }
-
-
-        tableBody.appendChild(blankRow);
 
     }
 
@@ -942,51 +902,7 @@
         });
 
 
-        /*
-         * --------------------------------------------------------
-         * BLANK ROW
-         * --------------------------------------------------------
-         *
-         * Add a blank row at the bottom of the
-         * Fusion Partner / Result table.
-         *
-         * This row is intentionally not clickable and uses the
-         * requested #F8F9FA background color.
-         */
 
-        var blankDetailRow =
-            document.createElement("tr");
-
-        blankDetailRow.className =
-            "fusion-stats-blank-row";
-
-        blankDetailRow.style.backgroundColor =
-            "#F8F9FA";
-
-
-        /*
-         * The details table has 2 columns:
-         *
-         * Fusion Partner | Result
-         */
-
-        for (
-            var blankDetailCellIndex = 0;
-            blankDetailCellIndex < 2;
-            blankDetailCellIndex++
-        ) {
-
-            var blankDetailCell =
-                document.createElement("td");
-
-            blankDetailCell.innerHTML = "&nbsp;";
-
-            blankDetailRow.appendChild(blankDetailCell);
-
-        }
-
-
-        tbody.appendChild(blankDetailRow);
 
 
         table.appendChild(tbody);
