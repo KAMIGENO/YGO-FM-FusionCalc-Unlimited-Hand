@@ -1,5 +1,5 @@
 main.container {
-    max-width: 89.285714rem;
+    max-width: 1500px;
 }
 
 .table-responsive {
@@ -15,7 +15,7 @@ main.container {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: repeat(5, auto);
     grid-auto-flow: column;
-    gap: 1.07142857rem 1.07142857rem;
+    gap: var(--card-input-spacing) var(--card-input-spacing);
     width: 100%;
 }
 
@@ -23,10 +23,10 @@ main.container {
     display: grid;
     grid-template-columns: 5ch minmax(0, 1fr);
     grid-template-rows: auto auto;
-    column-gap: 0.47619048rem;
+    column-gap: 8px;
     align-items: center;
     min-width: 0;
-    min-height: 3.57142857rem;
+    min-height: 60px;
 }
 
 .hand-slot-number {
@@ -43,13 +43,13 @@ main.container {
 }
 
 .hand-card-input {
-    height: 2.26190476rem;
+    height: 38px;
     grid-column: 2;
     grid-row: 1;
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
-    padding: 0.35714286rem 0.47619048rem;
+    padding: 6px 8px;
     position: relative;
 }
 
@@ -57,15 +57,15 @@ main.container {
     grid-column: 2;
     grid-row: 2;
     min-width: 0;
-    min-height: 1.19047619rem;
+    min-height: 20px;
     font-size: 1rem;
-    line-height: 1.19047619rem;
+    line-height: 20px;
     color: #4E4E4E;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     position: relative;
-    top: 0.05952381rem;
+    top: 1px;
 }
 
 .hand-controls {
@@ -76,12 +76,12 @@ main.container {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.89285714rem;
-    margin-bottom: 2.38095238rem;
+    gap: 15px;
+    margin-bottom: 40px;
 }
 
 .hand-page-label {
-    min-width: 8.92857143rem;
+    min-width: 150px;
     text-align: center;
     font-weight: bold;
 }
@@ -89,7 +89,7 @@ main.container {
 @media (max-width: 767px) {
     .hand-input-group {
         grid-template-columns: 1fr;
-        gap: 0.71428571rem 1.07142857rem;
+        gap: 12px var(--card-input-spacing);
     }
 }
 
@@ -99,10 +99,10 @@ main.container {
 
 .fusion-stats-controls {
     display: grid;
-    grid-template-columns: minmax(11.9047619rem, 17.85714286rem) minmax(11.9047619rem, 1fr);
-    gap: 1.19047619rem;
-    margin: 1.78571429rem auto;
-    max-width: 53.57142857rem;
+    grid-template-columns: minmax(200px, 300px) minmax(200px, 1fr);
+    gap: 20px;
+    margin: 30px auto;
+    max-width: 900px;
 }
 
 .fusion-stats-table {
@@ -130,7 +130,7 @@ main.container {
 }
 
 #fusion-details table {
-    margin-bottom: 1.78571429rem;
+    margin-bottom: 30px;
 }
 
 @media (max-width: 767px) {
@@ -147,10 +147,10 @@ main.container {
 
 .equip-stats-controls {
     display: grid;
-    grid-template-columns: minmax(11.9047619rem, 17.85714286rem) minmax(11.9047619rem, 1fr);
-    gap: 1.19047619rem;
-    margin: 1.78571429rem auto;
-    max-width: 53.57142857rem;
+    grid-template-columns: minmax(200px, 300px) minmax(200px, 1fr);
+    gap: 20px;
+    margin: 30px auto;
+    max-width: 900px;
 }
 
 .equip-stats-table {
@@ -185,7 +185,7 @@ main.container {
 }
 
 #equip-details table {
-    margin-bottom: 1.78571429rem;
+    margin-bottom: 30px;
 }
 
 @media (max-width: 767px) {
@@ -353,7 +353,7 @@ main.container {
    ------------------------------------------------------------ */
 
 #cardname {
-    height: 2.26190476rem;
+    height: 38px;
 }
 
 
@@ -380,10 +380,6 @@ main.container {
     margin-top: 2rem !important;
 }
 
-.fusion-calculator-page .fusion-source-credit {
-    margin-top: var(--card-input-gap) !important;
-}
-
 /* ------------------------------------------------------------
    FUSION CALCULATOR CHAINS
    ------------------------------------------------------------ */
@@ -405,7 +401,7 @@ main.container {
     margin-top: 0.75rem;
     margin-left: 2rem;
     padding-left: 1rem;
-    border-left: 0.11904762rem solid #dddddd;
+    border-left: 2px solid #dddddd;
 }
 
 .equip-result {
@@ -414,87 +410,44 @@ main.container {
 
 
 /* ------------------------------------------------------------
-   FUSION CALCULATOR LAYOUT / SHARED SPACING
+   FUSION CALCULATOR SHARED SPACING
    ------------------------------------------------------------ */
 
-:root {
-    --card-input-gap: 1.07142857rem; /* 18px at the project's 16.8px root */
-    --card-input-gap-double: 2.14285714rem;
+/* 18px is the shared card-input spacing reference for this page.
+   The project root is 16.8px, so the reference spacing is expressed
+   in rem rather than authored as a fixed pixel distance. */
+.fusion-calculator-page {
+    --card-input-spacing: 1.07142857rem;
 }
 
-/* The calculator uses the full viewport width with one card-input gap
-   preserved as the background reveal on both sides. */
-.fusion-calculator-page main.container {
-    width: calc(100% - (2 * var(--card-input-gap)));
-    max-width: none;
-    padding-left: 0;
-    padding-right: 0;
+/* Keep the calculator panels slightly inside the available page width by
+   one shared spacing unit on each side. */
+.fusion-calculator-page main.container > .fusion-calculator-panel,
+.fusion-calculator-page main.container > .fusion-calculator-results {
+    width: calc(100% - (2 * var(--card-input-spacing)));
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.fusion-calculator-page main.container > section {
-    width: 100%;
-    margin-left: 0;
-    margin-right: 0;
+/* The top panel sits two rem below the navigation bar. */
+.fusion-calculator-page main.container > .fusion-calculator-panel {
+    margin-top: 2rem !important;
 }
 
-.fusion-calculator-hand {
-    margin-top: 0;
-    margin-bottom: var(--card-input-gap);
-    padding: var(--card-input-gap);
-}
-
-.fusion-calculator-hand-content {
-    width: 100%;
-}
-
-.fusion-calculator-hand .fusion-calculator-heading {
-    margin: 0 0 var(--card-input-gap);
-}
-
-.fusion-calculator-hand .hand-page-navigation {
-    margin-bottom: var(--card-input-gap);
-}
-
-.fusion-calculator-hand #resetBtn {
-    margin-top: var(--card-input-gap-double);
-    margin-bottom: 0;
-}
-
-.fusion-calculator-results {
-    margin-top: 0;
-    padding: var(--card-input-gap);
-}
-
-.fusion-calculator-results-content {
-    width: 100%;
-}
-
-.fusion-calculator-results-content > .row {
-    margin-left: 0;
-    margin-right: 0;
-}
-
-.fusion-calculator-results-content > .row > .col-sm {
-    padding-left: 0;
-    padding-right: 0;
-}
-
-.fusion-calculator-results .fusion-calculator-heading {
-    margin: 0 0 var(--card-input-gap);
-}
-
-.fusion-calculator-results .fusion-source-credit {
-    margin-top: var(--card-input-gap);
-    margin-bottom: 0;
+/* The results panel remains separated from the hand panel by the shared
+   card-input spacing. */
+.fusion-calculator-page main.container > .fusion-calculator-results {
+    margin-top: var(--card-input-spacing) !important;
 }
 
 .fusion-calculator-output-section + .fusion-calculator-output-section {
-    margin-top: var(--card-input-gap);
+    margin-top: var(--card-input-spacing);
 }
 
 .fusion-calculator-output-section > .result-div:last-child {
     margin-bottom: 0;
 }
+
 
 /* ------------------------------------------------------------
    FUSION CALCULATOR RESULT BOXES
@@ -506,7 +459,7 @@ main.container {
     margin-bottom: 1rem;
     padding: 0.75rem 1rem;
     background-color: #ffffff;
-    border: 0.05952381rem solid #dee2e6;
+    border: 1px solid #dee2e6;
     border-radius: 0.25rem;
     color: #000000;
 }
@@ -523,8 +476,8 @@ main.container {
 #hand-prev,
 #hand-next,
 #resetBtn {
-    width: 7.73809524rem;
-    height: 2.85714286rem;
+    width: 130px;
+    height: 48px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -538,7 +491,7 @@ main.container {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 2.5rem;
+    min-height: 42px;
     font-weight: 700;
 }
 
@@ -551,14 +504,33 @@ main.container {
    FUSION CALCULATOR RESULTS COLUMN BALANCE
    ------------------------------------------------------------ */
 
+.fusion-calculator-results > .col {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.fusion-calculator-results .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
 .fusion-calculator-results .row > .col-sm:first-child {
     flex: 0 0 62.5%;
     max-width: 62.5%;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .fusion-calculator-results .row > .col-sm:last-child {
     flex: 0 0 37.5%;
     max-width: 37.5%;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Leave one shared spacing unit between the left and right result boxes. */
+.fusion-calculator-results #outputarealeft .fusion-calculator-output-section {
+    width: calc(100% - var(--card-input-spacing));
 }
 
 @media (max-width: 575px) {
