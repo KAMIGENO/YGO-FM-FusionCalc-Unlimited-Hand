@@ -36,7 +36,7 @@ main.container {
     font-weight: bold;
     text-align: right;
     margin: 0;
-    color: #808080;
+    color: #4E4E4E;
     font-family: Verdana !important;
     font-variant-numeric: tabular-nums;
     white-space: pre;
@@ -51,7 +51,6 @@ main.container {
     box-sizing: border-box;
     padding: 6px 8px;
     position: relative;
-    top: -1px;
 }
 
 .hand-card-info {
@@ -61,7 +60,7 @@ main.container {
     min-height: 18px;
     font-size: 1rem;
     line-height: 18px;
-    color: #808080;
+    color: #4E4E4E;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -202,7 +201,7 @@ main.container {
 
 .fusion-card-summary-secondary {
     padding-top: 0.35rem;
-    color: #808080;
+    color: #4E4E4E;
 }
 
 .equip-monster-summary {
@@ -409,11 +408,6 @@ main.container {
     margin-bottom: 0.75rem;
 }
 
-.equip-chain-indent {
-    color: #4E4E4E;
-    display: inline-block;
-}
-
 
 /* ------------------------------------------------------------
    FUSION CALCULATOR RESULT BOXES
@@ -432,6 +426,37 @@ main.container {
 
 .ritual-result > div + div {
     margin-top: 0.35rem;
+}
+
+
+/* ------------------------------------------------------------
+   FUSION CALCULATOR PAGINATION CONTROLS
+   ------------------------------------------------------------ */
+
+#hand-prev,
+#hand-next {
+    width: 88px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.hand-page-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    font-weight: 700;
+}
+
+.fusion-calculator-heading {
+    font-size: 2rem;
+    font-weight: 700;
 }
 
 /* ------------------------------------------------------------
