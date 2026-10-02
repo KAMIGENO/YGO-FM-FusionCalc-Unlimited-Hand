@@ -633,6 +633,15 @@ function buildEquipTargets(cards) {
 
 function formatFusionStep(step, index) {
 
+    var firstCard = step.card1;
+    var secondCard = step.card2;
+
+    if (secondCard.Id < firstCard.Id) {
+        var temp = firstCard;
+        firstCard = secondCard;
+        secondCard = temp;
+    }
+
     var html =
         "<div class='fusion-chain-step" +
         (index === 0 ? "" : " fusion-chain-followup") +
@@ -645,9 +654,9 @@ function formatFusionStep(step, index) {
 
 
     html +=
-        formatBoldInputCard(step.card1) +
+        formatBoldInputCard(firstCard) +
         " + " +
-        formatBoldInputCard(step.card2) +
+        formatBoldInputCard(secondCard) +
         " = " +
         formatBoldInputCard(step.result);
 
@@ -667,9 +676,24 @@ function fusionChainsToHTML(chains) {
     return chains
         .slice()
         .sort(function (a, b) {
-            var aResult = a[a.length - 1].result;
-            var bResult = b[b.length - 1].result;
-            return aResult.Id - bResult.Id;
+            var aFirst = a[0];
+            var bFirst = b[0];
+
+            var aLeft = Math.min(aFirst.card1.Id, aFirst.card2.Id);
+            var bLeft = Math.min(bFirst.card1.Id, bFirst.card2.Id);
+
+            if (aLeft !== bLeft) {
+                return aLeft - bLeft;
+            }
+
+            var aRight = Math.max(aFirst.card1.Id, aFirst.card2.Id);
+            var bRight = Math.max(bFirst.card1.Id, bFirst.card2.Id);
+
+            if (aRight !== bRight) {
+                return aRight - bRight;
+            }
+
+            return aFirst.result.Id - bFirst.result.Id;
         })
         .map(function (chain) {
 
