@@ -129,8 +129,6 @@ input:not([type]) {
     color: var(--white-color);
 }
 
-.fusion-search:hover { background-color: rgb(78, 92, 149); }
-
 .img-group { pointer-events: none; }
 
 .container-fusion-calculator {
@@ -139,7 +137,6 @@ input:not([type]) {
 }
 
 .fusion-calculator { background-color: var(--white-color); }
-.fusion-calculator:hover { background-color: rgb(223, 97, 5); }
 
 .container-about {
     background: rgb(30, 35, 55);
@@ -151,7 +148,6 @@ input:not([type]) {
     color: var(--primary-font-color);
 }
 
-.about-title:hover { background-color: rgb(243, 178, 166); }
 
 .btn-about {
     color: rgb(30, 35, 55);
@@ -177,6 +173,9 @@ input:not([type]) {
 /* The three large content buttons on index.html only. */
 .index-page-button {
     height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 1.25rem !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
