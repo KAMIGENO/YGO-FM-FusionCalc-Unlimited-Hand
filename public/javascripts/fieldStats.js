@@ -672,9 +672,7 @@
         });
 
 
-        var blankRow = document.createElement("div");
-        blankRow.style.height = "20px";
-        fieldListContainer.appendChild(blankRow);
+
 
     }
 
