@@ -196,8 +196,14 @@ input:not([type]) {
 }
 
 /* Separate navigation links with vertical bars. */
+.navbar-nav .nav-item {
+    display: flex;
+    align-items: center;
+}
+
 .navbar-nav .nav-item:not(:last-child)::after {
     content: "|";
+    display: inline-block;
     color: #808080;
     font-weight: 700;
     margin: 0 0.35rem;
