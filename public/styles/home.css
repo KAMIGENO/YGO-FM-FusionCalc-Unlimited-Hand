@@ -186,16 +186,16 @@ input:not([type]) {
     text-transform: uppercase !important;
 }
 
-/* Static index images: keep normal document flow while shifting their visual position. */
+/* Static index images: keep normal document flow and place their right edge at a fixed viewport offset. */
 @media (min-width: 992px) {
     .index-static-image {
         display: block;
-        position: relative;
-        left: calc(50vw - 138px);
+        margin-left: auto !important;
+        margin-right: calc(138px - 50vw) !important;
     }
 
     .index-static-image[src*="kaiba.png"] {
-        left: calc(50vw - 123px);
+        margin-right: calc(123px - 50vw) !important;
     }
 }
 
