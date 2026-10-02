@@ -51,7 +51,6 @@ main.container {
     box-sizing: border-box;
     padding: 6px 8px;
     position: relative;
-    top: -1px;
 }
 
 .hand-card-info {
