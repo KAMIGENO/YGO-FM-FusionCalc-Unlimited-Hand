@@ -77,6 +77,16 @@ input:not([type]) {
     background-size: cover;
 }
 
+/* The calculator's content height changes whenever cards/results change.
+   Anchor its background to the viewport so those changes do not rescale or
+   reposition the artwork. */
+.fusion-calculator-page.polymerization {
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
 #logo {
     height: 2em;
 }
