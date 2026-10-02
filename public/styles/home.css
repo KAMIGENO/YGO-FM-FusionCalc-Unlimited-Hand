@@ -1,9 +1,42 @@
 :root {
     --varela: "Varela Round", sans-serif;
     --jetbrains: "JetBrains Mono", monospace;
-    --black-color: black;
-    --white-color: rgb(255, 255, 255);
+    --black-color: #000000;
+    --white-color: #FFFFFF;
     --primary-font-color: rgb(30, 35, 55);
+}
+
+/* Project-wide typography and text colors. H6/base = 15.68px, ratio = 1.2. */
+html {
+    font-size: 15.68px;
+}
+
+body {
+    font-size: 1rem;
+    color: #000000;
+}
+
+h1, .h1 { font-size: 39.0168576px; }
+h2, .h2 { font-size: 32.514048px; }
+h3, .h3 { font-size: 27.09504px; }
+h4, .h4 { font-size: 22.5792px; }
+h5, .h5 { font-size: 18.816px; }
+h6, .h6 { font-size: 15.68px; }
+
+small, .small {
+    font-size: 15.68px;
+}
+
+.text-dark, .text-body {
+    color: #000000 !important;
+}
+
+.text-white {
+    color: #FFFFFF !important;
+}
+
+.text-secondary, .text-muted, .text-black-50 {
+    color: #808080 !important;
 }
 
 body {
@@ -165,7 +198,7 @@ body {
 .gh-logo {
     height: 1rem;
     width: 1rem;
-    background-color: white;
+    background-color: #FFFFFF;
     margin-left: 10px;
 }
 
