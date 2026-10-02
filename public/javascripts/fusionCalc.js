@@ -841,7 +841,7 @@ function fieldsToHTML(cards, chains) {
             }
 
 
-            var depth = index + 1;
+            var depth = index + 2;
 
 
             if (
@@ -892,7 +892,7 @@ function fieldsToHTML(cards, chains) {
                 seen[card.Id] = true;
                 affected.push({
                     card: card,
-                    depth: 0
+                    depth: 1
                 });
 
             });
@@ -933,7 +933,13 @@ function fieldsToHTML(cards, chains) {
 
 
             affected.sort(function (a, b) {
+
+                if (a.depth !== b.depth) {
+                    return a.depth - b.depth;
+                }
+
                 return a.card.Id - b.card.Id;
+
             });
 
 
@@ -968,8 +974,8 @@ function fieldsToHTML(cards, chains) {
         .map(function (field) {
 
             var html =
-                "<div class='result-div field-result'>" +
-                "<div class='field-header " +
+                "<div class='result-div fusion-chain-result field-result'>" +
+                "<div class='fusion-chain-step field-header " +
                 (field.positive ? "field-positive" : "field-negative") +
                 "'>" +
                 "<strong>" +
@@ -982,7 +988,9 @@ function fieldsToHTML(cards, chains) {
             field.affected.forEach(function (entry) {
 
                 html +=
-                    "<div class='field-fusion-card' style='margin-left: " +
+                    "<div class='fusion-chain-step" +
+                    (entry.depth === 0 ? "" : " fusion-chain-followup") +
+                    "' style='margin-left: " +
                     (entry.depth * 2) +
                     "rem;'>" +
                     formatBoldInputCard(entry.card) +
