@@ -343,16 +343,16 @@ function createSideCard(card) {
 
     if (fieldNote) {
         return (
-            "<div style=\"width:700px; max-width:100%; box-sizing:border-box; margin:0 auto; padding:2px 0 8px 0;\">" +
-                "<div style=\"width:100%; box-sizing:border-box; margin-bottom:20px;\">" +
+            "<div style=\"width:41.66666667rem; max-width:100%; box-sizing:border-box; margin:0 auto; padding:0.11904762rem 0 0.47619048rem 0;\">" +
+                "<div style=\"width:100%; box-sizing:border-box; margin-bottom:1.19047619rem;\">" +
                     modelCard +
                 "</div>" +
                 "<div class=\"card border-dark\" style=\"width:100%; box-sizing:border-box;\">" +
-                    "<div class=\"card-body\" style=\"padding:24px 32px;\">" +
-                        "<div style=\"font-weight:bold; text-align:center; margin-bottom:20px; white-space:nowrap;\">IMPORTANT NOTE</div>" +
+                    "<div class=\"card-body\" style=\"padding:1.42857143rem 1.9047619rem;\">" +
+                        "<div style=\"font-weight:bold; text-align:center; margin-bottom:1.19047619rem; white-space:nowrap;\">IMPORTANT NOTE</div>" +
                         "<div style=\"text-align:left; line-height:1.65; white-space:nowrap;\">" +
                             fieldNote.split("\n").map(function(note) {
-                                return "<div style=\"margin-bottom:12px; white-space:nowrap;\">" + note + "</div>";
+                                return "<div style=\"margin-bottom:0.71428571rem; white-space:nowrap;\">" + note + "</div>";
                             }).join("") +
                         "</div>" +
                     "</div>" +
@@ -362,7 +362,7 @@ function createSideCard(card) {
     }
 
     return (
-        "<div style=\"width:700px; max-width:100%; box-sizing:border-box; margin:0 auto;\">" +
+        "<div style=\"width:41.66666667rem; max-width:100%; box-sizing:border-box; margin:0 auto;\">" +
             modelCard +
         "</div>"
     );
