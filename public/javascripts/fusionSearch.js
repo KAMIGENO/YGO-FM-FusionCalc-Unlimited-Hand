@@ -527,7 +527,7 @@ function ritualsToHTML(ritualList) {
 
 
             return (
-                "<div class=\"card border-dark mb-3\" style=\"max-width: 18rem;\">" +
+                "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
                 "<div class=\"card-body text-dark\">" +
                 "<p class=\"card-text\"><strong>Ritual:</strong> " +
                 formatInputCard(ritualCard) +
