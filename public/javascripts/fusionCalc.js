@@ -543,152 +543,78 @@ function buildEquipTargets(cards) {
 
 
     /*
-     * Track where every reachable fusion result came from.
+     * Use the same fusion-chain generation as the Fusion Calculator
+     * Fusions section.
      *
-     * A mask identifies the original hand cards used to create a result.
-     * The number of bits in the mask is the equip depth:
-     *   0 = the equip card itself
-     *   1 = an original hand card
-     *   2 = a two-card fusion
-     *   3 = a three-card fusion, etc.
-     *
-     * States are expanded in deterministic hand-order / state-order so that
-     * when the same card can be reached through multiple equivalent routes,
-     * the earliest discovered route is retained.
+     * Depth represents the minimum number of original hand cards needed:
+     *   1 = card already in hand
+     *   2 = two-card fusion
+     *   3 = three-card fusion, etc.
      */
-    var states = [];
-    var stateKeys = {};
+    var reachable = {};
 
 
-    cards.forEach(function (card, index) {
+    cards.forEach(function (card) {
 
-        var state = {
+        reachable[card.Id] = {
             card: card,
-            mask: (1 << index),
+            depth: 1,
             steps: []
         };
-
-        var key = card.Id + ":" + state.mask;
-
-
-        if (!stateKeys[key]) {
-            stateKeys[key] = true;
-            states.push(state);
-        }
 
     });
 
 
-    for (var cursor = 0; cursor < states.length; cursor++) {
+    buildFusionChains(cards).forEach(function (chain) {
 
-        var leftState = states[cursor];
+        chain.forEach(function (step, index) {
 
-
-        for (var otherIndex = 0; otherIndex < states.length; otherIndex++) {
-
-            var rightState = states[otherIndex];
-
-
-            if (leftState.mask & rightState.mask) {
-                continue;
+            if (!step.result) {
+                return;
             }
 
 
-            /*
-             * Only create each unordered state pair once. This also keeps
-             * commutative fusion routes from producing duplicate provenance.
-             */
-            if (cursor > otherIndex) {
-                continue;
+            var depth = index + 2;
+            var current = reachable[step.result.Id];
+
+
+            if (!current || depth < current.depth) {
+
+                reachable[step.result.Id] = {
+                    card: step.result,
+                    depth: depth,
+                    steps: chain.slice(0, index + 1)
+                };
+
             }
 
-
-            var fusion = getFusion(leftState.card, rightState.card);
-
-
-            if (!fusion || !fusion.result) {
-                continue;
-            }
-
-
-            var combinedMask = leftState.mask | rightState.mask;
-            var combinedSteps = leftState.steps.concat(rightState.steps);
-
-            combinedSteps.push({
-                card1: leftState.card,
-                card2: rightState.card,
-                result: fusion.result,
-                glitch: fusion.glitch
-            });
-
-
-            var stateKey = fusion.result.Id + ":" + combinedMask;
-
-
-            if (stateKeys[stateKey]) {
-                continue;
-            }
-
-
-            stateKeys[stateKey] = true;
-            states.push({
-                card: fusion.result,
-                mask: combinedMask,
-                steps: combinedSteps
-            });
-
-        }
-
-    }
-
-
-    var targetStates = {};
-
-
-    states.forEach(function (state) {
-
-        var depth = 0;
-        var mask = state.mask;
-
-
-        while (mask) {
-            depth += mask & 1;
-            mask = mask >>> 1;
-        }
-
-
-        var current = targetStates[state.card.Id];
-
-
-        if (!current || depth < current.depth) {
-            targetStates[state.card.Id] = {
-                card: state.card,
-                depth: depth,
-                steps: state.steps
-            };
-        }
+        });
 
     });
 
 
     return equipCards.map(function (equipCard) {
 
-        var targets = Object.keys(targetStates)
-            .map(function (cardId) {
-                return targetStates[cardId];
+        var targets = Object.keys(reachable)
+            .map(function (id) {
+                return reachable[id];
             })
             .filter(function (entry) {
+
                 return (
                     entry.card.Id !== equipCard.Id &&
                     canEquip(equipCard, entry.card)
                 );
+
             })
             .sort(function (a, b) {
+
                 if (a.depth !== b.depth) {
                     return a.depth - b.depth;
                 }
 
                 return a.card.Id - b.card.Id;
+
             });
 
 
