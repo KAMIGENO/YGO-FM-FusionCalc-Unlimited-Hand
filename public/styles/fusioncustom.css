@@ -1,6 +1,27 @@
-main.container {
-    max-width: 1500px;
+.fusion-calculator-page main.container {
+    width: 100%;
+    max-width: none;
+    padding-left: 18px;
+    padding-right: 18px;
+    box-sizing: border-box;
 }
+
+/* Fusion Calculator sections share one full-width frame with the same 18px
+   wall spacing used between the card-input boxes. */
+.fusion-calculator-page main.container > section.row {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Keep the results frame aligned with the hand-entry frame at every width. */
+.fusion-calculator-page .fusion-calculator-results {
+    position: static;
+    left: auto;
+    width: 100%;
+    margin-left: 0;
+}
+
 
 .table-responsive {
     width: 100%;
