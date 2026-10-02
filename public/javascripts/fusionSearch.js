@@ -378,7 +378,34 @@ function createSideCard(card) {
 function fusesToHTML(fuselist) {
 
     return fuselist
+        .slice()
+        .sort(function (a, b) {
+            var aLeft = Math.min(a.card1.Id, a.card2.Id);
+            var bLeft = Math.min(b.card1.Id, b.card2.Id);
+
+            if (aLeft !== bLeft) {
+                return aLeft - bLeft;
+            }
+
+            var aRight = Math.max(a.card1.Id, a.card2.Id);
+            var bRight = Math.max(b.card1.Id, b.card2.Id);
+
+            if (aRight !== bRight) {
+                return aRight - bRight;
+            }
+
+            return (a.result ? a.result.Id : 0) - (b.result ? b.result.Id : 0);
+        })
         .map(function (fusion) {
+
+            var firstCard = fusion.card1;
+            var secondCard = fusion.card2;
+
+            if (secondCard.Id < firstCard.Id) {
+                var temp = firstCard;
+                firstCard = secondCard;
+                secondCard = temp;
+            }
 
             var res =
                 "<div class=\"card border-dark mb-3 fusion-search-result-card\">" +
@@ -391,10 +418,10 @@ function fusesToHTML(fuselist) {
 
             res +=
                 "<p class=\"card-text\">" +
-                formatFusionCard(fusion.card1) +
+                formatFusionCard(firstCard) +
                 "</p>" +
                 "<p class=\"card-text\">" +
-                formatFusionCard(fusion.card2) +
+                formatFusionCard(secondCard) +
                 "</p>";
 
             if (fusion.result) {
