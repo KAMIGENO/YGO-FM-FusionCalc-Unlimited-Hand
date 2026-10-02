@@ -36,7 +36,7 @@ main.container {
     font-weight: bold;
     text-align: right;
     margin: 0;
-    color: #676767;
+    color: #4E4E4E;
     font-family: Verdana !important;
     font-variant-numeric: tabular-nums;
     white-space: pre;
@@ -61,7 +61,7 @@ main.container {
     min-height: 18px;
     font-size: 1rem;
     line-height: 18px;
-    color: #676767;
+    color: #4E4E4E;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -202,7 +202,7 @@ main.container {
 
 .fusion-card-summary-secondary {
     padding-top: 0.35rem;
-    color: #676767;
+    color: #4E4E4E;
 }
 
 .equip-monster-summary {
