@@ -93,11 +93,9 @@
         </header>
 
         <main class="container">
-            <section class="row mt-3 rounded-lg bg-light">
-                <div class="col">
-                    <div class="row my-3">
-                        <div class="col">
-                            <h2 class="my-3 text-main fusion-calculator-heading">ENTER HAND</h2>
+            <section class="fusion-calculator-hand rounded-lg bg-light">
+                <div class="fusion-calculator-hand-content">
+                    <h2 class="text-main fusion-calculator-heading">ENTER HAND</h2>
 
                             <div class="hand-controls">
 
@@ -121,19 +119,15 @@
 
 </div>
 
-<br />
-
-<button type="button" class="btn btn-danger mt-4" id="resetBtn">
+<button type="button" class="btn btn-danger" id="resetBtn">
     RESET ALL
 </button>
-                        </div>
-                    </div>
                 </div>
             </section>
 
-            <section class="row rounded-lg mt-4 bg-light fusion-calculator-results">
-                <div class="col">
-                    <h2 class="text-center my-4 text-main fusion-calculator-heading">RESULTS<span id="search-msg"></span></h2>
+            <section class="fusion-calculator-results rounded-lg bg-light">
+                <div class="fusion-calculator-results-content">
+                    <h2 class="text-center fusion-calculator-heading">RESULTS<span id="search-msg"></span></h2>
 
                     <div class="row">
                         <div class="col-sm">
@@ -144,7 +138,7 @@
                             <div id="outputarearight"></div>
                         </div>
                     </div>
-                    <p class="text-center my-4">
+                    <p class="text-center fusion-source-credit">
                         Glitch Fusion source:
                         <a
                             href="https://yugipedia.com/wiki/Glitch_fusion"
