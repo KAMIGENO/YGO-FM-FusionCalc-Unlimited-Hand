@@ -186,15 +186,16 @@ input:not([type]) {
     text-transform: uppercase !important;
 }
 
-/* Static index images: move them horizontally without removing them from normal layout flow. */
+/* Static index images: keep normal document flow while shifting their visual position. */
 @media (min-width: 992px) {
     .index-static-image {
         display: block;
-        transform: translateX(calc(50vw - 138px));
+        position: relative;
+        left: calc(50vw - 138px);
     }
 
     .index-static-image[src*="kaiba.png"] {
-        transform: translateX(calc(50vw - 123px));
+        left: calc(50vw - 123px);
     }
 }
 
