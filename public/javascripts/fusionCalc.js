@@ -769,10 +769,9 @@ function formatEquipDepth(depth, cardHTML) {
 
 
     return (
-        "<span class='equip-chain-indent'>" +
-        new Array(depth * 5 + 1).join(" ") +
-        "| " +
-        "</span>" +
+        "<span class=\"equip-chain-indent\" style=\"margin-left: " +
+        (depth * 5) +
+        "ch;\">|</span> " +
         cardHTML
     );
 
