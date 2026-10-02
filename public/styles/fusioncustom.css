@@ -36,7 +36,7 @@ main.container {
     font-weight: bold;
     text-align: right;
     margin: 0;
-    color: #666;
+    color: #808080;
     font-family: monospace;
     font-variant-numeric: tabular-nums;
     white-space: pre;
@@ -61,7 +61,7 @@ main.container {
     min-height: 18px;
     font-size: 1rem;
     line-height: 18px;
-    color: #666;
+    color: #808080;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -202,7 +202,7 @@ main.container {
 
 .fusion-card-summary-secondary {
     padding-top: 0.35rem;
-    color: #666;
+    color: #808080;
 }
 
 .equip-monster-summary {
@@ -422,7 +422,7 @@ main.container {
     background-color: #ffffff;
     border: 1px solid #dee2e6;
     border-radius: 0.25rem;
-    color: #212529;
+    color: #000000;
 }
 
 .ritual-result > div + div {
@@ -449,24 +449,4 @@ main.container {
         flex: 0 0 100%;
         max-width: 100%;
     }
-}
-
-/* Project typography scale: H6/base = 14px, ratio = 1.2 */
-html {
-    font-size: 14px;
-}
-
-body {
-    font-size: 1rem;
-}
-
-h1, .h1 { font-size: 34.83648px; }
-h2, .h2 { font-size: 29.0304px; }
-h3, .h3 { font-size: 24.192px; }
-h4, .h4 { font-size: 20.16px; }
-h5, .h5 { font-size: 16.8px; }
-h6, .h6 { font-size: 14px; }
-
-small, .small {
-    font-size: 14px;
 }
