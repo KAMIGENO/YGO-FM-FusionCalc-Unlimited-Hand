@@ -750,13 +750,13 @@ function formatEquipStep(depth, cardHTML) {
 
 function formatEquipCard(card) {
 
-    if (card && card.Id === 308) {
-        return "<strong style='color: #198754;'>" +
-            escapeHTML(formatInputCard(card)) +
-            "</strong>";
+    if (!card) {
+        return "";
     }
 
-    return formatBoldInputCard(card);
+    return "<strong style='color: #198754;'>" +
+        escapeHTML(formatInputCard(card)) +
+        "</strong>";
 
 }
 
