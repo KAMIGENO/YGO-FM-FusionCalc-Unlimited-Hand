@@ -530,7 +530,7 @@ function canEquip(equipCard, targetCard) {
 }
 
 
-function buildEquipTargets(cards, chains) {
+function buildEquipTargets(cards) {
 
     var equipCards = cards.filter(function (card) {
         return !!equipLookup[card.Id];
@@ -542,44 +542,160 @@ function buildEquipTargets(cards, chains) {
     }
 
 
-    var targets = [];
-    var targetIds = {};
+    /*
+     * Track where every reachable fusion result came from.
+     *
+     * A mask identifies the original hand cards used to create a result.
+     * The number of bits in the mask is the equip depth:
+     *   0 = the equip card itself
+     *   1 = an original hand card
+     *   2 = a two-card fusion
+     *   3 = a three-card fusion, etc.
+     *
+     * States are expanded in deterministic hand-order / state-order so that
+     * when the same card can be reached through multiple equivalent routes,
+     * the earliest discovered route is retained.
+     */
+    var states = [];
+    var stateKeys = {};
 
 
-    cards.forEach(function (card) {
+    cards.forEach(function (card, index) {
 
-        if (!targetIds[card.Id]) {
-            targetIds[card.Id] = true;
-            targets.push(card);
+        var state = {
+            card: card,
+            mask: (1 << index),
+            steps: []
+        };
+
+        var key = card.Id + ":" + state.mask;
+
+
+        if (!stateKeys[key]) {
+            stateKeys[key] = true;
+            states.push(state);
         }
 
     });
 
 
-    chains.forEach(function (chain) {
+    for (var cursor = 0; cursor < states.length; cursor++) {
 
-        chain.forEach(function (step) {
+        var leftState = states[cursor];
 
-            if (step.result && !targetIds[step.result.Id]) {
-                targetIds[step.result.Id] = true;
-                targets.push(step.result);
+
+        for (var otherIndex = 0; otherIndex < states.length; otherIndex++) {
+
+            var rightState = states[otherIndex];
+
+
+            if (leftState.mask & rightState.mask) {
+                continue;
             }
 
-        });
+
+            /*
+             * Only create each unordered state pair once. This also keeps
+             * commutative fusion routes from producing duplicate provenance.
+             */
+            if (cursor > otherIndex) {
+                continue;
+            }
+
+
+            var fusion = getFusion(leftState.card, rightState.card);
+
+
+            if (!fusion || !fusion.result) {
+                continue;
+            }
+
+
+            var combinedMask = leftState.mask | rightState.mask;
+            var combinedSteps = leftState.steps.concat(rightState.steps);
+
+            combinedSteps.push({
+                card1: leftState.card,
+                card2: rightState.card,
+                result: fusion.result,
+                glitch: fusion.glitch
+            });
+
+
+            var stateKey = fusion.result.Id + ":" + combinedMask;
+
+
+            if (stateKeys[stateKey]) {
+                continue;
+            }
+
+
+            stateKeys[stateKey] = true;
+            states.push({
+                card: fusion.result,
+                mask: combinedMask,
+                steps: combinedSteps
+            });
+
+        }
+
+    }
+
+
+    var targetStates = {};
+
+
+    states.forEach(function (state) {
+
+        var depth = 0;
+        var mask = state.mask;
+
+
+        while (mask) {
+            depth += mask & 1;
+            mask = mask >>> 1;
+        }
+
+
+        var current = targetStates[state.card.Id];
+
+
+        if (!current || depth < current.depth) {
+            targetStates[state.card.Id] = {
+                card: state.card,
+                depth: depth,
+                steps: state.steps
+            };
+        }
 
     });
 
 
     return equipCards.map(function (equipCard) {
 
-        return {
-            equip: equipCard,
-            targets: targets.filter(function (targetCard) {
+        var targets = Object.keys(targetStates)
+            .map(function (cardId) {
+                return targetStates[cardId];
+            })
+            .filter(function (entry) {
                 return (
-                    targetCard.Id !== equipCard.Id &&
-                    canEquip(equipCard, targetCard)
+                    entry.card.Id !== equipCard.Id &&
+                    canEquip(equipCard, entry.card)
                 );
             })
+            .sort(function (a, b) {
+                if (a.depth !== b.depth) {
+                    return a.depth - b.depth;
+                }
+
+                return a.card.Id - b.card.Id;
+            });
+
+
+        return {
+            equip: equipCard,
+            depth: 0,
+            targets: targets
         };
 
     }).filter(function (entry) {
@@ -590,16 +706,6 @@ function buildEquipTargets(cards, chains) {
 
 
 function formatFusionStep(step, index) {
-
-    var firstCard = step.card1;
-    var secondCard = step.card2;
-
-    // Fusion is commutative. Display each pair in ascending card-number order
-    // so the same combination always has one canonical presentation.
-    if (secondCard.Id < firstCard.Id) {
-        firstCard = step.card2;
-        secondCard = step.card1;
-    }
 
     var html =
         "<div class='fusion-chain-step" +
@@ -613,9 +719,9 @@ function formatFusionStep(step, index) {
 
 
     html +=
-        formatBoldInputCard(firstCard) +
+        formatBoldInputCard(step.card1) +
         " + " +
-        formatBoldInputCard(secondCard) +
+        formatBoldInputCard(step.card2) +
         " = " +
         formatBoldInputCard(step.result);
 
@@ -632,26 +738,7 @@ function formatFusionStep(step, index) {
 
 function fusionChainsToHTML(chains) {
 
-    var uniqueChains = [];
-    var seenChains = {};
-
-    chains.forEach(function (chain) {
-
-        var key = chain.map(function (step) {
-            var firstId = Math.min(step.card1.Id, step.card2.Id);
-            var secondId = Math.max(step.card1.Id, step.card2.Id);
-
-            return firstId + ":" + secondId + ":" + step.result.Id + ":" + (step.glitch ? "1" : "0");
-        }).join("|");
-
-        if (!seenChains[key]) {
-            seenChains[key] = true;
-            uniqueChains.push(chain);
-        }
-
-    });
-
-    return uniqueChains
+    return chains
         .slice()
         .sort(function (a, b) {
             var aResult = a[a.length - 1].result;
@@ -674,6 +761,23 @@ function fusionChainsToHTML(chains) {
 }
 
 
+function formatEquipDepth(depth, cardHTML) {
+
+    if (depth <= 0) {
+        return cardHTML;
+    }
+
+
+    return (
+        "<span class='equip-depth'>" +
+        new Array(depth + 1).join("| ") +
+        "</span>" +
+        cardHTML
+    );
+
+}
+
+
 function equipsToHTML(equipEntries) {
 
     return equipEntries
@@ -683,19 +787,24 @@ function equipsToHTML(equipEntries) {
         })
         .map(function (entry) {
 
-            return (
+            var html =
                 "<div class='result-div equip-result'>" +
-                formatBoldInputCard(entry.equip) +
-                entry.targets.slice().sort(function (a, b) {
-                    return a.Id - b.Id;
-                }).map(function (target) {
-                    return (
-                        "<br>Equips: " +
-                        formatBoldInputCard(target)
+                formatEquipDepth(0, formatBoldInputCard(entry.equip));
+
+
+            entry.targets.forEach(function (target) {
+
+                html +=
+                    "<br>" +
+                    formatEquipDepth(
+                        target.depth,
+                        formatBoldInputCard(target.card)
                     );
-                }).join("") +
-                "</div>"
-            );
+
+            });
+
+
+            return html + "</div>";
 
         })
         .join("\n");
@@ -936,7 +1045,7 @@ function findFusions() {
 
 
     var chains = buildFusionChains(cards);
-    var equipEntries = buildEquipTargets(cards, chains);
+    var equipEntries = buildEquipTargets(cards);
 
 
     var rituals = findRituals(cards);
