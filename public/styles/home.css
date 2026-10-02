@@ -88,7 +88,7 @@ input:not([type]) {
 }
 
 #logo {
-    height: 5rem;
+    height: 6rem;
 }
 
 .background-vrains {
@@ -127,23 +127,6 @@ input:not([type]) {
 }
 
 #reset-btn { width: 10.71428571rem; }
-
-/* Keep the three index-page text columns structured as title / centered text / button.
-   The paragraph itself remains normal text; the parent controls the vertical alignment. */
-.container-fusion-search > div:first-child,
-.container-fusion-calculator > div:first-child,
-.container-about > div:first-child {
-    display: grid !important;
-    grid-template-rows: auto 1fr auto;
-}
-
-.container-fusion-search > div:first-child > p,
-.container-fusion-calculator > div:first-child > p,
-.container-about > div:first-child > p {
-    margin-top: 1.5rem !important;
-    margin-bottom: 1.5rem !important;
-    align-self: center;
-}
 
 .container-fusion-search {
     border-top: 0.11904762rem solid black;
@@ -237,18 +220,15 @@ input:not([type]) {
 }
 
 
-/* Keep index section descriptions vertically balanced between their titles and buttons. */
-.container-fusion-search > .col,
-.container-fusion-calculator > .col,
-.container-about > .col {
-    display: flex;
-    flex-direction: column;
+/* Index page section alignment: keep text normal while balancing space between title and button. */
+.container-fusion-search > div:first-child,
+.container-fusion-calculator > div:first-child,
+.container-about > div:first-child {
+    min-height: 24rem;
 }
 
 .container-fusion-search .text-subtext,
 .container-fusion-calculator .text-subtext,
 .container-about .text-subtext {
-    flex: 1;
-    display: flex;
-    align-items: center;
+    flex-grow: 1;
 }
