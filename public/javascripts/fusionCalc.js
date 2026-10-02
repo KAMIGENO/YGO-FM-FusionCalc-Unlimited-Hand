@@ -518,13 +518,29 @@ function buildFusionChains(cards) {
 }
 
 
+function isEquipCard(card) {
+
+    if (!card) {
+        return false;
+    }
+
+
+    return equipsList.some(function (equipList) {
+
+        return !!equipList && equipList.indexOf(card.Id) !== -1;
+
+    });
+
+}
+
+
 function canEquip(equipCard, targetCard) {
 
     return !!(
         equipCard &&
         targetCard &&
-        equipLookup[equipCard.Id] &&
-        equipLookup[equipCard.Id][targetCard.Id]
+        equipLookup[targetCard.Id] &&
+        equipLookup[targetCard.Id][equipCard.Id]
     );
 
 }
@@ -533,7 +549,7 @@ function canEquip(equipCard, targetCard) {
 function buildEquipTargets(cards) {
 
     var equipCards = cards.filter(function (card) {
-        return !!equipLookup[card.Id];
+        return isEquipCard(card);
     });
 
 
@@ -543,11 +559,13 @@ function buildEquipTargets(cards) {
 
 
     /*
-     * Equips are rooted from the Equip card.
+     * Use the same fusion-chain generation as the Fusion Calculator
+     * Fusions section.
      *
-     * The fusion tree is expanded first, then every reachable Monster is
-     * assigned its minimum original-hand-card depth.  A longer chain never
-     * replaces an earlier shorter chain.
+     * Depth represents the minimum number of original hand cards needed:
+     *   1 = card already in hand
+     *   2 = two-card fusion
+     *   3 = three-card fusion, etc.
      */
     var reachable = {};
 
@@ -601,6 +619,7 @@ function buildEquipTargets(cards) {
 
                 return (
                     entry.card.Id !== equipCard.Id &&
+                    isMonster(entry.card) &&
                     canEquip(equipCard, entry.card)
                 );
 
@@ -693,9 +712,9 @@ function formatEquipDepth(depth, cardHTML) {
 
 
     return (
-        "<span class=\"equip-chain-indent\" style=\"margin-left: " +
-        (depth * 5) +
-        "ch; color: #4E4E4E;\">|</span> " +
+        "<span class=\"equip-chain-indent\" aria-hidden=\"true\">" +
+        new Array((depth * 5) + 1).join("&nbsp;") +
+        "|</span> " +
         cardHTML
     );
 
