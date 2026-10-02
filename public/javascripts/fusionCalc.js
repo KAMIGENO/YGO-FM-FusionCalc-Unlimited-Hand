@@ -681,24 +681,43 @@ function fusionChainsToHTML(chains) {
     return chains
         .slice()
         .sort(function (a, b) {
-            var aFirst = a[0];
-            var bFirst = b[0];
 
-            var aLeft = Math.min(aFirst.card1.Id, aFirst.card2.Id);
-            var bLeft = Math.min(bFirst.card1.Id, bFirst.card2.Id);
+            var maxSteps = Math.max(a.length, b.length);
 
-            if (aLeft !== bLeft) {
-                return aLeft - bLeft;
+            for (var i = 0; i < maxSteps; i++) {
+
+                var aStep = a[i];
+                var bStep = b[i];
+
+                if (!aStep) {
+                    return -1;
+                }
+
+                if (!bStep) {
+                    return 1;
+                }
+
+                var aLeft = Math.min(aStep.card1.Id, aStep.card2.Id);
+                var bLeft = Math.min(bStep.card1.Id, bStep.card2.Id);
+
+                if (aLeft !== bLeft) {
+                    return aLeft - bLeft;
+                }
+
+                var aRight = Math.max(aStep.card1.Id, aStep.card2.Id);
+                var bRight = Math.max(bStep.card1.Id, bStep.card2.Id);
+
+                if (aRight !== bRight) {
+                    return aRight - bRight;
+                }
+
+                if (aStep.result.Id !== bStep.result.Id) {
+                    return aStep.result.Id - bStep.result.Id;
+                }
+
             }
 
-            var aRight = Math.max(aFirst.card1.Id, aFirst.card2.Id);
-            var bRight = Math.max(bFirst.card1.Id, bFirst.card2.Id);
-
-            if (aRight !== bRight) {
-                return aRight - bRight;
-            }
-
-            return aFirst.result.Id - bFirst.result.Id;
+            return 0;
         })
         .map(function (chain) {
 
