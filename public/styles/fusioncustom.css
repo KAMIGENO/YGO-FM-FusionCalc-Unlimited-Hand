@@ -476,6 +476,7 @@ main.container {
 #hand-prev,
 #hand-next,
 #resetBtn {
+    margin-top: var(--card-input-spacing) !important;
     width: 7.73809524rem;
     height: 2.85714286rem;
     display: inline-flex;
