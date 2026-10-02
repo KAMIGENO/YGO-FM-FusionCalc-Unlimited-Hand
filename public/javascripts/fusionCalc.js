@@ -523,8 +523,8 @@ function canEquip(equipCard, targetCard) {
     return !!(
         equipCard &&
         targetCard &&
-        equipLookup[equipCard.Id] &&
-        equipLookup[equipCard.Id][targetCard.Id]
+        Array.isArray(equipCard.Equip) &&
+        equipCard.Equip.indexOf(targetCard.Id) !== -1
     );
 
 }
@@ -532,8 +532,13 @@ function canEquip(equipCard, targetCard) {
 
 function buildEquipTargets(cards) {
 
+    /*
+     * The card database identifies Equip cards directly through their
+     * Equip property. The equipsList lookup is organized by the monster
+     * receiving the Equip card, so it must not be used to identify roots.
+     */
     var equipCards = cards.filter(function (card) {
-        return !!equipLookup[card.Id];
+        return Array.isArray(card.Equip) && card.Equip.length > 0;
     });
 
 
@@ -724,6 +729,19 @@ function formatEquipStep(depth, cardHTML) {
 }
 
 
+function formatEquipCard(card) {
+
+    if (card && card.Id === 308) {
+        return "<strong style='color: #198754;'>" +
+            escapeHTML(formatInputCard(card)) +
+            "</strong>";
+    }
+
+    return formatBoldInputCard(card);
+
+}
+
+
 function equipsToHTML(equipEntries) {
 
     return equipEntries
@@ -735,7 +753,7 @@ function equipsToHTML(equipEntries) {
 
             var html =
                 "<div class='result-div fusion-chain-result'>" +
-                formatEquipStep(0, formatBoldInputCard(entry.equip));
+                formatEquipStep(0, formatEquipCard(entry.equip));
 
 
             entry.targets.forEach(function (target) {
