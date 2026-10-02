@@ -8,12 +8,6 @@
         <meta name="robots" content="index, follow" />
         <title>Yu-Gi-Oh! Forbidden Memories Fusion Calculator</title>
         <link rel="icon" type="image/x-icon" href="public/images/yugioh.ico" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" />
-        <link
-            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&display=swap"
-            rel="stylesheet"
-        />
-        <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet" />
         <link rel="stylesheet" type="text/css" href="public/styles/normalize.css" />
         <link rel="stylesheet" type="text/css" href="public/styles/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="public/styles/home.css" />
@@ -24,13 +18,16 @@
 
             .index-page-button {
                 height: 48px;
+                font-family: Verdana, sans-serif;
+                font-size: 1rem;
                 font-weight: 700;
                 text-transform: capitalize;
             }
 
             .index-static-image {
+                display: block;
                 margin-left: auto !important;
-                margin-right: 0 !important;
+                margin-right: max(0px, calc((100% - 640px) / 2)) !important;
             }
         </style>
     </head>
@@ -133,11 +130,6 @@
                         including fixing up this site... correcting some errors... and adding lots of
                         new features with "stylized" information.
                     </p>
-                    <div class="d-flex flex-column flex-md-row">
-                        <a href="fusion-search.html" class="btn btn-lg btn-light my-3 mx-md-4 index-page-button"
-                            >Get Started</a
-                        >
-                    </div>
                 </div>
                 <div
                     class="col-md-11 offset-md-1 col-lg-5 offset-lg-1 my-4 d-flex justify-content-center order-md-2 order-lg-2"
@@ -216,7 +208,7 @@
 
                     <div class="d-flex flex-column flex-md-row">
                         <a href="about.html" class="btn btn-lg btn-about mb-3 mx-md-4 index-page-button"
-                            >Read the About Section</a
+                            >Read The About Section</a
                         >
                     </div>
                 </div>
