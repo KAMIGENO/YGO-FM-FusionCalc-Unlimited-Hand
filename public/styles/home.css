@@ -116,7 +116,6 @@ input:not([type]) {
     100% { transform: translateX(0%); }
 }
 
-
 #reset-btn { width: 180px; }
 
 .container-fusion-search {
@@ -178,25 +177,9 @@ input:not([type]) {
 /* The three large content buttons on index.html only. */
 .index-page-button {
     height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-size: 1.25rem !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
-}
-
-/* Static index images: keep normal document flow and place their right edge at a fixed viewport offset. */
-@media (min-width: 992px) {
-    .index-static-image {
-        display: block;
-        margin-left: auto !important;
-        margin-right: calc(138px - 50vw) !important;
-    }
-
-    .index-static-image[src*="kaiba.png"] {
-        margin-right: calc(123px - 50vw) !important;
-    }
 }
 
 @media (max-width: 767px) {
