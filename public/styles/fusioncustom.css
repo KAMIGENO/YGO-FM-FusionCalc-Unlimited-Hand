@@ -36,7 +36,7 @@ main.container {
     font-weight: bold;
     text-align: right;
     margin: 0;
-    color: #4E4E4E;
+    color: #808080;
     font-family: Verdana !important;
     font-variant-numeric: tabular-nums;
     white-space: pre;
@@ -51,6 +51,7 @@ main.container {
     box-sizing: border-box;
     padding: 6px 8px;
     position: relative;
+    top: -1px;
 }
 
 .hand-card-info {
@@ -60,7 +61,7 @@ main.container {
     min-height: 18px;
     font-size: 1rem;
     line-height: 18px;
-    color: #4E4E4E;
+    color: #808080;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -201,7 +202,7 @@ main.container {
 
 .fusion-card-summary-secondary {
     padding-top: 0.35rem;
-    color: #4E4E4E;
+    color: #808080;
 }
 
 .equip-monster-summary {
@@ -406,6 +407,11 @@ main.container {
 
 .equip-result {
     margin-bottom: 0.75rem;
+}
+
+.equip-chain-indent {
+    color: #4E4E4E;
+    white-space: pre;
 }
 
 
