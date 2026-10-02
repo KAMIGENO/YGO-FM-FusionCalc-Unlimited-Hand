@@ -11,30 +11,6 @@
         <link rel="stylesheet" type="text/css" href="public/styles/normalize.css" />
         <link rel="stylesheet" type="text/css" href="public/styles/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="public/styles/home.css" />
-        <style>
-            .index-page-title {
-                font-weight: 700;
-            }
-
-            .index-page-button {
-                height: 48px;
-                font-family: Verdana !important;
-                font-size: 1.25rem !important;
-                font-weight: 700 !important;
-                text-transform: uppercase !important;
-            }
-
-            .index-media-reference {
-                width: 640px;
-                max-width: 100%;
-            }
-
-            .index-static-image {
-                display: block;
-                margin-left: auto !important;
-                margin-right: 0 !important;
-            }
-        </style>
     </head>
 
     <body class="d-flex flex-column min-vh-100">
@@ -137,15 +113,13 @@
                     </p>
                 </div>
                 <div
-                    class="col-md-11 offset-md-1 col-lg-5 offset-lg-1 my-4 d-flex justify-content-start order-md-2 order-lg-2"
+                    class="col-md-11 offset-md-1 col-lg-5 offset-lg-1 my-4 d-flex justify-content-end order-md-2 order-lg-2 index-media-column"
                 >
                     <img
                         src="public/images/cover_playstation.webp"
                         class="img-fluid my-4 cover-playstation d-none d-sm-block index-static-image"
                         alt="Yu-Gi-Oh! Forbidden Memories Cover Playstation"
                     />
-
-                </div>
                 </div>
             </section>
             <section class="row container-fusion-search">
@@ -167,11 +141,11 @@
                         >
                     </div>
                 </div>
-                <div class="col col-lg-5 offset-lg-1 my-4 d-none d-sm-none d-md-block">
+                <div class="col col-lg-5 offset-lg-1 my-4 d-none d-sm-none d-md-flex justify-content-end index-media-column">
                     <img
                         loading="lazy"
                         src="public/images/fusion.gif"
-                        class="img-fluid my-4 d-none d-sm-none d-md-block img-group"
+                        class="img-fluid my-4 d-none d-sm-none d-md-block img-group index-gif"
                         alt="fusion cards"
                     />
                 </div>
@@ -194,7 +168,7 @@
                         >
                     </div>
                 </div>
-                <div class="col col-lg-5 offset-lg-1 my-4 d-none d-sm-none d-md-block">
+                <div class="col col-lg-5 offset-lg-1 my-4 d-none d-sm-none d-md-flex justify-content-end index-media-column">
                     <img
                         loading="lazy"
                         src="public/images/atem.png"
@@ -219,7 +193,7 @@
                         >
                     </div>
                 </div>
-                <div class="col col-lg-5 offset-lg-1 my-4 d-none d-sm-none d-md-block">
+                <div class="col col-lg-5 offset-lg-1 my-4 d-none d-sm-none d-md-flex justify-content-end index-media-column">
                     <img
                         loading="lazy"
                         src="public/images/kaiba.png"
