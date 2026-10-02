@@ -59,7 +59,7 @@ main.container {
     grid-row: 2;
     min-width: 0;
     min-height: 18px;
-    font-size: 0.8rem;
+    font-size: 1rem;
     line-height: 18px;
     color: #666;
     white-space: nowrap;
@@ -449,4 +449,24 @@ main.container {
         flex: 0 0 100%;
         max-width: 100%;
     }
+}
+
+/* Project typography scale: H6/base = 14px, ratio = 1.2 */
+html {
+    font-size: 14px;
+}
+
+body {
+    font-size: 1rem;
+}
+
+h1, .h1 { font-size: 34.83648px; }
+h2, .h2 { font-size: 29.0304px; }
+h3, .h3 { font-size: 24.192px; }
+h4, .h4 { font-size: 20.16px; }
+h5, .h5 { font-size: 16.8px; }
+h6, .h6 { font-size: 14px; }
+
+small, .small {
+    font-size: 14px;
 }
