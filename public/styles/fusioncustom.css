@@ -1,5 +1,5 @@
 main.container {
-    max-width: 1500px;
+    max-width: 89.28571429rem;
 }
 
 .table-responsive {
@@ -15,7 +15,7 @@ main.container {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: repeat(5, auto);
     grid-auto-flow: column;
-    gap: 12px 18px;
+    gap: var(--card-input-spacing) var(--card-input-spacing);
     width: 100%;
 }
 
@@ -26,7 +26,7 @@ main.container {
     column-gap: 8px;
     align-items: center;
     min-width: 0;
-    min-height: 58px;
+    min-height: 60px;
 }
 
 .hand-slot-number {
@@ -36,7 +36,7 @@ main.container {
     font-weight: bold;
     text-align: right;
     margin: 0;
-    color: #808080;
+    color: #4E4E4E;
     font-family: Verdana !important;
     font-variant-numeric: tabular-nums;
     white-space: pre;
@@ -51,17 +51,16 @@ main.container {
     box-sizing: border-box;
     padding: 6px 8px;
     position: relative;
-    top: -1px;
 }
 
 .hand-card-info {
     grid-column: 2;
     grid-row: 2;
     min-width: 0;
-    min-height: 18px;
+    min-height: 20px;
     font-size: 1rem;
-    line-height: 18px;
-    color: #808080;
+    line-height: 20px;
+    color: #4E4E4E;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -90,7 +89,7 @@ main.container {
 @media (max-width: 767px) {
     .hand-input-group {
         grid-template-columns: 1fr;
-        gap: 6px;
+        gap: 12px var(--card-input-spacing);
     }
 }
 
@@ -202,7 +201,7 @@ main.container {
 
 .fusion-card-summary-secondary {
     padding-top: 0.35rem;
-    color: #808080;
+    color: #4E4E4E;
 }
 
 .equip-monster-summary {
@@ -411,6 +410,46 @@ main.container {
 
 
 /* ------------------------------------------------------------
+   FUSION CALCULATOR SHARED SPACING
+   ------------------------------------------------------------ */
+
+/* 18px is the shared card-input spacing reference for this page.
+   The project root is 16.8px, so the reference spacing is expressed
+   in rem rather than authored as a fixed pixel distance. */
+.fusion-calculator-page {
+    --card-input-spacing: 1.07142857rem;
+}
+
+/* Keep the calculator panels slightly inside the available page width by
+   one shared spacing unit on each side. */
+.fusion-calculator-page main.container > .fusion-calculator-panel,
+.fusion-calculator-page main.container > .fusion-calculator-results {
+    width: calc(100% - (2 * var(--card-input-spacing)));
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* The top panel sits two rem below the navigation bar. */
+.fusion-calculator-page main.container > .fusion-calculator-panel {
+    margin-top: 2rem !important;
+}
+
+/* The results panel remains separated from the hand panel by the shared
+   card-input spacing. */
+.fusion-calculator-page main.container > .fusion-calculator-results {
+    margin-top: var(--card-input-spacing) !important;
+}
+
+.fusion-calculator-output-section + .fusion-calculator-output-section {
+    margin-top: var(--card-input-spacing);
+}
+
+.fusion-calculator-output-section > .result-div:last-child {
+    margin-bottom: 0;
+}
+
+
+/* ------------------------------------------------------------
    FUSION CALCULATOR RESULT BOXES
    ------------------------------------------------------------ */
 
@@ -429,18 +468,69 @@ main.container {
     margin-top: 0.35rem;
 }
 
+
+/* ------------------------------------------------------------
+   FUSION CALCULATOR PAGINATION CONTROLS
+   ------------------------------------------------------------ */
+
+#hand-prev,
+#hand-next,
+#resetBtn {
+    width: 130px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.hand-page-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    font-weight: 700;
+}
+
+.fusion-calculator-heading {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
 /* ------------------------------------------------------------
    FUSION CALCULATOR RESULTS COLUMN BALANCE
    ------------------------------------------------------------ */
 
+.fusion-calculator-results > .col {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.fusion-calculator-results .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
 .fusion-calculator-results .row > .col-sm:first-child {
-    flex: 0 0 55%;
-    max-width: 55%;
+    flex: 0 0 62.5%;
+    max-width: 62.5%;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .fusion-calculator-results .row > .col-sm:last-child {
-    flex: 0 0 45%;
-    max-width: 45%;
+    flex: 0 0 37.5%;
+    max-width: 37.5%;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Leave one shared spacing unit between the left and right result boxes. */
+.fusion-calculator-results #outputarealeft .fusion-calculator-output-section {
+    width: calc(100% - var(--card-input-spacing));
 }
 
 @media (max-width: 575px) {
