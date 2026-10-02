@@ -405,6 +405,14 @@ main.container {
     border-left: 2px solid #dddddd;
 }
 
+.equip-result {
+    margin-bottom: 0.75rem;
+}
+
+.equip-chain-indent {
+    color: #4E4E4E;
+    display: inline-block;
+}
 
 
 /* ------------------------------------------------------------
@@ -431,13 +439,13 @@ main.container {
    ------------------------------------------------------------ */
 
 .fusion-calculator-results .row > .col-sm:first-child {
-    flex: 0 0 55%;
-    max-width: 55%;
+    flex: 0 0 62.5%;
+    max-width: 62.5%;
 }
 
 .fusion-calculator-results .row > .col-sm:last-child {
-    flex: 0 0 45%;
-    max-width: 45%;
+    flex: 0 0 37.5%;
+    max-width: 37.5%;
 }
 
 @media (max-width: 575px) {
