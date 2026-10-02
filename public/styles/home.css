@@ -116,9 +116,6 @@ input:not([type]) {
     100% { transform: translateX(0%); }
 }
 
-.cover-playstation:hover {
-    box-shadow: 0px 1px 0px #00a8e7, 0px 0px 5px 0px #00a8e7, 0px 0px 1px 0px #00a8e7;
-}
 
 #reset-btn { width: 180px; }
 
