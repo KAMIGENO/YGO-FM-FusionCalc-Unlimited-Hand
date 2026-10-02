@@ -16,6 +16,13 @@ body {
     color: #000000;
 }
 
+/* Shift text inside text-entry boxes down by exactly 1px without moving the boxes. */
+input[type="text"],
+input:not([type]) {
+    padding-top: calc(0.375rem + 1px);
+    padding-bottom: calc(0.375rem - 1px);
+}
+
 h1, .h1 { font-size: 39.0168576px; }
 h2, .h2 { font-size: 32.514048px; }
 h3, .h3 { font-size: 27.09504px; }
