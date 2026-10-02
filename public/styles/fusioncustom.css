@@ -81,7 +81,7 @@ main.container {
 }
 
 .hand-page-label {
-    min-width: 150px;
+    flex: 0 0 auto;
     text-align: center;
     font-weight: bold;
     display: flex;
