@@ -1,5 +1,5 @@
 main.container {
-    max-width: 89.28571429rem;
+    max-width: 110rem;
 }
 
 .table-responsive {
@@ -476,8 +476,8 @@ main.container {
 #hand-prev,
 #hand-next,
 #resetBtn {
-    width: 130px;
-    height: 48px;
+    width: 7.73809524rem;
+    height: 2.85714286rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -496,7 +496,7 @@ main.container {
 }
 
 .fusion-calculator-heading {
-    font-size: 2rem;
+    font-size: 2.0736rem;
     font-weight: 700;
 }
 
