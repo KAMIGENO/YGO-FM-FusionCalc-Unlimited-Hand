@@ -88,7 +88,7 @@ input:not([type]) {
 }
 
 #logo {
-    height: 8rem;
+    height: 2.0736rem;
 }
 
 .background-vrains {
@@ -217,18 +217,4 @@ input:not([type]) {
     color: #4E4E4E;
     font-weight: 700;
     margin: 0 0.35rem;
-}
-
-
-/* Index page section alignment: keep text normal while balancing space between title and button. */
-.container-fusion-search > div:first-child,
-.container-fusion-calculator > div:first-child,
-.container-about > div:first-child {
-    min-height: 24rem;
-}
-
-.container-fusion-search .text-subtext,
-.container-fusion-calculator .text-subtext,
-.container-about .text-subtext {
-    flex-grow: 1;
 }
