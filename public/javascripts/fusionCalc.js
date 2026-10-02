@@ -769,8 +769,9 @@ function formatEquipDepth(depth, cardHTML) {
 
 
     return (
-        "<span class='equip-depth'>" +
-        new Array(depth + 1).join("| ") +
+        "<span class='equip-depth' style='color: #4E4E4E;'>" +
+        new Array(depth * 5 + 1).join(" ") +
+        "|" +
         "</span>" +
         cardHTML
     );
