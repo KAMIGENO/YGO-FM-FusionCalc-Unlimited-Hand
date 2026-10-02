@@ -170,7 +170,6 @@ small, .small {
 .btn-about {
     color: rgb(30, 35, 55);
     background-color: rgb(243, 178, 166);
-    font-size: 1rem;
 }
 .btn-about:hover {
     color: rgb(12, 14, 22);
