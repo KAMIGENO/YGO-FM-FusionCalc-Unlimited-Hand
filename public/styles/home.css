@@ -65,7 +65,7 @@ input:not([type]) {
 }
 
 .nav-link {
-    font-size: 2.5rem !important;
+    font-size: 1.728rem !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
 }
