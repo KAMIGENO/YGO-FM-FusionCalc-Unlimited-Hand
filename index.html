@@ -256,19 +256,37 @@
                 const fusionGif = document.querySelector(".container-fusion-search .img-group");
 
                 if (!cover || !fusionGif) return;
-
-                // Reset first so each calculation starts from the cover's natural position.
-                cover.style.transform = "none";
-
                 if (cover.offsetParent === null || fusionGif.offsetParent === null) return;
 
-                const coverRight = cover.getBoundingClientRect().right;
-                const gifRight = fusionGif.getBoundingClientRect().right;
-                cover.style.transform = `translateX(${gifRight - coverRight}px)`;
+                // Reset first so every calculation starts from the cover's natural position.
+                cover.style.transform = "none";
+
+                // Measure after the browser has completed layout for both images.
+                requestAnimationFrame(() => {
+                    const coverRight = cover.getBoundingClientRect().right;
+                    const gifRight = fusionGif.getBoundingClientRect().right;
+                    cover.style.transform = `translateX(${gifRight - coverRight}px)`;
+                });
             }
 
-            window.addEventListener("load", alignPlaystationCover);
-            window.addEventListener("resize", alignPlaystationCover);
+            function schedulePlaystationCoverAlignment() {
+                alignPlaystationCover();
+                requestAnimationFrame(alignPlaystationCover);
+            }
+
+            window.addEventListener("load", schedulePlaystationCoverAlignment);
+            window.addEventListener("resize", schedulePlaystationCoverAlignment);
+
+            const fusionGif = document.querySelector(".container-fusion-search .img-group");
+            if (fusionGif) {
+                fusionGif.addEventListener("load", schedulePlaystationCoverAlignment);
+
+                if (typeof ResizeObserver !== "undefined") {
+                    const alignmentObserver = new ResizeObserver(schedulePlaystationCoverAlignment);
+                    alignmentObserver.observe(fusionGif);
+                    alignmentObserver.observe(document.querySelector(".cover-playstation"));
+                }
+            }
         </script>
     </body>
 </html>
