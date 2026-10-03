@@ -30,7 +30,7 @@ sup,
 .initialism,
 .blockquote-footer,
 figure.figure figcaption {
-    font-size: 1rem !important;
+    font-size: 0.5rem !important;
 }
 
 h1, .h1 { font-size: 41.803776px; }
@@ -65,8 +65,8 @@ input:not([type]) {
 }
 
 .nav-link {
-    font-size: 1.2rem !important;
     font-weight: 700 !important;
+    font-size: 0.5rem !important;
     text-transform: uppercase !important;
 }
 
