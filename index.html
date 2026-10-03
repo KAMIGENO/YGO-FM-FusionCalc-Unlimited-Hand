@@ -264,18 +264,50 @@
                 requestAnimationFrame(alignPlaystationCover);
             }
 
-            window.addEventListener("load", schedulePlaystationCoverAlignment);
-            window.addEventListener("resize", schedulePlaystationCoverAlignment);
+            function alignAtemToFusionGif() {
+                const atem = document.querySelector(".container-fusion-calculator .img-group");
+                const fusionGif = document.querySelector(".container-fusion-search .img-group");
+
+                if (!atem || !fusionGif) return;
+                if (atem.offsetParent === null || fusionGif.offsetParent === null) return;
+
+                atem.style.transform = "none";
+
+                requestAnimationFrame(() => {
+                    const atemRight = atem.getBoundingClientRect().right;
+                    const gifRight = fusionGif.getBoundingClientRect().right;
+                    atem.style.transform = `translateX(${gifRight - atemRight}px)`;
+                });
+            }
+
+            function scheduleAtemAlignment() {
+                alignAtemToFusionGif();
+                requestAnimationFrame(alignAtemToFusionGif);
+            }
+
+            function scheduleAllImageAlignment() {
+                schedulePlaystationCoverAlignment();
+                scheduleAtemAlignment();
+            }
+
+            window.addEventListener("load", scheduleAllImageAlignment);
+            window.addEventListener("resize", scheduleAllImageAlignment);
 
             const fusionGif = document.querySelector(".container-fusion-search .img-group");
+            const atem = document.querySelector(".container-fusion-calculator .img-group");
             if (fusionGif) {
-                fusionGif.addEventListener("load", schedulePlaystationCoverAlignment);
+                fusionGif.addEventListener("load", scheduleAllImageAlignment);
+            }
+            if (atem) {
+                atem.addEventListener("load", scheduleAllImageAlignment);
+            }
 
-                if (typeof ResizeObserver !== "undefined") {
-                    const alignmentObserver = new ResizeObserver(schedulePlaystationCoverAlignment);
-                    alignmentObserver.observe(fusionGif);
-                    alignmentObserver.observe(document.querySelector(".cover-playstation"));
-                }
+            if (typeof ResizeObserver !== "undefined") {
+                const alignmentObserver = new ResizeObserver(scheduleAllImageAlignment);
+                if (fusionGif) alignmentObserver.observe(fusionGif);
+                if (atem) alignmentObserver.observe(atem);
+                const cover = document.querySelector(".cover-playstation");
+                if (cover) alignmentObserver.observe(cover);
             }
         </script>
     </body>
