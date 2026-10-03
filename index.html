@@ -114,7 +114,7 @@
                     </p>
                 </div>
                 <div
-                    class="col-md-11 offset-md-1 col-lg-5 offset-lg-1 my-4 d-flex justify-content-end order-md-2 order-lg-2"
+                    class="col-md-11 offset-md-1 col-lg-5 offset-lg-1 my-4 d-flex justify-content-center order-md-2 order-lg-2"
                 >
                     <img
                         src="public/images/cover_playstation.webp"
@@ -250,5 +250,25 @@
         </footer>
         <script type="text/javascript" src="public/javascripts/jquery-3.5.1.min.js"></script>
         <script type="text/javascript" src="public/javascripts/bootstrap.bundle.min.js"></script>
+        <script type="text/javascript">
+            function alignPlaystationCover() {
+                const cover = document.querySelector(".cover-playstation");
+                const fusionGif = document.querySelector(".container-fusion-search .img-group");
+
+                if (!cover || !fusionGif) return;
+
+                // Reset first so each calculation starts from the cover's natural position.
+                cover.style.transform = "none";
+
+                if (cover.offsetParent === null || fusionGif.offsetParent === null) return;
+
+                const coverRight = cover.getBoundingClientRect().right;
+                const gifRight = fusionGif.getBoundingClientRect().right;
+                cover.style.transform = `translateX(${gifRight - coverRight}px)`;
+            }
+
+            window.addEventListener("load", alignPlaystationCover);
+            window.addEventListener("resize", alignPlaystationCover);
+        </script>
     </body>
 </html>
