@@ -169,18 +169,18 @@
                         >
                     </div>
                 </div>
-                <div class="col col-lg-5 offset-lg-1 d-none d-sm-none d-md-block d-flex justify-content-end">
+                <div class="col col-lg-5 offset-lg-1 d-none d-sm-none d-md-block">
                     <img
                         loading="lazy"
                         src="public/images/atem.png"
-                        class="img-fluid d-none d-sm-none d-md-block img-group"
+                        class="img-fluid ml-auto d-none d-sm-none d-md-block d-flex img-group"
                         alt="atem character"
                     />
                 </div>
             </section>
             <section class="row container-about">
-                <div class="col col-lg-5 offset-lg-1 my-4">
-                    <h2 class="text-main my-4"><span class="about-title"> ABOUT </span></h2>
+                <div class="col col-lg-5 offset-lg-1 d-flex flex-column">
+                    <h2 class="text-main mb-4"><span class="about-title"> ABOUT </span></h2>
 
                     <p class="h3 my-5 text-subtext">
                         Learn more about the Solumin's 
@@ -188,8 +188,8 @@
                         project, and how to get involved.
                     </p>
 
-                    <div class="d-flex flex-column flex-md-row">
-                        <a href="about.html" class="btn btn-lg btn-about mb-3 mx-md-4 index-page-button"
+                    <div class="d-flex flex-column flex-md-row mt-auto">
+                        <a href="about.html" class="btn btn-lg btn-about mx-md-4 index-page-button"
                             >READ THE ABOUT SECTION</a
                         >
                     </div>
@@ -264,13 +264,27 @@
                 requestAnimationFrame(alignPlaystationCover);
             }
 
+            window.addEventListener("load", schedulePlaystationCoverAlignment);
+            window.addEventListener("resize", schedulePlaystationCoverAlignment);
+
+            const fusionGif = document.querySelector(".container-fusion-search .img-group");
+            if (fusionGif) {
+                fusionGif.addEventListener("load", schedulePlaystationCoverAlignment);
+
+                if (typeof ResizeObserver !== "undefined") {
+                    const alignmentObserver = new ResizeObserver(schedulePlaystationCoverAlignment);
+                    alignmentObserver.observe(fusionGif);
+                    alignmentObserver.observe(document.querySelector(".cover-playstation"));
+                }
+            }
             function alignAtemToFusionGif() {
-                const atem = document.querySelector(".container-fusion-calculator .img-group");
-                const fusionGif = document.querySelector(".container-fusion-search .img-group");
+                const atem = document.querySelector('.container-fusion-calculator img[alt="atem character"]');
+                const fusionGif = document.querySelector('.container-fusion-search .img-group');
 
                 if (!atem || !fusionGif) return;
                 if (atem.offsetParent === null || fusionGif.offsetParent === null) return;
 
+                // Reset first so every calculation starts from Atem's natural position.
                 atem.style.transform = "none";
 
                 requestAnimationFrame(() => {
@@ -285,29 +299,17 @@
                 requestAnimationFrame(alignAtemToFusionGif);
             }
 
-            function scheduleAllImageAlignment() {
-                schedulePlaystationCoverAlignment();
-                scheduleAtemAlignment();
-            }
+            window.addEventListener("load", scheduleAtemAlignment);
+            window.addEventListener("resize", scheduleAtemAlignment);
 
-            window.addEventListener("load", scheduleAllImageAlignment);
-            window.addEventListener("resize", scheduleAllImageAlignment);
+            const atemImage = document.querySelector('.container-fusion-calculator img[alt="atem character"]');
+            if (atemImage) {
+                atemImage.addEventListener("load", scheduleAtemAlignment);
 
-            const fusionGif = document.querySelector(".container-fusion-search .img-group");
-            const atem = document.querySelector(".container-fusion-calculator .img-group");
-            if (fusionGif) {
-                fusionGif.addEventListener("load", scheduleAllImageAlignment);
-            }
-            if (atem) {
-                atem.addEventListener("load", scheduleAllImageAlignment);
-            }
-
-            if (typeof ResizeObserver !== "undefined") {
-                const alignmentObserver = new ResizeObserver(scheduleAllImageAlignment);
-                if (fusionGif) alignmentObserver.observe(fusionGif);
-                if (atem) alignmentObserver.observe(atem);
-                const cover = document.querySelector(".cover-playstation");
-                if (cover) alignmentObserver.observe(cover);
+                if (typeof ResizeObserver !== "undefined") {
+                    const atemAlignmentObserver = new ResizeObserver(scheduleAtemAlignment);
+                    atemAlignmentObserver.observe(atemImage);
+                }
             }
         </script>
     </body>
